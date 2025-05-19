@@ -23,7 +23,10 @@
         },
         "ghcr.io/devcontainers/features/git:1": {
             "version": "latest"
+        },
+        // gh needed for those using it as a credential helper
+        "ghcr.io/devcontainers/features/github-cli:1": {
+            "version": "latest"
         }
-        
     }
 }
