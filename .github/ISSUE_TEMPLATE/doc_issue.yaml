@@ -1,0 +1,23 @@
+name: Documentation Issue
+description: Raise issue to update/add documentation
+body:
+  - type: input
+    attributes:
+      label: Where is it needed
+      description: Describe what lacks documentation
+      placeholder: Currently downloading with inline UI does not have sufficient documentation to use it
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: What could be added
+      description: Describe what could be added to improve the current documentation or what should be included in the new documentation.
+      placeholder: Inline UI in general should have all of its commands documented with what they do and their required and/or optional inputs
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Additional Context
+      description: Anything else you want to be added
+      placeholder: Site has cloudfare protection and blah blah....
+
