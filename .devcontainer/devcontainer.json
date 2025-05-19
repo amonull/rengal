@@ -1,17 +1,29 @@
 {
-	"name": "rengal devcontainer",
-	"image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
+    "name": "rengal devcontainer",
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
 
-	"features": {
-      "ghcr.io/devcontainers/features/go:1": {
-        "version": "1.18"
-      }
+
+    "customizations":{
+        "vscode": {
+            "settings": {
+                "terminal.integrated.shell.linux": "/bin/bash"
+            },
+
+            "extensions": [
+                "golang.go",
+                "ms-azuretools.vscode-docker",
+                "streetsidesoftware.code-spell-checker"
+            ]
+        }
     },
 
-  // jetbrains specific
-  "customizations" : {
-    "jetbrains" : {
-      "backend" : "IntelliJ"
+    "features": {
+        "ghcr.io/devcontainers/features/go:1": {
+            "version": "1.18"
+        },
+        "ghcr.io/devcontainers/features/git:1": {
+            "version": "latest"
+        }
+        
     }
-  }
 }
