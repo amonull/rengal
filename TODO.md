@@ -1,5 +1,5 @@
 # TODO
-1. [ ] Investigate [plugin](https://pkg.go.dev/plugin) support (windows does not seem to support this so may need to keep supporting lua scrapers as a backup)
+1. [ ] Investigate [plugin (golang)](https://pkg.go.dev/plugin) or [plugin (hashicorp)](https://github.com/hashicorp/go-plugin) support (windows does not seem to support this so may need to keep supporting lua scrapers as a backup)
 2. [ ] Update vulnerable packages
 3. [ ] Rename module (metafates/mangal => amonull/rengal)
 4. [ ] Update README to describe what rengal is and why it exists
