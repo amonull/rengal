@@ -1,23 +1,34 @@
 {
-    "name": "rengal devcontainer",
+    "name": "rengal devcontainer (FAT)",
     "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
 
 
     "customizations":{
         "vscode": {
             "settings": {
-                "terminal.integrated.shell.linux": "/bin/bash"
+                "terminal.integrated.shell.linux": "/bin/bash",
+                "makefile.configureOnOpen": false
             },
 
             "extensions": [
-                "golang.go",
-                "ms-azuretools.vscode-docker",
-                "streetsidesoftware.code-spell-checker"
+                // Required
+                "ms-vscode.makefile-tools",
+
+                // Good to Have
+                "DavidAnson.vscode-markdownlint",
+                "redhat.vscode-yaml",
+                "timonwong.shellcheck",
+                
+                // QOL
+                "streetsidesoftware.code-spell-checker",
+                "GitHub.vscode-pull-request-github",
+                "GitHub.vscode-github-actions"
             ]
         }
     },
 
     "features": {
+        // Required
         "ghcr.io/devcontainers/features/go:1": {
             "version": "1.21"
         },
@@ -27,6 +38,12 @@
         // gh needed for those using it as a credential helper
         "ghcr.io/devcontainers/features/github-cli:1": {
             "version": "latest"
-        }
+        },
+
+        // Good to have
+        "ghcr.io/devcontainers/features/powershell:1": {
+            "version": "latest"
+        },
+
     }
 }
