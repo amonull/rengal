@@ -19,7 +19,7 @@
 
     "features": {
         "ghcr.io/devcontainers/features/go:1": {
-            "version": "1.18"
+            "version": "1.21"
         },
         "ghcr.io/devcontainers/features/git:1": {
             "version": "latest"
