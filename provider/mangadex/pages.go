@@ -3,7 +3,7 @@ package mangadex
 import (
 	"bytes"
 	"errors"
-	"github.com/metafates/mangal/source"
+	"github.com/amonull/rengal/source"
 	"path/filepath"
 )
 

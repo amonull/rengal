@@ -1,10 +1,10 @@
 package tui
 
 import (
+	"github.com/amonull/rengal/color"
+	"github.com/amonull/rengal/style"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/metafates/mangal/color"
-	"github.com/metafates/mangal/style"
 )
 
 type statefulKeymap struct {

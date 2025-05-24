@@ -1,7 +1,7 @@
 package icon
 
 import (
-	"github.com/metafates/mangal/key"
+	"github.com/amonull/rengal/key"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/viper"
 	"testing"

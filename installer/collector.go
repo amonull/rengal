@@ -1,8 +1,8 @@
 package installer
 
 import (
-	"github.com/metafates/mangal/key"
-	"github.com/metafates/mangal/util"
+	"github.com/amonull/rengal/key"
+	"github.com/amonull/rengal/util"
 	"github.com/samber/lo"
 	"github.com/spf13/viper"
 	"path/filepath"

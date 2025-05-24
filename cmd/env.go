@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"github.com/metafates/mangal/color"
-	"github.com/metafates/mangal/config"
-	"github.com/metafates/mangal/constant"
-	"github.com/metafates/mangal/style"
-	"github.com/metafates/mangal/where"
+	"github.com/amonull/rengal/color"
+	"github.com/amonull/rengal/config"
+	"github.com/amonull/rengal/constant"
+	"github.com/amonull/rengal/style"
+	"github.com/amonull/rengal/where"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
 	"golang.org/x/exp/slices"

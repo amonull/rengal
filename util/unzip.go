@@ -3,7 +3,7 @@ package util
 import (
 	"archive/zip"
 	"fmt"
-	"github.com/metafates/mangal/filesystem"
+	"github.com/amonull/rengal/filesystem"
 	"io"
 	"os"
 	"path/filepath"

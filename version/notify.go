@@ -2,12 +2,12 @@ package version
 
 import (
 	"fmt"
-	"github.com/metafates/mangal/color"
-	"github.com/metafates/mangal/constant"
-	"github.com/metafates/mangal/icon"
-	"github.com/metafates/mangal/key"
-	"github.com/metafates/mangal/style"
-	"github.com/metafates/mangal/util"
+	"github.com/amonull/rengal/color"
+	"github.com/amonull/rengal/constant"
+	"github.com/amonull/rengal/icon"
+	"github.com/amonull/rengal/key"
+	"github.com/amonull/rengal/style"
+	"github.com/amonull/rengal/util"
 	"github.com/spf13/viper"
 )
 

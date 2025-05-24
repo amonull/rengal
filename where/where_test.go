@@ -1,7 +1,7 @@
 package where
 
 import (
-	"github.com/metafates/mangal/filesystem"
+	"github.com/amonull/rengal/filesystem"
 	"github.com/samber/lo"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"

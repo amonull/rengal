@@ -1,8 +1,8 @@
 package query
 
 import (
+	"github.com/amonull/rengal/key"
 	"github.com/lithammer/fuzzysearch/fuzzy"
-	"github.com/metafates/mangal/key"
 	"github.com/samber/lo"
 	"github.com/samber/mo"
 	"github.com/spf13/viper"

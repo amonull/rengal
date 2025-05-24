@@ -1,7 +1,7 @@
 package provider
 
 import (
-	"github.com/metafates/mangal/provider/manganelo"
+	"github.com/amonull/rengal/provider/manganelo"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 )

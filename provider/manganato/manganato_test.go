@@ -1,7 +1,7 @@
 package manganato
 
 import (
-	"github.com/metafates/mangal/provider/generic"
+	"github.com/amonull/rengal/provider/generic"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 )

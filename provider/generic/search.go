@@ -1,7 +1,7 @@
 package generic
 
 import (
-	"github.com/metafates/mangal/source"
+	"github.com/amonull/rengal/source"
 )
 
 // Search for mangas by given title
