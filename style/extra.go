@@ -1,8 +1,8 @@
 package style
 
 import (
+	"github.com/amonull/rengal/color"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/metafates/mangal/color"
 )
 
 var (

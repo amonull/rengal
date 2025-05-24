@@ -2,9 +2,9 @@ package mangadex
 
 import (
 	"fmt"
+	"github.com/amonull/rengal/key"
+	"github.com/amonull/rengal/source"
 	"github.com/darylhjd/mangodex"
-	"github.com/metafates/mangal/key"
-	"github.com/metafates/mangal/source"
 	"github.com/spf13/viper"
 	"golang.org/x/exp/slices"
 	"net/url"

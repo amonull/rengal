@@ -2,15 +2,15 @@ package downloader
 
 import (
 	"fmt"
-	"github.com/metafates/mangal/color"
-	"github.com/metafates/mangal/constant"
-	"github.com/metafates/mangal/converter"
-	"github.com/metafates/mangal/history"
-	"github.com/metafates/mangal/key"
-	"github.com/metafates/mangal/log"
-	"github.com/metafates/mangal/open"
-	"github.com/metafates/mangal/source"
-	"github.com/metafates/mangal/style"
+	"github.com/amonull/rengal/color"
+	"github.com/amonull/rengal/constant"
+	"github.com/amonull/rengal/converter"
+	"github.com/amonull/rengal/history"
+	"github.com/amonull/rengal/key"
+	"github.com/amonull/rengal/log"
+	"github.com/amonull/rengal/open"
+	"github.com/amonull/rengal/source"
+	"github.com/amonull/rengal/style"
 	"github.com/spf13/viper"
 )
 

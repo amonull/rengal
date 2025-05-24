@@ -1,11 +1,11 @@
 package provider
 
 import (
-	"github.com/metafates/mangal/filesystem"
-	"github.com/metafates/mangal/provider/custom"
-	"github.com/metafates/mangal/source"
-	"github.com/metafates/mangal/util"
-	"github.com/metafates/mangal/where"
+	"github.com/amonull/rengal/filesystem"
+	"github.com/amonull/rengal/provider/custom"
+	"github.com/amonull/rengal/source"
+	"github.com/amonull/rengal/util"
+	"github.com/amonull/rengal/where"
 	"github.com/samber/lo"
 	"os"
 	"path/filepath"

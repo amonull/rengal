@@ -1,8 +1,8 @@
 package integration
 
 import (
-	"github.com/metafates/mangal/integration/anilist"
-	"github.com/metafates/mangal/source"
+	"github.com/amonull/rengal/integration/anilist"
+	"github.com/amonull/rengal/source"
 )
 
 // Integrator is the interface that wraps the basic integration methods.

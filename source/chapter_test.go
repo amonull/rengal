@@ -2,10 +2,10 @@ package source
 
 import (
 	"fmt"
-	"github.com/metafates/mangal/constant"
-	"github.com/metafates/mangal/filesystem"
-	"github.com/metafates/mangal/key"
-	"github.com/metafates/mangal/util"
+	"github.com/amonull/rengal/constant"
+	"github.com/amonull/rengal/filesystem"
+	"github.com/amonull/rengal/key"
+	"github.com/amonull/rengal/util"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/viper"
 	"testing"

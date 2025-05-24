@@ -2,10 +2,10 @@ package config
 
 import (
 	"fmt"
-	"github.com/metafates/mangal/constant"
-	"github.com/metafates/mangal/filesystem"
-	"github.com/metafates/mangal/key"
-	"github.com/metafates/mangal/where"
+	"github.com/amonull/rengal/constant"
+	"github.com/amonull/rengal/filesystem"
+	"github.com/amonull/rengal/key"
+	"github.com/amonull/rengal/where"
 	"github.com/samber/lo"
 	"github.com/spf13/viper"
 	"os"

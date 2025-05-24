@@ -1,8 +1,8 @@
 package icon
 
 import (
-	"github.com/metafates/mangal/color"
-	"github.com/metafates/mangal/style"
+	"github.com/amonull/rengal/color"
+	"github.com/amonull/rengal/style"
 )
 
 type Icon int
