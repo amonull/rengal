@@ -1,10 +1,10 @@
 package inline
 
 import (
-	"github.com/metafates/mangal/downloader"
-	"github.com/metafates/mangal/key"
-	"github.com/metafates/mangal/log"
-	"github.com/metafates/mangal/source"
+	"github.com/amonull/rengal/downloader"
+	"github.com/amonull/rengal/key"
+	"github.com/amonull/rengal/log"
+	"github.com/amonull/rengal/source"
 	"github.com/spf13/viper"
 	"os"
 )

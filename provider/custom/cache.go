@@ -1,10 +1,10 @@
 package custom
 
 import (
+	"github.com/amonull/rengal/filesystem"
+	"github.com/amonull/rengal/util"
+	"github.com/amonull/rengal/where"
 	"github.com/metafates/gache"
-	"github.com/metafates/mangal/filesystem"
-	"github.com/metafates/mangal/util"
-	"github.com/metafates/mangal/where"
 	"github.com/samber/mo"
 	"path/filepath"
 	"time"

@@ -1,12 +1,12 @@
 package provider
 
 import (
-	"github.com/metafates/mangal/provider/generic"
-	"github.com/metafates/mangal/provider/mangadex"
-	"github.com/metafates/mangal/provider/manganato"
-	"github.com/metafates/mangal/provider/manganelo"
-	"github.com/metafates/mangal/provider/mangapill"
-	"github.com/metafates/mangal/source"
+	"github.com/amonull/rengal/provider/generic"
+	"github.com/amonull/rengal/provider/mangadex"
+	"github.com/amonull/rengal/provider/manganato"
+	"github.com/amonull/rengal/provider/manganelo"
+	"github.com/amonull/rengal/provider/mangapill"
+	"github.com/amonull/rengal/source"
 )
 
 const CustomProviderExtension = ".lua"

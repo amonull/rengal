@@ -1,13 +1,13 @@
 package history
 
 import (
+	"github.com/amonull/rengal/filesystem"
+	"github.com/amonull/rengal/integration"
+	"github.com/amonull/rengal/key"
+	"github.com/amonull/rengal/log"
+	"github.com/amonull/rengal/source"
+	"github.com/amonull/rengal/where"
 	"github.com/metafates/gache"
-	"github.com/metafates/mangal/filesystem"
-	"github.com/metafates/mangal/integration"
-	"github.com/metafates/mangal/key"
-	"github.com/metafates/mangal/log"
-	"github.com/metafates/mangal/source"
-	"github.com/metafates/mangal/where"
 	"github.com/spf13/viper"
 )
 

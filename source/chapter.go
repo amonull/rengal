@@ -2,12 +2,12 @@ package source
 
 import (
 	"fmt"
+	"github.com/amonull/rengal/constant"
+	"github.com/amonull/rengal/filesystem"
+	"github.com/amonull/rengal/key"
+	"github.com/amonull/rengal/style"
+	"github.com/amonull/rengal/util"
 	"github.com/dustin/go-humanize"
-	"github.com/metafates/mangal/constant"
-	"github.com/metafates/mangal/filesystem"
-	"github.com/metafates/mangal/key"
-	"github.com/metafates/mangal/style"
-	"github.com/metafates/mangal/util"
 	"github.com/samber/mo"
 	"github.com/spf13/viper"
 	"os"
