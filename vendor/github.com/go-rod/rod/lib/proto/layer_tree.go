@@ -18,24 +18,23 @@ type LayerTreeLayerID string
 // LayerTreeSnapshotID Unique snapshot identifier.
 type LayerTreeSnapshotID string
 
-// LayerTreeScrollRectType enum
+// LayerTreeScrollRectType enum.
 type LayerTreeScrollRectType string
 
 const (
-	// LayerTreeScrollRectTypeRepaintsOnScroll enum const
+	// LayerTreeScrollRectTypeRepaintsOnScroll enum const.
 	LayerTreeScrollRectTypeRepaintsOnScroll LayerTreeScrollRectType = "RepaintsOnScroll"
 
-	// LayerTreeScrollRectTypeTouchEventHandler enum const
+	// LayerTreeScrollRectTypeTouchEventHandler enum const.
 	LayerTreeScrollRectTypeTouchEventHandler LayerTreeScrollRectType = "TouchEventHandler"
 
-	// LayerTreeScrollRectTypeWheelEventHandler enum const
+	// LayerTreeScrollRectTypeWheelEventHandler enum const.
 	LayerTreeScrollRectTypeWheelEventHandler LayerTreeScrollRectType = "WheelEventHandler"
 )
 
 // LayerTreeScrollRect Rectangle where scrolling happens on the main thread.
 type LayerTreeScrollRect struct {
-
-	// Rect Rectangle itself.
+	// Rectangle itself.
 	Rect *DOMRect `json:"rect"`
 
 	// Type Reason for rectangle to force scrolling on the main thread
@@ -44,7 +43,6 @@ type LayerTreeScrollRect struct {
 
 // LayerTreeStickyPositionConstraint Sticky position constraints.
 type LayerTreeStickyPositionConstraint struct {
-
 	// StickyBoxRect Layout rectangle of the sticky element before being shifted
 	StickyBoxRect *DOMRect `json:"stickyBoxRect"`
 
@@ -60,7 +58,6 @@ type LayerTreeStickyPositionConstraint struct {
 
 // LayerTreePictureTile Serialized fragment of layer picture along with its offset within the layer.
 type LayerTreePictureTile struct {
-
 	// X Offset from owning layer left boundary
 	X float64 `json:"x"`
 
@@ -73,7 +70,6 @@ type LayerTreePictureTile struct {
 
 // LayerTreeLayer Information about a compositing layer.
 type LayerTreeLayer struct {
-
 	// LayerID The unique id for this layer.
 	LayerID LayerTreeLayerID `json:"layerId"`
 
@@ -129,15 +125,14 @@ type LayerTreePaintProfile []float64
 
 // LayerTreeCompositingReasons Provides the reasons why the given layer was composited.
 type LayerTreeCompositingReasons struct {
-
 	// LayerID The id of the layer for which we want to get the reasons it was composited.
 	LayerID LayerTreeLayerID `json:"layerId"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m LayerTreeCompositingReasons) ProtoReq() string { return "LayerTree.compositingReasons" }
 
-// Call the request
+// Call the request.
 func (m LayerTreeCompositingReasons) Call(c Client) (*LayerTreeCompositingReasonsResult, error) {
 	var res LayerTreeCompositingReasonsResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -145,49 +140,45 @@ func (m LayerTreeCompositingReasons) Call(c Client) (*LayerTreeCompositingReason
 
 // LayerTreeCompositingReasonsResult ...
 type LayerTreeCompositingReasonsResult struct {
-
-	// CompositingReasons (deprecated) A list of strings specifying reasons for the given layer to become composited.
+	// CompositingReasons A list of strings specifying reasons for the given layer to become composited.
 	CompositingReasons []string `json:"compositingReasons"`
 
-	// CompositingReasonIds A list of strings specifying reason IDs for the given layer to become composited.
-	CompositingReasonIds []string `json:"compositingReasonIds"`
+	// CompositingReasonIDs A list of strings specifying reason IDs for the given layer to become composited.
+	CompositingReasonIDs []string `json:"compositingReasonIds"`
 }
 
 // LayerTreeDisable Disables compositing tree inspection.
-type LayerTreeDisable struct {
-}
+type LayerTreeDisable struct{}
 
-// ProtoReq name
+// ProtoReq name.
 func (m LayerTreeDisable) ProtoReq() string { return "LayerTree.disable" }
 
-// Call sends the request
+// Call sends the request.
 func (m LayerTreeDisable) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // LayerTreeEnable Enables compositing tree inspection.
-type LayerTreeEnable struct {
-}
+type LayerTreeEnable struct{}
 
-// ProtoReq name
+// ProtoReq name.
 func (m LayerTreeEnable) ProtoReq() string { return "LayerTree.enable" }
 
-// Call sends the request
+// Call sends the request.
 func (m LayerTreeEnable) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // LayerTreeLoadSnapshot Returns the snapshot identifier.
 type LayerTreeLoadSnapshot struct {
-
 	// Tiles An array of tiles composing the snapshot.
 	Tiles []*LayerTreePictureTile `json:"tiles"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m LayerTreeLoadSnapshot) ProtoReq() string { return "LayerTree.loadSnapshot" }
 
-// Call the request
+// Call the request.
 func (m LayerTreeLoadSnapshot) Call(c Client) (*LayerTreeLoadSnapshotResult, error) {
 	var res LayerTreeLoadSnapshotResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -195,22 +186,20 @@ func (m LayerTreeLoadSnapshot) Call(c Client) (*LayerTreeLoadSnapshotResult, err
 
 // LayerTreeLoadSnapshotResult ...
 type LayerTreeLoadSnapshotResult struct {
-
 	// SnapshotID The id of the snapshot.
 	SnapshotID LayerTreeSnapshotID `json:"snapshotId"`
 }
 
 // LayerTreeMakeSnapshot Returns the layer snapshot identifier.
 type LayerTreeMakeSnapshot struct {
-
 	// LayerID The id of the layer.
 	LayerID LayerTreeLayerID `json:"layerId"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m LayerTreeMakeSnapshot) ProtoReq() string { return "LayerTree.makeSnapshot" }
 
-// Call the request
+// Call the request.
 func (m LayerTreeMakeSnapshot) Call(c Client) (*LayerTreeMakeSnapshotResult, error) {
 	var res LayerTreeMakeSnapshotResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -218,14 +207,12 @@ func (m LayerTreeMakeSnapshot) Call(c Client) (*LayerTreeMakeSnapshotResult, err
 
 // LayerTreeMakeSnapshotResult ...
 type LayerTreeMakeSnapshotResult struct {
-
 	// SnapshotID The id of the layer snapshot.
 	SnapshotID LayerTreeSnapshotID `json:"snapshotId"`
 }
 
 // LayerTreeProfileSnapshot ...
 type LayerTreeProfileSnapshot struct {
-
 	// SnapshotID The id of the layer snapshot.
 	SnapshotID LayerTreeSnapshotID `json:"snapshotId"`
 
@@ -239,10 +226,10 @@ type LayerTreeProfileSnapshot struct {
 	ClipRect *DOMRect `json:"clipRect,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m LayerTreeProfileSnapshot) ProtoReq() string { return "LayerTree.profileSnapshot" }
 
-// Call the request
+// Call the request.
 func (m LayerTreeProfileSnapshot) Call(c Client) (*LayerTreeProfileSnapshotResult, error) {
 	var res LayerTreeProfileSnapshotResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -250,29 +237,26 @@ func (m LayerTreeProfileSnapshot) Call(c Client) (*LayerTreeProfileSnapshotResul
 
 // LayerTreeProfileSnapshotResult ...
 type LayerTreeProfileSnapshotResult struct {
-
 	// Timings The array of paint profiles, one per run.
 	Timings []LayerTreePaintProfile `json:"timings"`
 }
 
 // LayerTreeReleaseSnapshot Releases layer snapshot captured by the back-end.
 type LayerTreeReleaseSnapshot struct {
-
 	// SnapshotID The id of the layer snapshot.
 	SnapshotID LayerTreeSnapshotID `json:"snapshotId"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m LayerTreeReleaseSnapshot) ProtoReq() string { return "LayerTree.releaseSnapshot" }
 
-// Call sends the request
+// Call sends the request.
 func (m LayerTreeReleaseSnapshot) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // LayerTreeReplaySnapshot Replays the layer snapshot and returns the resulting bitmap.
 type LayerTreeReplaySnapshot struct {
-
 	// SnapshotID The id of the layer snapshot.
 	SnapshotID LayerTreeSnapshotID `json:"snapshotId"`
 
@@ -286,10 +270,10 @@ type LayerTreeReplaySnapshot struct {
 	Scale *float64 `json:"scale,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m LayerTreeReplaySnapshot) ProtoReq() string { return "LayerTree.replaySnapshot" }
 
-// Call the request
+// Call the request.
 func (m LayerTreeReplaySnapshot) Call(c Client) (*LayerTreeReplaySnapshotResult, error) {
 	var res LayerTreeReplaySnapshotResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -297,22 +281,20 @@ func (m LayerTreeReplaySnapshot) Call(c Client) (*LayerTreeReplaySnapshotResult,
 
 // LayerTreeReplaySnapshotResult ...
 type LayerTreeReplaySnapshotResult struct {
-
 	// DataURL A data: URL for resulting image.
 	DataURL string `json:"dataURL"`
 }
 
 // LayerTreeSnapshotCommandLog Replays the layer snapshot and returns canvas log.
 type LayerTreeSnapshotCommandLog struct {
-
 	// SnapshotID The id of the layer snapshot.
 	SnapshotID LayerTreeSnapshotID `json:"snapshotId"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m LayerTreeSnapshotCommandLog) ProtoReq() string { return "LayerTree.snapshotCommandLog" }
 
-// Call the request
+// Call the request.
 func (m LayerTreeSnapshotCommandLog) Call(c Client) (*LayerTreeSnapshotCommandLogResult, error) {
 	var res LayerTreeSnapshotCommandLogResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -320,34 +302,31 @@ func (m LayerTreeSnapshotCommandLog) Call(c Client) (*LayerTreeSnapshotCommandLo
 
 // LayerTreeSnapshotCommandLogResult ...
 type LayerTreeSnapshotCommandLogResult struct {
-
 	// CommandLog The array of canvas function calls.
 	CommandLog []map[string]gson.JSON `json:"commandLog"`
 }
 
 // LayerTreeLayerPainted ...
 type LayerTreeLayerPainted struct {
-
 	// LayerID The id of the painted layer.
 	LayerID LayerTreeLayerID `json:"layerId"`
 
-	// Clip Clip rectangle.
+	// Clip rectangle.
 	Clip *DOMRect `json:"clip"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt LayerTreeLayerPainted) ProtoEvent() string {
 	return "LayerTree.layerPainted"
 }
 
 // LayerTreeLayerTreeDidChange ...
 type LayerTreeLayerTreeDidChange struct {
-
-	// Layers (optional) Layer tree, absent if not in the comspositing mode.
+	// Layers (optional) Layer tree, absent if not in the compositing mode.
 	Layers []*LayerTreeLayer `json:"layers,omitempty"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt LayerTreeLayerTreeDidChange) ProtoEvent() string {
 	return "LayerTree.layerTreeDidChange"
 }

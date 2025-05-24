@@ -7,12 +7,33 @@ Colly provides a clean interface to write any kind of crawler/scraper/spider.
 With Colly you can easily extract structured data from websites, which can be used for a wide range of applications, like data mining, data processing or archiving.
 
 [![GoDoc](https://godoc.org/github.com/gocolly/colly?status.svg)](https://pkg.go.dev/github.com/gocolly/colly/v2)
-[![Backers on Open Collective](https://opencollective.com/colly/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/colly/sponsors/badge.svg)](#sponsors) [![build status](https://img.shields.io/travis/gocolly/colly/master.svg?style=flat-square)](https://travis-ci.org/gocolly/colly)
+[![Backers on Open Collective](https://opencollective.com/colly/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/colly/sponsors/badge.svg)](#sponsors) [![build status](https://github.com/gocolly/colly/actions/workflows/ci.yml/badge.svg)](https://github.com/gocolly/colly/actions/workflows/ci.yml)
 [![report card](https://img.shields.io/badge/report%20card-a%2B-ff3333.svg?style=flat-square)](http://goreportcard.com/report/gocolly/colly)
 [![view examples](https://img.shields.io/badge/learn%20by-examples-0077b3.svg?style=flat-square)](https://github.com/gocolly/colly/tree/master/_examples)
 [![Code Coverage](https://img.shields.io/codecov/c/github/gocolly/colly/master.svg)](https://codecov.io/github/gocolly/colly?branch=master)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fgocolly%2Fcolly.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fgocolly%2Fcolly?ref=badge_shield)
 [![Twitter URL](https://img.shields.io/badge/twitter-follow-green.svg)](https://twitter.com/gocolly)
+
+
+------
+
+
+## Sponsors
+
+
+<a href="https://scrapfly.io/?utm_source=Github&utm_medium=repo&utm_campaign=colly" target="_blank"><img src="assets/scrapfly.png" alt="Scrapfly.io" width="149"></a>
+
+[Scrapfly](https://scrapfly.io/?utm_source=Github&utm_medium=repo&utm_campaign=colly)
+is an enterprise-grade solution providing Web Scraping API that aims to simplify the
+scraping process by managing everything: real browser rendering, rotating proxies, and
+fingerprints (TLS, HTTP, browser) to bypass all major anti-bots. Scrapfly also unlocks the
+observability by providing an analytical dashboard and measuring the success rate/block
+rate in detail.
+
+
+------
+
+
 
 ## Features
 
@@ -73,16 +94,20 @@ Below is a list of public, open source projects that use Colly:
 
 -   [greenpeace/check-my-pages](https://github.com/greenpeace/check-my-pages) Scraping script to test the Spanish Greenpeace web archive.
 -   [altsab/gowap](https://github.com/altsab/gowap) Wappalyzer implementation in Go.
--   [jesuiscamille/goquotes](https://github.com/jesuiscamille/goquotes) A quotes scrapper, making your day a little better!
+-   [jesuiscamille/goquotes](https://github.com/jesuiscamille/goquotes) A quotes scraper, making your day a little better!
 -   [jivesearch/jivesearch](https://github.com/jivesearch/jivesearch) A search engine that doesn't track you.
 -   [Leagify/colly-draft-prospects](https://github.com/Leagify/colly-draft-prospects) A scraper for future NFL Draft prospects.
 -   [lucasepe/go-ps4](https://github.com/lucasepe/go-ps4) Search playstation store for your favorite PS4 games using the command line.
 -   [yringler/inside-chassidus-scraper](https://github.com/yringler/inside-chassidus-scraper) Scrapes Rabbi Paltiel's web site for lesson metadata.
 -   [gamedb/gamedb](https://github.com/gamedb/gamedb) A database of Steam games.
 -   [lawzava/scrape](https://github.com/lawzava/scrape) CLI for email scraping from any website.
--   [eureka101v/WeiboSpiderGo](https://github.com/eureka101v/WeiboSpiderGo) A sina weibo(chinese twitter) scrapper
+-   [eureka101v/WeiboSpiderGo](https://github.com/eureka101v/WeiboSpiderGo) A sina weibo(chinese twitter) scraper
 -   [Go-phie/gophie](https://github.com/Go-phie/gophie) Search, Download and Stream movies from your terminal
 -   [imthaghost/goclone](https://github.com/imthaghost/goclone) Clone websites to your computer within seconds.
+-   [superiss/spidy](https://github.com/superiss/spidy) Crawl the web and collect expired domains.
+-   [docker-slim/docker-slim](https://github.com/docker-slim/docker-slim) Optimize your Docker containers to make them smaller and better.
+-   [seversky/gachifinder](https://github.com/seversky/gachifinder) an agent for asynchronous scraping, parsing and writing to some storages(elasticsearch for now)
+-   [eval-exec/goodreads](https://github.com/eval-exec/goodreads) crawl all tags and all pages of quotes from goodreads.
 
 If you are using Colly in a project please send a pull request to add it to the list.
 

@@ -4,6 +4,7 @@
 [![Test Go](https://github.com/invopop/jsonschema/actions/workflows/test.yaml/badge.svg)](https://github.com/invopop/jsonschema/actions/workflows/test.yaml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/invopop/jsonschema)](https://goreportcard.com/report/github.com/invopop/jsonschema)
 [![GoDoc](https://godoc.org/github.com/invopop/jsonschema?status.svg)](https://godoc.org/github.com/invopop/jsonschema)
+[![codecov](https://codecov.io/gh/invopop/jsonschema/graph/badge.svg?token=JMEB8W8GNZ)](https://codecov.io/gh/invopop/jsonschema)
 ![Latest Tag](https://img.shields.io/github/v/tag/invopop/jsonschema)
 
 This package can be used to generate [JSON Schemas](http://json-schema.org/latest/json-schema-validation.html) from Go types through reflection.
@@ -22,7 +23,9 @@ This repository is a fork of the original [jsonschema](https://github.com/alecth
 
 ## Versions
 
-This project is still under v0 scheme, as per Go convention, breaking changes are likely. Please pin go modules to branches, and reach out if you think something can be improved.
+This project is still under v0 scheme, as per Go convention, breaking changes are likely. Please pin go modules to version tags or branches, and reach out if you think something can be improved.
+
+Go version >= 1.18 is required as generics are now being used.
 
 ## Example
 
@@ -49,10 +52,11 @@ jsonschema.Reflect(&TestUser{})
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft/2020-12/schema",
-  "$ref": "#/$defs/SampleUser",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/invopop/jsonschema_test/test-user",
+  "$ref": "#/$defs/TestUser",
   "$defs": {
-    "SampleUser": {
+    "TestUser": {
       "oneOf": [
         {
           "required": ["birth_date"],
@@ -301,7 +305,14 @@ As you can see, if a field name has a `json:""` tag set, the `key` argument to `
 
 Sometimes it can be useful to have custom JSON Marshal and Unmarshal methods in your structs that automatically convert for example a string into an object.
 
-To override auto-generating an object type for your type, implement the `JSONSchema() *Schema` method and whatever is defined will be provided in the schema definitions.
+This library will recognize and attempt to call four different methods that help you adjust schemas to your specific needs:
+
+- `JSONSchema() *Schema` - will prevent auto-generation of the schema so that you can provide your own definition.
+- `JSONSchemaExtend(schema *jsonschema.Schema)` - will be called _after_ the schema has been generated, allowing you to add or manipulate the fields easily.
+- `JSONSchemaAlias() any` - is called when reflecting the type of object and allows for an alternative to be used instead.
+- `JSONSchemaProperty(prop string) any` - will be called for every property inside a struct giving you the chance to provide an alternative object to convert into a schema.
+
+Note that all of these methods **must** be defined on a non-pointer object for them to be called.
 
 Take the following simplified example of a `CompactDate` that only includes the Year and Month:
 

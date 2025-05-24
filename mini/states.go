@@ -2,6 +2,10 @@ package mini
 
 import (
 	"fmt"
+	"regexp"
+	"strconv"
+	"strings"
+
 	"github.com/metafates/mangal/downloader"
 	"github.com/metafates/mangal/history"
 	"github.com/metafates/mangal/key"
@@ -11,9 +15,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/spf13/viper"
 	"golang.org/x/exp/slices"
-	"regexp"
-	"strconv"
-	"strings"
 )
 
 type state int
@@ -47,8 +48,8 @@ func (m *mini) handleSourceSelectState() error {
 		providers = append(providers, provider.Builtins()...)
 		providers = append(providers, provider.Customs()...)
 
-		slices.SortFunc(providers, func(a *provider.Provider, b *provider.Provider) bool {
-			return strings.Compare(a.String(), b.String()) < 0
+		slices.SortFunc(providers, func(a *provider.Provider, b *provider.Provider) int {
+			return strings.Compare(a.String(), b.String())
 		})
 
 		title("Select Source")

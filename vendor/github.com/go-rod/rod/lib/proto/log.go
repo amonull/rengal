@@ -10,78 +10,77 @@ Provides access to log entries.
 
 */
 
-// LogLogEntrySource enum
+// LogLogEntrySource enum.
 type LogLogEntrySource string
 
 const (
-	// LogLogEntrySourceXML enum const
+	// LogLogEntrySourceXML enum const.
 	LogLogEntrySourceXML LogLogEntrySource = "xml"
 
-	// LogLogEntrySourceJavascript enum const
+	// LogLogEntrySourceJavascript enum const.
 	LogLogEntrySourceJavascript LogLogEntrySource = "javascript"
 
-	// LogLogEntrySourceNetwork enum const
+	// LogLogEntrySourceNetwork enum const.
 	LogLogEntrySourceNetwork LogLogEntrySource = "network"
 
-	// LogLogEntrySourceStorage enum const
+	// LogLogEntrySourceStorage enum const.
 	LogLogEntrySourceStorage LogLogEntrySource = "storage"
 
-	// LogLogEntrySourceAppcache enum const
+	// LogLogEntrySourceAppcache enum const.
 	LogLogEntrySourceAppcache LogLogEntrySource = "appcache"
 
-	// LogLogEntrySourceRendering enum const
+	// LogLogEntrySourceRendering enum const.
 	LogLogEntrySourceRendering LogLogEntrySource = "rendering"
 
-	// LogLogEntrySourceSecurity enum const
+	// LogLogEntrySourceSecurity enum const.
 	LogLogEntrySourceSecurity LogLogEntrySource = "security"
 
-	// LogLogEntrySourceDeprecation enum const
+	// LogLogEntrySourceDeprecation enum const.
 	LogLogEntrySourceDeprecation LogLogEntrySource = "deprecation"
 
-	// LogLogEntrySourceWorker enum const
+	// LogLogEntrySourceWorker enum const.
 	LogLogEntrySourceWorker LogLogEntrySource = "worker"
 
-	// LogLogEntrySourceViolation enum const
+	// LogLogEntrySourceViolation enum const.
 	LogLogEntrySourceViolation LogLogEntrySource = "violation"
 
-	// LogLogEntrySourceIntervention enum const
+	// LogLogEntrySourceIntervention enum const.
 	LogLogEntrySourceIntervention LogLogEntrySource = "intervention"
 
-	// LogLogEntrySourceRecommendation enum const
+	// LogLogEntrySourceRecommendation enum const.
 	LogLogEntrySourceRecommendation LogLogEntrySource = "recommendation"
 
-	// LogLogEntrySourceOther enum const
+	// LogLogEntrySourceOther enum const.
 	LogLogEntrySourceOther LogLogEntrySource = "other"
 )
 
-// LogLogEntryLevel enum
+// LogLogEntryLevel enum.
 type LogLogEntryLevel string
 
 const (
-	// LogLogEntryLevelVerbose enum const
+	// LogLogEntryLevelVerbose enum const.
 	LogLogEntryLevelVerbose LogLogEntryLevel = "verbose"
 
-	// LogLogEntryLevelInfo enum const
+	// LogLogEntryLevelInfo enum const.
 	LogLogEntryLevelInfo LogLogEntryLevel = "info"
 
-	// LogLogEntryLevelWarning enum const
+	// LogLogEntryLevelWarning enum const.
 	LogLogEntryLevelWarning LogLogEntryLevel = "warning"
 
-	// LogLogEntryLevelError enum const
+	// LogLogEntryLevelError enum const.
 	LogLogEntryLevelError LogLogEntryLevel = "error"
 )
 
-// LogLogEntryCategory enum
+// LogLogEntryCategory enum.
 type LogLogEntryCategory string
 
 const (
-	// LogLogEntryCategoryCors enum const
+	// LogLogEntryCategoryCors enum const.
 	LogLogEntryCategoryCors LogLogEntryCategory = "cors"
 )
 
 // LogLogEntry Log entry.
 type LogLogEntry struct {
-
 	// Source Log entry source.
 	Source LogLogEntrySource `json:"source"`
 
@@ -94,7 +93,7 @@ type LogLogEntry struct {
 	// Category (optional) ...
 	Category LogLogEntryCategory `json:"category,omitempty"`
 
-	// Timestamp Timestamp when this entry was added.
+	// Timestamp when this entry was added.
 	Timestamp RuntimeTimestamp `json:"timestamp"`
 
 	// URL (optional) URL of the resource if known.
@@ -116,35 +115,34 @@ type LogLogEntry struct {
 	Args []*RuntimeRemoteObject `json:"args,omitempty"`
 }
 
-// LogViolationSettingName enum
+// LogViolationSettingName enum.
 type LogViolationSettingName string
 
 const (
-	// LogViolationSettingNameLongTask enum const
+	// LogViolationSettingNameLongTask enum const.
 	LogViolationSettingNameLongTask LogViolationSettingName = "longTask"
 
-	// LogViolationSettingNameLongLayout enum const
+	// LogViolationSettingNameLongLayout enum const.
 	LogViolationSettingNameLongLayout LogViolationSettingName = "longLayout"
 
-	// LogViolationSettingNameBlockedEvent enum const
+	// LogViolationSettingNameBlockedEvent enum const.
 	LogViolationSettingNameBlockedEvent LogViolationSettingName = "blockedEvent"
 
-	// LogViolationSettingNameBlockedParser enum const
+	// LogViolationSettingNameBlockedParser enum const.
 	LogViolationSettingNameBlockedParser LogViolationSettingName = "blockedParser"
 
-	// LogViolationSettingNameDiscouragedAPIUse enum const
+	// LogViolationSettingNameDiscouragedAPIUse enum const.
 	LogViolationSettingNameDiscouragedAPIUse LogViolationSettingName = "discouragedAPIUse"
 
-	// LogViolationSettingNameHandler enum const
+	// LogViolationSettingNameHandler enum const.
 	LogViolationSettingNameHandler LogViolationSettingName = "handler"
 
-	// LogViolationSettingNameRecurringHandler enum const
+	// LogViolationSettingNameRecurringHandler enum const.
 	LogViolationSettingNameRecurringHandler LogViolationSettingName = "recurringHandler"
 )
 
 // LogViolationSetting Violation configuration setting.
 type LogViolationSetting struct {
-
 	// Name Violation type.
 	Name LogViolationSettingName `json:"name"`
 
@@ -153,77 +151,71 @@ type LogViolationSetting struct {
 }
 
 // LogClear Clears the log.
-type LogClear struct {
-}
+type LogClear struct{}
 
-// ProtoReq name
+// ProtoReq name.
 func (m LogClear) ProtoReq() string { return "Log.clear" }
 
-// Call sends the request
+// Call sends the request.
 func (m LogClear) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // LogDisable Disables log domain, prevents further log entries from being reported to the client.
-type LogDisable struct {
-}
+type LogDisable struct{}
 
-// ProtoReq name
+// ProtoReq name.
 func (m LogDisable) ProtoReq() string { return "Log.disable" }
 
-// Call sends the request
+// Call sends the request.
 func (m LogDisable) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // LogEnable Enables log domain, sends the entries collected so far to the client by means of the
 // `entryAdded` notification.
-type LogEnable struct {
-}
+type LogEnable struct{}
 
-// ProtoReq name
+// ProtoReq name.
 func (m LogEnable) ProtoReq() string { return "Log.enable" }
 
-// Call sends the request
+// Call sends the request.
 func (m LogEnable) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // LogStartViolationsReport start violation reporting.
 type LogStartViolationsReport struct {
-
-	// Config Configuration for violations.
+	// Configuration for violations.
 	Config []*LogViolationSetting `json:"config"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m LogStartViolationsReport) ProtoReq() string { return "Log.startViolationsReport" }
 
-// Call sends the request
+// Call sends the request.
 func (m LogStartViolationsReport) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // LogStopViolationsReport Stop violation reporting.
-type LogStopViolationsReport struct {
-}
+type LogStopViolationsReport struct{}
 
-// ProtoReq name
+// ProtoReq name.
 func (m LogStopViolationsReport) ProtoReq() string { return "Log.stopViolationsReport" }
 
-// Call sends the request
+// Call sends the request.
 func (m LogStopViolationsReport) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // LogEntryAdded Issued when new message was logged.
 type LogEntryAdded struct {
-
 	// Entry The entry.
 	Entry *LogLogEntry `json:"entry"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt LogEntryAdded) ProtoEvent() string {
 	return "Log.entryAdded"
 }

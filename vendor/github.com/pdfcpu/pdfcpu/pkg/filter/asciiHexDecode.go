@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"encoding/hex"
 	"io"
-	"io/ioutil"
 )
 
 type asciiHexDecode struct {
@@ -32,7 +31,7 @@ const eodHexDecode = '>'
 // Encode implements encoding for an ASCIIHexDecode filter.
 func (f asciiHexDecode) Encode(r io.Reader) (io.Reader, error) {
 
-	bb, err := ioutil.ReadAll(r)
+	bb, err := getReaderBytes(r)
 	if err != nil {
 		return nil, err
 	}
@@ -48,8 +47,11 @@ func (f asciiHexDecode) Encode(r io.Reader) (io.Reader, error) {
 
 // Decode implements decoding for an ASCIIHexDecode filter.
 func (f asciiHexDecode) Decode(r io.Reader) (io.Reader, error) {
+	return f.DecodeLength(r, -1)
+}
 
-	bb, err := ioutil.ReadAll(r)
+func (f asciiHexDecode) DecodeLength(r io.Reader, maxLen int64) (io.Reader, error) {
+	bb, err := getReaderBytes(r)
 	if err != nil {
 		return nil, err
 	}
@@ -71,10 +73,12 @@ func (f asciiHexDecode) Decode(r io.Reader) (io.Reader, error) {
 		p = append(p, '0')
 	}
 
-	dst := make([]byte, hex.DecodedLen(len(p)))
+	if maxLen < 0 {
+		maxLen = int64(hex.DecodedLen(len(p)))
+	}
+	dst := make([]byte, maxLen)
 
-	_, err = hex.Decode(dst, p)
-	if err != nil {
+	if _, err := hex.Decode(dst, p[:maxLen*2]); err != nil {
 		return nil, err
 	}
 

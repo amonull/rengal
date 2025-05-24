@@ -19,55 +19,68 @@ package api
 import (
 	"io"
 	"os"
-	"time"
+	"sort"
 
 	"github.com/pdfcpu/pdfcpu/pkg/log"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
+	"github.com/pkg/errors"
 )
 
 // Trim generates a trimmed version of rs
 // containing all selected pages and writes the result to w.
-func Trim(rs io.ReadSeeker, w io.Writer, selectedPages []string, conf *pdfcpu.Configuration) error {
+func Trim(rs io.ReadSeeker, w io.Writer, selectedPages []string, conf *model.Configuration) error {
+	if rs == nil {
+		return errors.New("pdfcpu: Trim: missing rs")
+	}
+
 	if conf == nil {
-		conf = pdfcpu.NewDefaultConfiguration()
+		conf = model.NewDefaultConfiguration()
 	}
-	conf.Cmd = pdfcpu.TRIM
+	conf.Cmd = model.TRIM
 
-	fromStart := time.Now()
-	ctx, durRead, durVal, durOpt, err := readValidateAndOptimize(rs, conf, fromStart)
+	ctx, err := ReadValidateAndOptimize(rs, conf)
 	if err != nil {
 		return err
 	}
 
-	if err := ctx.EnsurePageCount(); err != nil {
-		return err
-	}
-
-	fromWrite := time.Now()
-
-	pages, err := PagesForPageSelection(ctx.PageCount, selectedPages, false)
+	pages, err := PagesForPageSelection(ctx.PageCount, selectedPages, false, true)
 	if err != nil {
 		return err
 	}
 
-	// No special context processing required.
-	// WriteContext decides which pages get written by checking conf.Cmd
+	if len(pages) == 0 {
+		if log.CLIEnabled() {
+			log.CLI.Println("aborted: missing page numbers!")
+		}
+		return nil
+	}
 
-	ctx.Write.SelectedPages = pages
-	if err = WriteContext(ctx, w); err != nil {
+	var pageNrs []int
+	for k, v := range pages {
+		if v {
+			pageNrs = append(pageNrs, k)
+		}
+	}
+	sort.Ints(pageNrs)
+
+	ctxDest, err := pdfcpu.ExtractPages(ctx, pageNrs, false)
+	if err != nil {
 		return err
 	}
 
-	durWrite := time.Since(fromWrite).Seconds()
-	durTotal := time.Since(fromStart).Seconds()
-	logOperationStats(ctx, "trim, write", durRead, durVal, durOpt, durWrite, durTotal)
+	if conf.PostProcessValidate {
+		if err = ValidateContext(ctxDest); err != nil {
+			return err
+		}
+	}
 
-	return nil
+	return WriteContext(ctxDest, w)
 }
 
 // TrimFile generates a trimmed version of inFile
 // containing all selected pages and writes the result to outFile.
-func TrimFile(inFile, outFile string, selectedPages []string, conf *pdfcpu.Configuration) (err error) {
+func TrimFile(inFile, outFile string, selectedPages []string, conf *model.Configuration) (err error) {
 	var f1, f2 *os.File
 
 	if f1, err = os.Open(inFile); err != nil {
@@ -77,11 +90,12 @@ func TrimFile(inFile, outFile string, selectedPages []string, conf *pdfcpu.Confi
 	tmpFile := inFile + ".tmp"
 	if outFile != "" && inFile != outFile {
 		tmpFile = outFile
-		log.CLI.Printf("writing %s...\n", outFile)
+		logWritingTo(outFile)
 	} else {
-		log.CLI.Printf("writing %s...\n", inFile)
+		logWritingTo(inFile)
 	}
 	if f2, err = os.Create(tmpFile); err != nil {
+		f1.Close()
 		return err
 	}
 
@@ -99,9 +113,7 @@ func TrimFile(inFile, outFile string, selectedPages []string, conf *pdfcpu.Confi
 			return
 		}
 		if outFile == "" || inFile == outFile {
-			if err = os.Rename(tmpFile, inFile); err != nil {
-				return
-			}
+			err = os.Rename(tmpFile, inFile)
 		}
 	}()
 

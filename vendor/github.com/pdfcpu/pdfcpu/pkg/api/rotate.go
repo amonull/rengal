@@ -19,31 +19,29 @@ package api
 import (
 	"io"
 	"os"
-	"time"
 
-	"github.com/pdfcpu/pdfcpu/pkg/log"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
+	"github.com/pkg/errors"
 )
 
 // Rotate rotates selected pages of rs clockwise by rotation degrees and writes the result to w.
-func Rotate(rs io.ReadSeeker, w io.Writer, rotation int, selectedPages []string, conf *pdfcpu.Configuration) error {
-	if conf == nil {
-		conf = pdfcpu.NewDefaultConfiguration()
+func Rotate(rs io.ReadSeeker, w io.Writer, rotation int, selectedPages []string, conf *model.Configuration) error {
+	if rs == nil {
+		return errors.New("pdfcpu: Rotate: missing rs")
 	}
-	conf.Cmd = pdfcpu.ROTATE
 
-	fromStart := time.Now()
-	ctx, durRead, durVal, durOpt, err := readValidateAndOptimize(rs, conf, fromStart)
+	if conf == nil {
+		conf = model.NewDefaultConfiguration()
+	}
+	conf.Cmd = model.ROTATE
+
+	ctx, err := ReadValidateAndOptimize(rs, conf)
 	if err != nil {
 		return err
 	}
 
-	if err := ctx.EnsurePageCount(); err != nil {
-		return err
-	}
-
-	from := time.Now()
-	pages, err := PagesForPageSelection(ctx.PageCount, selectedPages, true)
+	pages, err := PagesForPageSelection(ctx.PageCount, selectedPages, true, true)
 	if err != nil {
 		return err
 	}
@@ -52,29 +50,11 @@ func Rotate(rs io.ReadSeeker, w io.Writer, rotation int, selectedPages []string,
 		return err
 	}
 
-	log.Stats.Printf("XRefTable:\n%s\n", ctx)
-	durStamp := time.Since(from).Seconds()
-	fromWrite := time.Now()
-
-	if conf.ValidationMode != pdfcpu.ValidationNone {
-		if err = ValidateContext(ctx); err != nil {
-			return err
-		}
-	}
-
-	if err = WriteContext(ctx, w); err != nil {
-		return err
-	}
-
-	durWrite := durStamp + time.Since(fromWrite).Seconds()
-	durTotal := time.Since(fromStart).Seconds()
-	logOperationStats(ctx, "rotate, write", durRead, durVal, durOpt, durWrite, durTotal)
-
-	return nil
+	return Write(ctx, w, conf)
 }
 
 // RotateFile rotates selected pages of inFile clockwise by rotation degrees and writes the result to outFile.
-func RotateFile(inFile, outFile string, rotation int, selectedPages []string, conf *pdfcpu.Configuration) (err error) {
+func RotateFile(inFile, outFile string, rotation int, selectedPages []string, conf *model.Configuration) (err error) {
 	var f1, f2 *os.File
 
 	if f1, err = os.Open(inFile); err != nil {
@@ -84,11 +64,12 @@ func RotateFile(inFile, outFile string, rotation int, selectedPages []string, co
 	tmpFile := inFile + ".tmp"
 	if outFile != "" && inFile != outFile {
 		tmpFile = outFile
-		log.CLI.Printf("writing %s...\n", outFile)
+		logWritingTo(outFile)
 	} else {
-		log.CLI.Printf("writing %s...\n", inFile)
+		logWritingTo(inFile)
 	}
 	if f2, err = os.Create(tmpFile); err != nil {
+		f1.Close()
 		return err
 	}
 
@@ -106,9 +87,7 @@ func RotateFile(inFile, outFile string, rotation int, selectedPages []string, co
 			return
 		}
 		if outFile == "" || inFile == outFile {
-			if err = os.Rename(tmpFile, inFile); err != nil {
-				return
-			}
+			err = os.Rename(tmpFile, inFile)
 		}
 	}()
 

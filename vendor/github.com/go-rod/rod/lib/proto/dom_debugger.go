@@ -15,13 +15,13 @@ execution will stop on these operations as if there was a regular breakpoint set
 type DOMDebuggerDOMBreakpointType string
 
 const (
-	// DOMDebuggerDOMBreakpointTypeSubtreeModified enum const
+	// DOMDebuggerDOMBreakpointTypeSubtreeModified enum const.
 	DOMDebuggerDOMBreakpointTypeSubtreeModified DOMDebuggerDOMBreakpointType = "subtree-modified"
 
-	// DOMDebuggerDOMBreakpointTypeAttributeModified enum const
+	// DOMDebuggerDOMBreakpointTypeAttributeModified enum const.
 	DOMDebuggerDOMBreakpointTypeAttributeModified DOMDebuggerDOMBreakpointType = "attribute-modified"
 
-	// DOMDebuggerDOMBreakpointTypeNodeRemoved enum const
+	// DOMDebuggerDOMBreakpointTypeNodeRemoved enum const.
 	DOMDebuggerDOMBreakpointTypeNodeRemoved DOMDebuggerDOMBreakpointType = "node-removed"
 )
 
@@ -29,16 +29,15 @@ const (
 type DOMDebuggerCSPViolationType string
 
 const (
-	// DOMDebuggerCSPViolationTypeTrustedtypeSinkViolation enum const
+	// DOMDebuggerCSPViolationTypeTrustedtypeSinkViolation enum const.
 	DOMDebuggerCSPViolationTypeTrustedtypeSinkViolation DOMDebuggerCSPViolationType = "trustedtype-sink-violation"
 
-	// DOMDebuggerCSPViolationTypeTrustedtypePolicyViolation enum const
+	// DOMDebuggerCSPViolationTypeTrustedtypePolicyViolation enum const.
 	DOMDebuggerCSPViolationTypeTrustedtypePolicyViolation DOMDebuggerCSPViolationType = "trustedtype-policy-violation"
 )
 
 // DOMDebuggerEventListener Object event listener.
 type DOMDebuggerEventListener struct {
-
 	// Type `EventListener`'s type.
 	Type string `json:"type"`
 
@@ -72,7 +71,6 @@ type DOMDebuggerEventListener struct {
 
 // DOMDebuggerGetEventListeners Returns event listeners of the given object.
 type DOMDebuggerGetEventListeners struct {
-
 	// ObjectID Identifier of the object to return listeners for.
 	ObjectID RuntimeRemoteObjectID `json:"objectId"`
 
@@ -85,10 +83,10 @@ type DOMDebuggerGetEventListeners struct {
 	Pierce bool `json:"pierce,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DOMDebuggerGetEventListeners) ProtoReq() string { return "DOMDebugger.getEventListeners" }
 
-// Call the request
+// Call the request.
 func (m DOMDebuggerGetEventListeners) Call(c Client) (*DOMDebuggerGetEventListenersResult, error) {
 	var res DOMDebuggerGetEventListenersResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -96,32 +94,29 @@ func (m DOMDebuggerGetEventListeners) Call(c Client) (*DOMDebuggerGetEventListen
 
 // DOMDebuggerGetEventListenersResult ...
 type DOMDebuggerGetEventListenersResult struct {
-
 	// Listeners Array of relevant listeners.
 	Listeners []*DOMDebuggerEventListener `json:"listeners"`
 }
 
 // DOMDebuggerRemoveDOMBreakpoint Removes DOM breakpoint that was set using `setDOMBreakpoint`.
 type DOMDebuggerRemoveDOMBreakpoint struct {
-
 	// NodeID Identifier of the node to remove breakpoint from.
 	NodeID DOMNodeID `json:"nodeId"`
 
-	// Type Type of the breakpoint to remove.
+	// Type of the breakpoint to remove.
 	Type DOMDebuggerDOMBreakpointType `json:"type"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DOMDebuggerRemoveDOMBreakpoint) ProtoReq() string { return "DOMDebugger.removeDOMBreakpoint" }
 
-// Call sends the request
+// Call sends the request.
 func (m DOMDebuggerRemoveDOMBreakpoint) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DOMDebuggerRemoveEventListenerBreakpoint Removes breakpoint on particular DOM event.
 type DOMDebuggerRemoveEventListenerBreakpoint struct {
-
 	// EventName Event name.
 	EventName string `json:"eventName"`
 
@@ -129,86 +124,81 @@ type DOMDebuggerRemoveEventListenerBreakpoint struct {
 	TargetName string `json:"targetName,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DOMDebuggerRemoveEventListenerBreakpoint) ProtoReq() string {
 	return "DOMDebugger.removeEventListenerBreakpoint"
 }
 
-// Call sends the request
+// Call sends the request.
 func (m DOMDebuggerRemoveEventListenerBreakpoint) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
-// DOMDebuggerRemoveInstrumentationBreakpoint (experimental) Removes breakpoint on particular native event.
+// DOMDebuggerRemoveInstrumentationBreakpoint (deprecated) (experimental) Removes breakpoint on particular native event.
 type DOMDebuggerRemoveInstrumentationBreakpoint struct {
-
 	// EventName Instrumentation name to stop on.
 	EventName string `json:"eventName"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DOMDebuggerRemoveInstrumentationBreakpoint) ProtoReq() string {
 	return "DOMDebugger.removeInstrumentationBreakpoint"
 }
 
-// Call sends the request
+// Call sends the request.
 func (m DOMDebuggerRemoveInstrumentationBreakpoint) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DOMDebuggerRemoveXHRBreakpoint Removes breakpoint from XMLHttpRequest.
 type DOMDebuggerRemoveXHRBreakpoint struct {
-
 	// URL Resource URL substring.
 	URL string `json:"url"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DOMDebuggerRemoveXHRBreakpoint) ProtoReq() string { return "DOMDebugger.removeXHRBreakpoint" }
 
-// Call sends the request
+// Call sends the request.
 func (m DOMDebuggerRemoveXHRBreakpoint) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DOMDebuggerSetBreakOnCSPViolation (experimental) Sets breakpoint on particular CSP violations.
 type DOMDebuggerSetBreakOnCSPViolation struct {
-
 	// ViolationTypes CSP Violations to stop upon.
 	ViolationTypes []DOMDebuggerCSPViolationType `json:"violationTypes"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DOMDebuggerSetBreakOnCSPViolation) ProtoReq() string {
 	return "DOMDebugger.setBreakOnCSPViolation"
 }
 
-// Call sends the request
+// Call sends the request.
 func (m DOMDebuggerSetBreakOnCSPViolation) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DOMDebuggerSetDOMBreakpoint Sets breakpoint on particular operation with DOM.
 type DOMDebuggerSetDOMBreakpoint struct {
-
 	// NodeID Identifier of the node to set breakpoint on.
 	NodeID DOMNodeID `json:"nodeId"`
 
-	// Type Type of the operation to stop upon.
+	// Type of the operation to stop upon.
 	Type DOMDebuggerDOMBreakpointType `json:"type"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DOMDebuggerSetDOMBreakpoint) ProtoReq() string { return "DOMDebugger.setDOMBreakpoint" }
 
-// Call sends the request
+// Call sends the request.
 func (m DOMDebuggerSetDOMBreakpoint) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DOMDebuggerSetEventListenerBreakpoint Sets breakpoint on particular DOM event.
 type DOMDebuggerSetEventListenerBreakpoint struct {
-
 	// EventName DOM Event name to stop on (any DOM event will do).
 	EventName string `json:"eventName"`
 
@@ -217,44 +207,42 @@ type DOMDebuggerSetEventListenerBreakpoint struct {
 	TargetName string `json:"targetName,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DOMDebuggerSetEventListenerBreakpoint) ProtoReq() string {
 	return "DOMDebugger.setEventListenerBreakpoint"
 }
 
-// Call sends the request
+// Call sends the request.
 func (m DOMDebuggerSetEventListenerBreakpoint) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
-// DOMDebuggerSetInstrumentationBreakpoint (experimental) Sets breakpoint on particular native event.
+// DOMDebuggerSetInstrumentationBreakpoint (deprecated) (experimental) Sets breakpoint on particular native event.
 type DOMDebuggerSetInstrumentationBreakpoint struct {
-
 	// EventName Instrumentation name to stop on.
 	EventName string `json:"eventName"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DOMDebuggerSetInstrumentationBreakpoint) ProtoReq() string {
 	return "DOMDebugger.setInstrumentationBreakpoint"
 }
 
-// Call sends the request
+// Call sends the request.
 func (m DOMDebuggerSetInstrumentationBreakpoint) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DOMDebuggerSetXHRBreakpoint Sets breakpoint on XMLHttpRequest.
 type DOMDebuggerSetXHRBreakpoint struct {
-
 	// URL Resource URL substring. All XHRs having this substring in the URL will get stopped upon.
 	URL string `json:"url"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DOMDebuggerSetXHRBreakpoint) ProtoReq() string { return "DOMDebugger.setXHRBreakpoint" }
 
-// Call sends the request
+// Call sends the request.
 func (m DOMDebuggerSetXHRBreakpoint) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }

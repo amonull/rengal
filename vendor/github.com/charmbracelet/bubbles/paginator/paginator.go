@@ -1,4 +1,4 @@
-// Package paginator provides a Bubble Tea package for calulating pagination
+// Package paginator provides a Bubble Tea package for calculating pagination
 // and rendering pagination info. Note that this package does not render actual
 // pages: it's purely for handling keystrokes related to pagination, and
 // rendering pagination status.
@@ -66,7 +66,7 @@ type Model struct {
 }
 
 // SetTotalPages is a helper function for calculating the total number of pages
-// from a given number of items. It's use is optional since this pager can be
+// from a given number of items. Its use is optional since this pager can be
 // used for other things beyond navigating sets. Note that it both returns the
 // number of total pages and alters the model.
 func (m *Model) SetTotalPages(items int) int {
@@ -93,7 +93,7 @@ func (m Model) ItemsOnPage(totalItems int) int {
 
 // GetSliceBounds is a helper function for paginating slices. Pass the length
 // of the slice you're rendering and you'll receive the start and end bounds
-// corresponding the to pagination. For example:
+// corresponding to the pagination. For example:
 //
 //	bunchOfStuff := []stuff{...}
 //	start, end := model.GetSliceBounds(len(bunchOfStuff))
@@ -104,7 +104,7 @@ func (m *Model) GetSliceBounds(length int) (start int, end int) {
 	return start, end
 }
 
-// PrevPage is a number function for navigating one page backward. It will not
+// PrevPage is a helper function for navigating one page backward. It will not
 // page beyond the first page (i.e. page 0).
 func (m *Model) PrevPage() {
 	if m.Page > 0 {
@@ -125,9 +125,17 @@ func (m Model) OnLastPage() bool {
 	return m.Page == m.TotalPages-1
 }
 
+// OnFirstPage returns whether or not we're on the first page.
+func (m Model) OnFirstPage() bool {
+	return m.Page == 0
+}
+
+// Option is used to set options in New.
+type Option func(*Model)
+
 // New creates a new model with defaults.
-func New() Model {
-	return Model{
+func New(opts ...Option) Model {
+	m := Model{
 		Type:         Arabic,
 		Page:         0,
 		PerPage:      1,
@@ -137,12 +145,32 @@ func New() Model {
 		InactiveDot:  "○",
 		ArabicFormat: "%d/%d",
 	}
+
+	for _, opt := range opts {
+		opt(&m)
+	}
+
+	return m
 }
 
 // NewModel creates a new model with defaults.
 //
 // Deprecated: use [New] instead.
 var NewModel = New
+
+// WithTotalPages sets the total pages.
+func WithTotalPages(totalPages int) Option {
+	return func(m *Model) {
+		m.TotalPages = totalPages
+	}
+}
+
+// WithPerPage sets the total pages.
+func WithPerPage(perPage int) Option {
+	return func(m *Model) {
+		m.PerPage = perPage
+	}
+}
 
 // Update is the Tea update function which binds keystrokes to pagination.
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
@@ -161,7 +189,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 // View renders the pagination to a string.
 func (m Model) View() string {
-	switch m.Type {
+	switch m.Type { //nolint:exhaustive
 	case Dots:
 		return m.dotsView()
 	default:
@@ -183,11 +211,4 @@ func (m Model) dotsView() string {
 
 func (m Model) arabicView() string {
 	return fmt.Sprintf(m.ArabicFormat, m.Page+1, m.TotalPages)
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }

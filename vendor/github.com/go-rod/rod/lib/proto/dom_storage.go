@@ -15,7 +15,6 @@ type DOMStorageSerializedStorageKey string
 
 // DOMStorageStorageID DOM Storage identifier.
 type DOMStorageStorageID struct {
-
 	// SecurityOrigin (optional) Security origin for the storage.
 	SecurityOrigin string `json:"securityOrigin,omitempty"`
 
@@ -31,54 +30,50 @@ type DOMStorageItem []string
 
 // DOMStorageClear ...
 type DOMStorageClear struct {
-
 	// StorageID ...
 	StorageID *DOMStorageStorageID `json:"storageId"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DOMStorageClear) ProtoReq() string { return "DOMStorage.clear" }
 
-// Call sends the request
+// Call sends the request.
 func (m DOMStorageClear) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DOMStorageDisable Disables storage tracking, prevents storage events from being sent to the client.
-type DOMStorageDisable struct {
-}
+type DOMStorageDisable struct{}
 
-// ProtoReq name
+// ProtoReq name.
 func (m DOMStorageDisable) ProtoReq() string { return "DOMStorage.disable" }
 
-// Call sends the request
+// Call sends the request.
 func (m DOMStorageDisable) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DOMStorageEnable Enables storage tracking, storage events will now be delivered to the client.
-type DOMStorageEnable struct {
-}
+type DOMStorageEnable struct{}
 
-// ProtoReq name
+// ProtoReq name.
 func (m DOMStorageEnable) ProtoReq() string { return "DOMStorage.enable" }
 
-// Call sends the request
+// Call sends the request.
 func (m DOMStorageEnable) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DOMStorageGetDOMStorageItems ...
 type DOMStorageGetDOMStorageItems struct {
-
 	// StorageID ...
 	StorageID *DOMStorageStorageID `json:"storageId"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DOMStorageGetDOMStorageItems) ProtoReq() string { return "DOMStorage.getDOMStorageItems" }
 
-// Call the request
+// Call the request.
 func (m DOMStorageGetDOMStorageItems) Call(c Client) (*DOMStorageGetDOMStorageItemsResult, error) {
 	var res DOMStorageGetDOMStorageItemsResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -86,14 +81,12 @@ func (m DOMStorageGetDOMStorageItems) Call(c Client) (*DOMStorageGetDOMStorageIt
 
 // DOMStorageGetDOMStorageItemsResult ...
 type DOMStorageGetDOMStorageItemsResult struct {
-
 	// Entries ...
 	Entries []DOMStorageItem `json:"entries"`
 }
 
 // DOMStorageRemoveDOMStorageItem ...
 type DOMStorageRemoveDOMStorageItem struct {
-
 	// StorageID ...
 	StorageID *DOMStorageStorageID `json:"storageId"`
 
@@ -101,17 +94,16 @@ type DOMStorageRemoveDOMStorageItem struct {
 	Key string `json:"key"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DOMStorageRemoveDOMStorageItem) ProtoReq() string { return "DOMStorage.removeDOMStorageItem" }
 
-// Call sends the request
+// Call sends the request.
 func (m DOMStorageRemoveDOMStorageItem) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DOMStorageSetDOMStorageItem ...
 type DOMStorageSetDOMStorageItem struct {
-
 	// StorageID ...
 	StorageID *DOMStorageStorageID `json:"storageId"`
 
@@ -122,17 +114,16 @@ type DOMStorageSetDOMStorageItem struct {
 	Value string `json:"value"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DOMStorageSetDOMStorageItem) ProtoReq() string { return "DOMStorage.setDOMStorageItem" }
 
-// Call sends the request
+// Call sends the request.
 func (m DOMStorageSetDOMStorageItem) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DOMStorageDomStorageItemAdded ...
 type DOMStorageDomStorageItemAdded struct {
-
 	// StorageID ...
 	StorageID *DOMStorageStorageID `json:"storageId"`
 
@@ -143,14 +134,13 @@ type DOMStorageDomStorageItemAdded struct {
 	NewValue string `json:"newValue"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt DOMStorageDomStorageItemAdded) ProtoEvent() string {
 	return "DOMStorage.domStorageItemAdded"
 }
 
 // DOMStorageDomStorageItemRemoved ...
 type DOMStorageDomStorageItemRemoved struct {
-
 	// StorageID ...
 	StorageID *DOMStorageStorageID `json:"storageId"`
 
@@ -158,14 +148,13 @@ type DOMStorageDomStorageItemRemoved struct {
 	Key string `json:"key"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt DOMStorageDomStorageItemRemoved) ProtoEvent() string {
 	return "DOMStorage.domStorageItemRemoved"
 }
 
 // DOMStorageDomStorageItemUpdated ...
 type DOMStorageDomStorageItemUpdated struct {
-
 	// StorageID ...
 	StorageID *DOMStorageStorageID `json:"storageId"`
 
@@ -179,19 +168,18 @@ type DOMStorageDomStorageItemUpdated struct {
 	NewValue string `json:"newValue"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt DOMStorageDomStorageItemUpdated) ProtoEvent() string {
 	return "DOMStorage.domStorageItemUpdated"
 }
 
 // DOMStorageDomStorageItemsCleared ...
 type DOMStorageDomStorageItemsCleared struct {
-
 	// StorageID ...
 	StorageID *DOMStorageStorageID `json:"storageId"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt DOMStorageDomStorageItemsCleared) ProtoEvent() string {
 	return "DOMStorage.domStorageItemsCleared"
 }

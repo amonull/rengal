@@ -31,8 +31,9 @@ type lzwDecode struct {
 
 // Encode implements encoding for an LZWDecode filter.
 func (f lzwDecode) Encode(r io.Reader) (io.Reader, error) {
-
-	log.Trace.Println("EncodeLZW begin")
+	if log.TraceEnabled() {
+		log.Trace.Println("EncodeLZW begin")
+	}
 
 	var b bytes.Buffer
 
@@ -48,15 +49,23 @@ func (f lzwDecode) Encode(r io.Reader) (io.Reader, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Trace.Printf("EncodeLZW end: %d bytes written\n", written)
+
+	if log.TraceEnabled() {
+		log.Trace.Printf("EncodeLZW end: %d bytes written\n", written)
+	}
 
 	return &b, nil
 }
 
 // Decode implements decoding for an LZWDecode filter.
 func (f lzwDecode) Decode(r io.Reader) (io.Reader, error) {
+	return f.DecodeLength(r, -1)
+}
 
-	log.Trace.Println("DecodeLZW begin")
+func (f lzwDecode) DecodeLength(r io.Reader, maxLen int64) (io.Reader, error) {
+	if log.TraceEnabled() {
+		log.Trace.Println("DecodeLZW begin")
+	}
 
 	p, found := f.parms["Predictor"]
 	if found && p > 1 {
@@ -72,11 +81,20 @@ func (f lzwDecode) Decode(r io.Reader) (io.Reader, error) {
 	defer rc.Close()
 
 	var b bytes.Buffer
-	written, err := io.Copy(&b, rc)
+	var written int64
+	var err error
+	if maxLen < 0 {
+		written, err = io.Copy(&b, rc)
+	} else {
+		written, err = io.CopyN(&b, rc, maxLen)
+	}
 	if err != nil {
 		return nil, err
 	}
-	log.Trace.Printf("DecodeLZW: decoded %d bytes.\n", written)
+
+	if log.TraceEnabled() {
+		log.Trace.Printf("DecodeLZW: decoded %d bytes.\n", written)
+	}
 
 	return &b, nil
 }

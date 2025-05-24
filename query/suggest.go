@@ -36,8 +36,16 @@ func SuggestMany(query string) []string {
 			}
 		}
 
-		slices.SortFunc(records, func(a, b *queryRecord) bool {
-			return a.Rank > b.Rank
+		slices.SortFunc(records, func(a, b *queryRecord) int {
+			if a.Rank < b.Rank {
+				return 1
+			}
+
+			if a.Rank > b.Rank {
+				return -1
+			}
+
+			return 0
 		})
 
 		suggestionCache[query] = records

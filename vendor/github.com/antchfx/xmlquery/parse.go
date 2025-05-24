@@ -2,12 +2,14 @@ package xmlquery
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/xml"
 	"fmt"
 	"io"
 	"net/http"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/antchfx/xpath"
 	"golang.org/x/net/html/charset"
@@ -38,21 +40,36 @@ func Parse(r io.Reader) (*Node, error) {
 func ParseWithOptions(r io.Reader, options ParserOptions) (*Node, error) {
 	p := createParser(r)
 	options.apply(p)
-	for {
-		_, err := p.parse()
-		if err == io.EOF {
-			return p.doc, nil
-		}
-		if err != nil {
-			return nil, err
-		}
+	var err error
+	for err == nil {
+		_, err = p.parse()
 	}
+
+	if err == io.EOF {
+		// additional check for validity
+		// according to: https://www.w3.org/TR/xml
+		// the document MUST contain at least ONE element
+		valid := false
+		for doc := p.doc; doc != nil; doc = doc.NextSibling {
+			for node := doc.FirstChild; node != nil; node = node.NextSibling {
+				if node.Type == ElementNode {
+					valid = true
+					break
+				}
+			}
+		}
+		if !valid {
+			return nil, fmt.Errorf("xmlquery: invalid XML document")
+		}
+		return p.doc, nil
+	}
+
+	return nil, err
 }
 
 type parser struct {
 	decoder             *xml.Decoder
 	doc                 *Node
-	space2prefix        map[string]string
 	level               int
 	prev                *Node
 	streamElementXPath  *xpath.Expr   // Under streaming mode, this specifies the xpath to the target element node(s).
@@ -60,29 +77,40 @@ type parser struct {
 	streamNode          *Node         // Need to remember the last target node So we can clean it up upon next Read() call.
 	streamNodePrev      *Node         // Need to remember target node's prev so upon target node removal, we can restore correct prev.
 	reader              *cachedReader // Need to maintain a reference to the reader, so we can determine whether a node contains CDATA.
+	once                sync.Once
+	space2prefix        map[string]*xmlnsPrefix
+}
+
+type xmlnsPrefix struct {
+	name  string
+	level int
 }
 
 func createParser(r io.Reader) *parser {
 	reader := newCachedReader(bufio.NewReader(r))
 	p := &parser{
-		decoder:      xml.NewDecoder(reader),
-		doc:          &Node{Type: DocumentNode},
-		space2prefix: make(map[string]string),
-		level:        0,
-		reader:       reader,
+		decoder: xml.NewDecoder(reader),
+		doc:     &Node{Type: DocumentNode},
+		level:   0,
+		reader:  reader,
 	}
-	// http://www.w3.org/XML/1998/namespace is bound by definition to the prefix xml.
-	p.space2prefix["http://www.w3.org/XML/1998/namespace"] = "xml"
-	p.decoder.CharsetReader = charset.NewReaderLabel
+	if p.decoder.CharsetReader == nil {
+		p.decoder.CharsetReader = charset.NewReaderLabel
+	}
 	p.prev = p.doc
 	return p
 }
 
 func (p *parser) parse() (*Node, error) {
-	var streamElementNodeCounter int
+	p.once.Do(func() {
+		p.space2prefix = map[string]*xmlnsPrefix{"http://www.w3.org/XML/1998/namespace": {name: "xml", level: 0}}
+	})
 
+	var streamElementNodeCounter int
 	for {
+		p.reader.StartCaching()
 		tok, err := p.decoder.Token()
+		p.reader.StopCaching()
 		if err != nil {
 			return nil, err
 		}
@@ -104,16 +132,16 @@ func (p *parser) parse() (*Node, error) {
 				p.level = 1
 				p.prev = node
 			}
-			// https://www.w3.org/TR/xml-names/#scoping-defaulting
-			var defaultNamespaceURL string
+
 			for _, att := range tok.Attr {
 				if att.Name.Local == "xmlns" {
-					p.space2prefix[att.Value] = "" // reset empty if exist the default namespace
-					defaultNamespaceURL = att.Value
-				} else if att.Name.Space == "xmlns" {
-					if _, ok := p.space2prefix[att.Value]; !ok {
-						p.space2prefix[att.Value] = att.Name.Local
+					// https://github.com/antchfx/xmlquery/issues/67
+					if prefix, ok := p.space2prefix[att.Value]; !ok || (ok && prefix.level >= p.level) {
+						p.space2prefix[att.Value] = &xmlnsPrefix{name: "", level: p.level} // reset empty if exist the default namespace
 					}
+				} else if att.Name.Space == "xmlns" {
+					// maybe there are have duplicate NamespaceURL?
+					p.space2prefix[att.Value] = &xmlnsPrefix{name: att.Name.Local, level: p.level}
 				}
 			}
 
@@ -127,7 +155,7 @@ func (p *parser) parse() (*Node, error) {
 			for i, att := range tok.Attr {
 				name := att.Name
 				if prefix, ok := p.space2prefix[name.Space]; ok {
-					name.Space = prefix
+					name.Space = prefix.name
 				}
 				attributes[i] = Attr{
 					Name:         name,
@@ -154,12 +182,13 @@ func (p *parser) parse() (*Node, error) {
 				}
 				AddSibling(p.prev.Parent, node)
 			}
+
 			if node.NamespaceURI != "" {
-				node.Prefix = p.space2prefix[node.NamespaceURI]
-				if defaultNamespaceURL != "" && node.NamespaceURI == defaultNamespaceURL {
-					node.Prefix = ""
-				} else if n := node.Parent; n != nil && node.NamespaceURI == n.NamespaceURI {
-					node.Prefix = n.Prefix
+				if v, ok := p.space2prefix[node.NamespaceURI]; ok {
+					cached := string(p.reader.CacheWithLimit(len(v.name) + len(node.Data) + 2))
+					if strings.HasPrefix(cached, fmt.Sprintf("%s:%s", v.name, node.Data)) || strings.HasPrefix(cached, fmt.Sprintf("<%s:%s", v.name, node.Data)) {
+						node.Prefix = v.name
+					}
 				}
 			}
 			// If we're in the streaming mode, we need to remember the node if it is the target node
@@ -179,7 +208,6 @@ func (p *parser) parse() (*Node, error) {
 			}
 			p.prev = node
 			p.level++
-			p.reader.StartCaching()
 		case xml.EndElement:
 			p.level--
 			// If we're in streaming mode, and we already have a potential streaming
@@ -216,14 +244,12 @@ func (p *parser) parse() (*Node, error) {
 				}
 			}
 		case xml.CharData:
-			p.reader.StopCaching()
 			// First, normalize the cache...
-			cached := strings.ToUpper(string(p.reader.Cache()))
+			cached := bytes.ToUpper(p.reader.CacheWithLimit(9))
 			nodeType := TextNode
-			if strings.HasPrefix(cached, "<![CDATA[") || strings.HasPrefix(cached, "![CDATA[") {
+			if bytes.HasPrefix(cached, []byte("<![CDATA[")) || bytes.HasPrefix(cached, []byte("![CDATA[")) {
 				nodeType = CharDataNode
 			}
-
 			node := &Node{Type: nodeType, Data: string(tok), level: p.level}
 			if p.level == p.prev.level {
 				AddSibling(p.prev, node)
@@ -235,7 +261,6 @@ func (p *parser) parse() (*Node, error) {
 				}
 				AddSibling(p.prev.Parent, node)
 			}
-			p.reader.StartCaching()
 		case xml.Comment:
 			node := &Node{Type: CommentNode, Data: string(tok), level: p.level}
 			if p.level == p.prev.level {
@@ -257,7 +282,7 @@ func (p *parser) parse() (*Node, error) {
 			for _, pair := range pairs {
 				pair = strings.TrimSpace(pair)
 				if i := strings.Index(pair, "="); i > 0 {
-					AddAttr(node, pair[:i], strings.Trim(pair[i+1:], `"`))
+					AddAttr(node, pair[:i], strings.Trim(pair[i+1:], `"'`))
 				}
 			}
 			if p.level == p.prev.level {
@@ -272,6 +297,17 @@ func (p *parser) parse() (*Node, error) {
 			}
 			p.prev = node
 		case xml.Directive:
+			node := &Node{Type: NotationNode, Data: string(tok), level: p.level}
+			if p.level == p.prev.level {
+				AddSibling(p.prev, node)
+			} else if p.level > p.prev.level {
+				AddChild(p.prev, node)
+			} else if p.level < p.prev.level {
+				for i := p.prev.level - p.level; i > 1; i-- {
+					p.prev = p.prev.Parent
+				}
+				AddSibling(p.prev.Parent, node)
+			}
 		}
 	}
 }
@@ -288,37 +324,43 @@ type StreamParser struct {
 // scenarios.
 //
 // Scenario 1: simple case:
-//  xml := `<AAA><BBB>b1</BBB><BBB>b2</BBB></AAA>`
-//  sp, err := CreateStreamParser(strings.NewReader(xml), "/AAA/BBB")
-//  if err != nil {
-//      panic(err)
-//  }
-//  for {
-//      n, err := sp.Read()
-//      if err != nil {
-//          break
-//      }
-//      fmt.Println(n.OutputXML(true))
-//  }
+//
+//	xml := `<AAA><BBB>b1</BBB><BBB>b2</BBB></AAA>`
+//	sp, err := CreateStreamParser(strings.NewReader(xml), "/AAA/BBB")
+//	if err != nil {
+//	    panic(err)
+//	}
+//	for {
+//	    n, err := sp.Read()
+//	    if err != nil {
+//	        break
+//	    }
+//	    fmt.Println(n.OutputXML(true))
+//	}
+//
 // Output will be:
-//   <BBB>b1</BBB>
-//   <BBB>b2</BBB>
+//
+//	<BBB>b1</BBB>
+//	<BBB>b2</BBB>
 //
 // Scenario 2: advanced case:
-//  xml := `<AAA><BBB>b1</BBB><BBB>b2</BBB></AAA>`
-//  sp, err := CreateStreamParser(strings.NewReader(xml), "/AAA/BBB", "/AAA/BBB[. != 'b1']")
-//  if err != nil {
-//      panic(err)
-//  }
-//  for {
-//      n, err := sp.Read()
-//      if err != nil {
-//          break
-//      }
-//      fmt.Println(n.OutputXML(true))
-//  }
+//
+//	xml := `<AAA><BBB>b1</BBB><BBB>b2</BBB></AAA>`
+//	sp, err := CreateStreamParser(strings.NewReader(xml), "/AAA/BBB", "/AAA/BBB[. != 'b1']")
+//	if err != nil {
+//	    panic(err)
+//	}
+//	for {
+//	    n, err := sp.Read()
+//	    if err != nil {
+//	        break
+//	    }
+//	    fmt.Println(n.OutputXML(true))
+//	}
+//
 // Output will be:
-//   <BBB>b2</BBB>
+//
+//	<BBB>b2</BBB>
 //
 // As the argument names indicate, streamElementXPath should be used for
 // providing xpath query pointing to the target element node only, no extra

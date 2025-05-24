@@ -1,2 +1,4 @@
-github.com/ysmood/got v0.32.0 h1:aAHdQgfgMb/lo4v+OekM+SSqEJYFI035h5YYvLXsVyU=
-github.com/ysmood/got v0.32.0/go.mod h1:pE1l4LOwOBhQg6A/8IAatkGp7uZjnalzrZolnlhhMgY=
+github.com/ysmood/fetchup v0.2.1 h1:n/NgIx92KOXFiKAhK3d+LlKpl8JuSjh5U27ULmHKtag=
+github.com/ysmood/fetchup v0.2.1/go.mod h1:94ROLWpn5fmCD4LPlcZ+LOE/iE/kRTU3kL+0ue/V+Os=
+github.com/ysmood/got v0.33.2 h1:mz0PaCMzR//YBtDDkDf6z0O09SfotXBHzw3zLrrS2sw=
+github.com/ysmood/got v0.33.2/go.mod h1:P3C/Wwttv4uq/tpovaH+c8ANmHePyFPxEbNzdxcEGDU=

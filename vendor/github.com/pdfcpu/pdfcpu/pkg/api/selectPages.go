@@ -24,7 +24,7 @@ import (
 	"strings"
 
 	"github.com/pdfcpu/pdfcpu/pkg/log"
-	pdf "github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
 	"github.com/pkg/errors"
 )
 
@@ -73,7 +73,7 @@ func ParsePageSelection(s string) ([]string, error) {
 	return strings.Split(s, ","), nil
 }
 
-func handlePrefix(v string, negated bool, pageCount int, selectedPages pdf.IntSet) error {
+func handlePrefix(v string, negated bool, pageCount int, selectedPages types.IntSet) error {
 	// -l
 	if v == "l" {
 		for j := 1; j <= pageCount; j++ {
@@ -118,7 +118,7 @@ func handlePrefix(v string, negated bool, pageCount int, selectedPages pdf.IntSe
 	return nil
 }
 
-func handleSuffix(v string, negated bool, pageCount int, selectedPages pdf.IntSet) error {
+func handleSuffix(v string, negated bool, pageCount int, selectedPages types.IntSet) error {
 	// must be #- ... select all pages from here until the end.
 	// or !#- ... deselect all pages from here until the end.
 
@@ -139,8 +139,7 @@ func handleSuffix(v string, negated bool, pageCount int, selectedPages pdf.IntSe
 	return nil
 }
 
-func handleSpecificPageOrLastXPages(s string, negated bool, pageCount int, selectedPages pdf.IntSet) error {
-
+func handleSpecificPageOrLastXPages(s string, negated bool, pageCount int, selectedPages types.IntSet) error {
 	// l
 	if s == "l" {
 		selectedPages[pageCount] = !negated
@@ -190,7 +189,7 @@ func negation(c byte) bool {
 	return c == '!' || c == 'n'
 }
 
-func selectEvenPages(selectedPages pdf.IntSet, pageCount int) {
+func selectEvenPages(selectedPages types.IntSet, pageCount int) {
 	for i := 2; i <= pageCount; i += 2 {
 		_, found := selectedPages[i]
 		if !found {
@@ -199,7 +198,7 @@ func selectEvenPages(selectedPages pdf.IntSet, pageCount int) {
 	}
 }
 
-func selectOddPages(selectedPages pdf.IntSet, pageCount int) {
+func selectOddPages(selectedPages types.IntSet, pageCount int) {
 	for i := 1; i <= pageCount; i += 2 {
 		_, found := selectedPages[i]
 		if !found {
@@ -208,7 +207,7 @@ func selectOddPages(selectedPages pdf.IntSet, pageCount int) {
 	}
 }
 
-func parsePageRange(pr []string, pageCount int, negated bool, selectedPages pdf.IntSet) error {
+func parsePageRange(pr []string, pageCount int, negated bool, selectedPages types.IntSet) error {
 	from, err := strconv.Atoi(pr[0])
 	if err != nil {
 		return err
@@ -256,7 +255,7 @@ func parsePageRange(pr []string, pageCount int, negated bool, selectedPages pdf.
 	return nil
 }
 
-func sortedPages(selectedPages pdf.IntSet) []int {
+func sortedPages(selectedPages types.IntSet) []int {
 	p := []int(nil)
 	for i, v := range selectedPages {
 		if v {
@@ -267,8 +266,8 @@ func sortedPages(selectedPages pdf.IntSet) []int {
 	return p
 }
 
-func logSelPages(selectedPages pdf.IntSet) {
-	if !log.IsCLILoggerEnabled() {
+func logSelPages(selectedPages types.IntSet) {
+	if !log.CLIEnabled() || len(selectedPages) == 0 {
 		return
 	}
 	var b strings.Builder
@@ -279,15 +278,13 @@ func logSelPages(selectedPages pdf.IntSet) {
 	if len(s) > 1 {
 		s = s[:len(s)-1]
 	}
-	// TODO Supress for multifile cmds
-	log.CLI.Printf("pages: %s\n", s)
+	// TODO Suppress for multifile cmds
+	if log.CLIEnabled() {
+		log.CLI.Printf("pages: %s\n", s)
+	}
 }
 
-// selectedPages returns a set of used page numbers.
-// key==page# => key 0 unused!
-func selectedPages(pageCount int, pageSelection []string) (pdf.IntSet, error) {
-	selectedPages := pdf.IntSet{}
-
+func calcSelPages(pageCount int, pageSelection []string, selectedPages types.IntSet) error {
 	for _, v := range pageSelection {
 
 		//log.Stats.Printf("pageExp: <%s>\n", v)
@@ -315,7 +312,7 @@ func selectedPages(pageCount int, pageSelection []string) (pdf.IntSet, error) {
 			v = v[1:]
 
 			if err := handlePrefix(v, negated, pageCount, selectedPages); err != nil {
-				return nil, err
+				return err
 			}
 
 			continue
@@ -325,7 +322,7 @@ func selectedPages(pageCount int, pageSelection []string) (pdf.IntSet, error) {
 		if v[0] != 'l' && strings.HasSuffix(v, "-") {
 
 			if err := handleSuffix(v[:len(v)-1], negated, pageCount, selectedPages); err != nil {
-				return nil, err
+				return err
 			}
 
 			continue
@@ -334,7 +331,7 @@ func selectedPages(pageCount int, pageSelection []string) (pdf.IntSet, error) {
 		// l l-# l-#-
 		if v[0] == 'l' {
 			if err := handleSpecificPageOrLastXPages(v, negated, pageCount, selectedPages); err != nil {
-				return nil, err
+				return err
 			}
 			continue
 		}
@@ -344,7 +341,7 @@ func selectedPages(pageCount int, pageSelection []string) (pdf.IntSet, error) {
 			// v contains '-' somewhere in the middle
 			// #-# #-l #-l-#
 			if err := parsePageRange(pr, pageCount, negated, selectedPages); err != nil {
-				return nil, err
+				return err
 			}
 
 			continue
@@ -352,30 +349,65 @@ func selectedPages(pageCount int, pageSelection []string) (pdf.IntSet, error) {
 
 		// #
 		if err := handleSpecificPageOrLastXPages(pr[0], negated, pageCount, selectedPages); err != nil {
-			return nil, err
+			return err
 		}
 
 	}
 
-	logSelPages(selectedPages)
+	return nil
+}
+
+// selectedPages returns a set of used page numbers.
+// key==page# => key 0 unused!
+func selectedPages(pageCount int, pageSelection []string, log bool) (types.IntSet, error) {
+	selectedPages := types.IntSet{}
+
+	if err := calcSelPages(pageCount, pageSelection, selectedPages); err != nil {
+		return nil, err
+	}
+
+	if log {
+		logSelPages(selectedPages)
+	}
+
 	return selectedPages, nil
 }
 
 // PagesForPageSelection ensures a set of page numbers for an ascending page sequence
 // where each page number may appear only once.
-func PagesForPageSelection(pageCount int, pageSelection []string, ensureAllforNone bool) (pdf.IntSet, error) {
+func PagesForPageSelection(pageCount int, pageSelection []string, ensureAllforNone bool, log bool) (types.IntSet, error) {
 	if len(pageSelection) > 0 {
-		return selectedPages(pageCount, pageSelection)
+		return selectedPages(pageCount, pageSelection, log)
 	}
 	if !ensureAllforNone {
 		//log.CLI.Printf("pages: none\n")
 		return nil, nil
 	}
-	m := pdf.IntSet{}
+	m := types.IntSet{}
 	for i := 1; i <= pageCount; i++ {
 		m[i] = true
 	}
 	//log.CLI.Printf("pages: all\n")
+	return m, nil
+}
+
+func RemainingPagesForPageRemoval(pageCount int, pageSelection []string, log bool) (types.IntSet, error) {
+	pagesToRemove, err := selectedPages(pageCount, pageSelection, log)
+	if err != nil {
+		return nil, err
+	}
+
+	m := types.IntSet{}
+	for i := 1; i <= pageCount; i++ {
+		m[i] = true
+	}
+
+	for k, v := range pagesToRemove {
+		if v {
+			m[k] = false
+		}
+	}
+
 	return m, nil
 }
 
@@ -476,7 +508,6 @@ func handleSuffixForCollection(v string, negated bool, pageCount int, cp *[]int)
 }
 
 func handleSpecificPageOrLastXPagesForCollection(s string, negated bool, pageCount int, cp *[]int) error {
-
 	// l
 	if s == "l" {
 		processPageForCollection(cp, negated, pageCount)
@@ -570,10 +601,9 @@ func parsePageRangeForCollection(pr []string, pageCount int, negated bool, cp *[
 	return nil
 }
 
-// PagesForPageCollection returns a slice of page numbers for a page collection.
-// Any page number in any order any number of times allowed.
-func PagesForPageCollection(pageCount int, pageSelection []string) ([]int, error) {
+func calcPagesForPageCollection(pageCount int, pageSelection []string) ([]int, error) {
 	collectedPages := []int{}
+
 	for _, v := range pageSelection {
 
 		if v == "even" {
@@ -639,6 +669,22 @@ func PagesForPageCollection(pageCount int, pageSelection []string) ([]int, error
 			return nil, err
 		}
 	}
+
+	return collectedPages, nil
+}
+
+// PagesForPageCollection returns a slice of page numbers for a page collection.
+// Any page number in any order any number of times allowed.
+func PagesForPageCollection(pageCount int, pageSelection []string) ([]int, error) {
+	collectedPages, err := calcPagesForPageCollection(pageCount, pageSelection)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(collectedPages) == 0 {
+		return nil, errors.Errorf("pdfcpu: no page selected")
+	}
+
 	return collectedPages, nil
 }
 

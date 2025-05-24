@@ -2,6 +2,9 @@ package tui
 
 import (
 	"fmt"
+	"strings"
+	"sync"
+
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/metafates/mangal/anilist"
@@ -16,8 +19,6 @@ import (
 	"github.com/metafates/mangal/util"
 	"github.com/spf13/viper"
 	"golang.org/x/exp/slices"
-	"strings"
-	"sync"
 )
 
 func (b *statefulBubble) loadScrapers() tea.Cmd {
@@ -31,8 +32,8 @@ func (b *statefulBubble) loadScrapers() tea.Cmd {
 		}
 		b.progressStatus = "Scrapers Loaded"
 
-		slices.SortFunc(scrapers, func(a, b *installer.Scraper) bool {
-			return strings.Compare(a.Name, b.Name) < 0
+		slices.SortFunc(scrapers, func(a, b *installer.Scraper) int {
+			return strings.Compare(a.Name, b.Name)
 		})
 
 		var items = make([]list.Item, len(scrapers))

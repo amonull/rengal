@@ -19,16 +19,15 @@ type FetchRequestID string
 type FetchRequestStage string
 
 const (
-	// FetchRequestStageRequest enum const
+	// FetchRequestStageRequest enum const.
 	FetchRequestStageRequest FetchRequestStage = "Request"
 
-	// FetchRequestStageResponse enum const
+	// FetchRequestStageResponse enum const.
 	FetchRequestStageResponse FetchRequestStage = "Response"
 )
 
 // FetchRequestPattern ...
 type FetchRequestPattern struct {
-
 	// URLPattern (optional) Wildcards (`'*'` -> zero or more, `'?'` -> exactly one) are allowed. Escape character is
 	// backslash. Omitting is equivalent to `"*"`.
 	URLPattern string `json:"urlPattern,omitempty"`
@@ -40,9 +39,8 @@ type FetchRequestPattern struct {
 	RequestStage FetchRequestStage `json:"requestStage,omitempty"`
 }
 
-// FetchHeaderEntry Response HTTP header entry
+// FetchHeaderEntry Response HTTP header entry.
 type FetchHeaderEntry struct {
-
 	// Name ...
 	Name string `json:"name"`
 
@@ -50,24 +48,23 @@ type FetchHeaderEntry struct {
 	Value string `json:"value"`
 }
 
-// FetchAuthChallengeSource enum
+// FetchAuthChallengeSource enum.
 type FetchAuthChallengeSource string
 
 const (
-	// FetchAuthChallengeSourceServer enum const
+	// FetchAuthChallengeSourceServer enum const.
 	FetchAuthChallengeSourceServer FetchAuthChallengeSource = "Server"
 
-	// FetchAuthChallengeSourceProxy enum const
+	// FetchAuthChallengeSourceProxy enum const.
 	FetchAuthChallengeSourceProxy FetchAuthChallengeSource = "Proxy"
 )
 
 // FetchAuthChallenge Authorization challenge for HTTP status code 401 or 407.
 type FetchAuthChallenge struct {
-
 	// Source (optional) Source of the authentication challenge.
 	Source FetchAuthChallengeSource `json:"source,omitempty"`
 
-	// Origin Origin of the challenger.
+	// Origin of the challenger.
 	Origin string `json:"origin"`
 
 	// Scheme The authentication scheme used, such as basic or digest
@@ -77,23 +74,22 @@ type FetchAuthChallenge struct {
 	Realm string `json:"realm"`
 }
 
-// FetchAuthChallengeResponseResponse enum
+// FetchAuthChallengeResponseResponse enum.
 type FetchAuthChallengeResponseResponse string
 
 const (
-	// FetchAuthChallengeResponseResponseDefault enum const
+	// FetchAuthChallengeResponseResponseDefault enum const.
 	FetchAuthChallengeResponseResponseDefault FetchAuthChallengeResponseResponse = "Default"
 
-	// FetchAuthChallengeResponseResponseCancelAuth enum const
+	// FetchAuthChallengeResponseResponseCancelAuth enum const.
 	FetchAuthChallengeResponseResponseCancelAuth FetchAuthChallengeResponseResponse = "CancelAuth"
 
-	// FetchAuthChallengeResponseResponseProvideCredentials enum const
+	// FetchAuthChallengeResponseResponseProvideCredentials enum const.
 	FetchAuthChallengeResponseResponseProvideCredentials FetchAuthChallengeResponseResponse = "ProvideCredentials"
 )
 
 // FetchAuthChallengeResponse Response to an AuthChallenge.
 type FetchAuthChallengeResponse struct {
-
 	// Response The decision on what to do in response to the authorization challenge.  Default means
 	// deferring to the default behavior of the net stack, which will likely either the Cancel
 	// authentication or display a popup dialog box.
@@ -109,13 +105,12 @@ type FetchAuthChallengeResponse struct {
 }
 
 // FetchDisable Disables the fetch domain.
-type FetchDisable struct {
-}
+type FetchDisable struct{}
 
-// ProtoReq name
+// ProtoReq name.
 func (m FetchDisable) ProtoReq() string { return "Fetch.disable" }
 
-// Call sends the request
+// Call sends the request.
 func (m FetchDisable) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
@@ -123,7 +118,6 @@ func (m FetchDisable) Call(c Client) error {
 // FetchEnable Enables issuing of requestPaused events. A request will be paused until client
 // calls one of failRequest, fulfillRequest or continueRequest/continueWithAuth.
 type FetchEnable struct {
-
 	// Patterns (optional) If specified, only requests matching any of these patterns will produce
 	// fetchRequested event and will be paused until clients response. If not set,
 	// all requests will be affected.
@@ -134,17 +128,16 @@ type FetchEnable struct {
 	HandleAuthRequests bool `json:"handleAuthRequests,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m FetchEnable) ProtoReq() string { return "Fetch.enable" }
 
-// Call sends the request
+// Call sends the request.
 func (m FetchEnable) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // FetchFailRequest Causes the request to fail with specified reason.
 type FetchFailRequest struct {
-
 	// RequestID An id the client received in requestPaused event.
 	RequestID FetchRequestID `json:"requestId"`
 
@@ -152,17 +145,16 @@ type FetchFailRequest struct {
 	ErrorReason NetworkErrorReason `json:"errorReason"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m FetchFailRequest) ProtoReq() string { return "Fetch.failRequest" }
 
-// Call sends the request
+// Call sends the request.
 func (m FetchFailRequest) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // FetchFulfillRequest Provides response to the request.
 type FetchFulfillRequest struct {
-
 	// RequestID An id the client received in requestPaused event.
 	RequestID FetchRequestID `json:"requestId"`
 
@@ -188,17 +180,16 @@ type FetchFulfillRequest struct {
 	ResponsePhrase string `json:"responsePhrase,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m FetchFulfillRequest) ProtoReq() string { return "Fetch.fulfillRequest" }
 
-// Call sends the request
+// Call sends the request.
 func (m FetchFulfillRequest) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // FetchContinueRequest Continues the request, optionally modifying some of its parameters.
 type FetchContinueRequest struct {
-
 	// RequestID An id the client received in requestPaused event.
 	RequestID FetchRequestID `json:"requestId"`
 
@@ -220,17 +211,16 @@ type FetchContinueRequest struct {
 	InterceptResponse bool `json:"interceptResponse,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m FetchContinueRequest) ProtoReq() string { return "Fetch.continueRequest" }
 
-// Call sends the request
+// Call sends the request.
 func (m FetchContinueRequest) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // FetchContinueWithAuth Continues a request supplying authChallengeResponse following authRequired event.
 type FetchContinueWithAuth struct {
-
 	// RequestID An id the client received in authRequired event.
 	RequestID FetchRequestID `json:"requestId"`
 
@@ -238,10 +228,10 @@ type FetchContinueWithAuth struct {
 	AuthChallengeResponse *FetchAuthChallengeResponse `json:"authChallengeResponse"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m FetchContinueWithAuth) ProtoReq() string { return "Fetch.continueWithAuth" }
 
-// Call sends the request
+// Call sends the request.
 func (m FetchContinueWithAuth) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
@@ -250,7 +240,6 @@ func (m FetchContinueWithAuth) Call(c Client) error {
 // response headers. If either responseCode or headers are modified, all of them
 // must be present.
 type FetchContinueResponse struct {
-
 	// RequestID An id the client received in requestPaused event.
 	RequestID FetchRequestID `json:"requestId"`
 
@@ -271,10 +260,10 @@ type FetchContinueResponse struct {
 	BinaryResponseHeaders []byte `json:"binaryResponseHeaders,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m FetchContinueResponse) ProtoReq() string { return "Fetch.continueResponse" }
 
-// Call sends the request
+// Call sends the request.
 func (m FetchContinueResponse) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
@@ -285,16 +274,19 @@ func (m FetchContinueResponse) Call(c Client) error {
 // takeResponseBodyForInterceptionAsStream. Calling other methods that
 // affect the request or disabling fetch domain before body is received
 // results in an undefined behavior.
+// Note that the response body is not available for redirects. Requests
+// paused in the _redirect received_ state may be differentiated by
+// `responseCode` and presence of `location` response header, see
+// comments to `requestPaused` for details.
 type FetchGetResponseBody struct {
-
 	// RequestID Identifier for the intercepted request to get body for.
 	RequestID FetchRequestID `json:"requestId"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m FetchGetResponseBody) ProtoReq() string { return "Fetch.getResponseBody" }
 
-// Call the request
+// Call the request.
 func (m FetchGetResponseBody) Call(c Client) (*FetchGetResponseBodyResult, error) {
 	var res FetchGetResponseBodyResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -302,7 +294,6 @@ func (m FetchGetResponseBody) Call(c Client) (*FetchGetResponseBodyResult, error
 
 // FetchGetResponseBodyResult ...
 type FetchGetResponseBodyResult struct {
-
 	// Body Response body.
 	Body string `json:"body"`
 
@@ -321,15 +312,14 @@ type FetchGetResponseBodyResult struct {
 // Calling other methods that affect the request or disabling fetch
 // domain before body is received results in an undefined behavior.
 type FetchTakeResponseBodyAsStream struct {
-
 	// RequestID ...
 	RequestID FetchRequestID `json:"requestId"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m FetchTakeResponseBodyAsStream) ProtoReq() string { return "Fetch.takeResponseBodyAsStream" }
 
-// Call the request
+// Call the request.
 func (m FetchTakeResponseBodyAsStream) Call(c Client) (*FetchTakeResponseBodyAsStreamResult, error) {
 	var res FetchTakeResponseBodyAsStreamResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -337,7 +327,6 @@ func (m FetchTakeResponseBodyAsStream) Call(c Client) (*FetchTakeResponseBodyAsS
 
 // FetchTakeResponseBodyAsStreamResult ...
 type FetchTakeResponseBodyAsStreamResult struct {
-
 	// Stream ...
 	Stream IOStreamHandle `json:"stream"`
 }
@@ -348,8 +337,12 @@ type FetchTakeResponseBodyAsStreamResult struct {
 // The stage of the request can be determined by presence of responseErrorReason
 // and responseStatusCode -- the request is at the response stage if either
 // of these fields is present and in the request stage otherwise.
+// Redirect responses and subsequent requests are reported similarly to regular
+// responses and requests. Redirect responses may be distinguished by the value
+// of `responseStatusCode` (which is one of 301, 302, 303, 307, 308) along with
+// presence of the `location` header. Requests resulting from a redirect will
+// have `redirectedRequestId` field set.
 type FetchRequestPaused struct {
-
 	// RequestID Each request the page makes will have a unique id.
 	RequestID FetchRequestID `json:"requestId"`
 
@@ -383,7 +376,7 @@ type FetchRequestPaused struct {
 	RedirectedRequestID FetchRequestID `json:"redirectedRequestId,omitempty"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt FetchRequestPaused) ProtoEvent() string {
 	return "Fetch.requestPaused"
 }
@@ -391,7 +384,6 @@ func (evt FetchRequestPaused) ProtoEvent() string {
 // FetchAuthRequired Issued when the domain is enabled with handleAuthRequests set to true.
 // The request is paused until client responds with continueWithAuth.
 type FetchAuthRequired struct {
-
 	// RequestID Each request the page makes will have a unique id.
 	RequestID FetchRequestID `json:"requestId"`
 
@@ -410,7 +402,7 @@ type FetchAuthRequired struct {
 	AuthChallenge *FetchAuthChallenge `json:"authChallenge"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt FetchAuthRequired) ProtoEvent() string {
 	return "Fetch.authRequired"
 }

@@ -16,13 +16,16 @@ import (
 	"github.com/go-rod/rod/lib/proto"
 	"github.com/go-rod/rod/lib/utils"
 	"github.com/ysmood/goob"
+	"github.com/ysmood/got/lib/lcs"
 	"github.com/ysmood/gson"
 )
 
-// Page implements these interfaces
-var _ proto.Client = &Page{}
-var _ proto.Contextable = &Page{}
-var _ proto.Sessionable = &Page{}
+// Page implements these interfaces.
+var (
+	_ proto.Client      = &Page{}
+	_ proto.Contextable = &Page{}
+	_ proto.Sessionable = &Page{}
+)
 
 // Page represents the webpage.
 // We try to hold as less states as possible.
@@ -69,7 +72,7 @@ type Page struct {
 	helpers     map[proto.RuntimeRemoteObjectID]map[string]proto.RuntimeRemoteObjectID
 }
 
-// String interface
+// String interface.
 func (p *Page) String() string {
 	id := p.TargetID
 	if len(id) > 8 {
@@ -78,27 +81,27 @@ func (p *Page) String() string {
 	return fmt.Sprintf("<page:%s>", id)
 }
 
-// IsIframe tells if it's iframe
+// IsIframe tells if it's iframe.
 func (p *Page) IsIframe() bool {
 	return p.element != nil
 }
 
-// GetSessionID interface
+// GetSessionID interface.
 func (p *Page) GetSessionID() proto.TargetSessionID {
 	return p.SessionID
 }
 
-// Browser of the page
+// Browser of the page.
 func (p *Page) Browser() *Browser {
 	return p.browser
 }
 
-// Info of the page, such as the URL or title of the page
+// Info of the page, such as the URL or title of the page.
 func (p *Page) Info() (*proto.TargetTargetInfo, error) {
 	return p.browser.pageInfo(p.TargetID)
 }
 
-// HTML of the page
+// HTML of the page.
 func (p *Page) HTML() (string, error) {
 	el, err := p.Element("html")
 	if err != nil {
@@ -153,7 +156,8 @@ func (p *Page) SetUserAgent(req *proto.NetworkSetUserAgentOverride) error {
 	return req.Call(p)
 }
 
-// SetBlockedURLs For some requests that do not want to be triggered, such as some dangerous operations, delete, quit logout, etc.
+// SetBlockedURLs For some requests that do not want to be triggered,
+// such as some dangerous operations, delete, quit logout, etc.
 // Wildcards ('*') are allowed, such as ["*/api/logout/*","delete"].
 // NOTE: if you set empty pattern "", it will block all requests.
 func (p *Page) SetBlockedURLs(urls []string) error {
@@ -178,7 +182,7 @@ func (p *Page) Navigate(url string) error {
 		return err
 	}
 	if res.ErrorText != "" {
-		return &ErrNavigation{res.ErrorText}
+		return &NavigationError{res.ErrorText}
 	}
 
 	p.root.unsetJSCtxID()
@@ -191,6 +195,17 @@ func (p *Page) NavigateBack() error {
 	// Not using cdp API because it doesn't work for iframe
 	_, err := p.Evaluate(Eval(`() => history.back()`).ByUser())
 	return err
+}
+
+// ResetNavigationHistory reset history.
+func (p *Page) ResetNavigationHistory() error {
+	err := proto.PageResetNavigationHistory{}.Call(p)
+	return err
+}
+
+// GetNavigationHistory get navigation history.
+func (p *Page) GetNavigationHistory() (*proto.PageGetNavigationHistoryResult, error) {
+	return proto.PageGetNavigationHistory{}.Call(p)
 }
 
 // NavigateForward history.
@@ -222,7 +237,7 @@ func (p *Page) Reload() error {
 	return nil
 }
 
-// Activate (focuses) the page
+// Activate (focuses) the page.
 func (p *Page) Activate() (*Page, error) {
 	err := proto.TargetActivateTarget{TargetID: p.TargetID}.Call(p.browser)
 	return p, err
@@ -236,7 +251,7 @@ func (p *Page) getWindowID() (proto.BrowserWindowID, error) {
 	return res.WindowID, err
 }
 
-// GetWindow position and size info
+// GetWindow position and size info.
 func (p *Page) GetWindow() (*proto.BrowserBounds, error) {
 	id, err := p.getWindowID()
 	if err != nil {
@@ -251,7 +266,7 @@ func (p *Page) GetWindow() (*proto.BrowserBounds, error) {
 	return res.Bounds, nil
 }
 
-// SetWindow location and size
+// SetWindow location and size.
 func (p *Page) SetWindow(bounds *proto.BrowserBounds) error {
 	id, err := p.getWindowID()
 	if err != nil {
@@ -262,7 +277,7 @@ func (p *Page) SetWindow(bounds *proto.BrowserBounds) error {
 	return err
 }
 
-// SetViewport overrides the values of device screen dimensions
+// SetViewport overrides the values of device screen dimensions.
 func (p *Page) SetViewport(params *proto.EmulationSetDeviceMetricsOverride) error {
 	if params == nil {
 		return proto.EmulationClearDeviceMetricsOverride{}.Call(p)
@@ -270,7 +285,7 @@ func (p *Page) SetViewport(params *proto.EmulationSetDeviceMetricsOverride) erro
 	return params.Call(p)
 }
 
-// SetDocumentContent sets the page document html content
+// SetDocumentContent sets the page document html content.
 func (p *Page) SetDocumentContent(html string) error {
 	return proto.PageSetDocumentContent{
 		FrameID: p.FrameID,
@@ -341,9 +356,28 @@ func (p *Page) Close() error {
 	if success {
 		p.cleanupStates()
 	} else {
-		return &ErrPageCloseCanceled{}
+		return &PageCloseCanceledError{}
 	}
 
+	return nil
+}
+
+// TriggerFavicon supports when browser in headless mode
+// to trigger favicon's request. Pay attention to this
+// function only supported when browser in headless mode,
+// if you call it in no-headless mode, it will raise an error
+// with the message "browser is no-headless".
+func (p *Page) TriggerFavicon() error {
+	// check if browser whether in headless mode
+	// if not in headless mode then raise error
+	if !p.browser.isHeadless() {
+		return errors.New("browser is no-headless")
+	}
+
+	_, err := p.Evaluate(evalHelper(js.TriggerFavicon).ByPromise())
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -442,7 +476,144 @@ func (p *Page) Screenshot(fullPage bool, req *proto.PageCaptureScreenshot) ([]by
 	return shot.Data, nil
 }
 
-// PDF prints page as PDF
+// ScrollScreenshotOptions is the options for the ScrollScreenshot.
+type ScrollScreenshotOptions struct {
+	// Format (optional) Image compression format (defaults to png).
+	Format proto.PageCaptureScreenshotFormat `json:"format,omitempty"`
+
+	// Quality (optional) Compression quality from range [0..100] (jpeg only).
+	Quality *int `json:"quality,omitempty"`
+
+	// FixedTop (optional) The number of pixels to skip from the top.
+	// It is suitable for optimizing the screenshot effect when there is a fixed
+	// positioning element at the top of the page.
+	FixedTop float64
+
+	// FixedBottom (optional) The number of pixels to skip from the bottom.
+	FixedBottom float64
+
+	// WaitPerScroll until no animation (default is 300ms)
+	WaitPerScroll time.Duration
+}
+
+// ScrollScreenshot Scroll screenshot does not adjust the size of the viewport,
+// but achieves it by scrolling and capturing screenshots in a loop, and then stitching them together.
+// Note that this method also has a flaw: when there are elements with fixed
+// positioning on the page (usually header navigation components),
+// these elements will appear repeatedly, you can set the FixedTop parameter to optimize it.
+//
+// Only support png and jpeg format yet, webP is not supported because no suitable processing
+// library was found in golang.
+func (p *Page) ScrollScreenshot(opt *ScrollScreenshotOptions) ([]byte, error) {
+	if opt == nil {
+		opt = &ScrollScreenshotOptions{}
+	}
+	if opt.WaitPerScroll == 0 {
+		opt.WaitPerScroll = time.Millisecond * 300
+	}
+
+	metrics, err := proto.PageGetLayoutMetrics{}.Call(p)
+	if err != nil {
+		return nil, err
+	}
+
+	if metrics.CSSContentSize == nil || metrics.CSSVisualViewport == nil {
+		return nil, errors.New("failed to get css content size")
+	}
+
+	viewpointHeight := metrics.CSSVisualViewport.ClientHeight
+	contentHeight := metrics.CSSContentSize.Height
+
+	var scrollTop float64
+	var images []utils.ImgWithBox
+
+	for {
+		clip := &proto.PageViewport{
+			X:     0,
+			Y:     scrollTop,
+			Width: metrics.CSSVisualViewport.ClientWidth,
+			Scale: 1,
+		}
+
+		scrollY := viewpointHeight - (opt.FixedTop + opt.FixedBottom)
+		if scrollTop+viewpointHeight > contentHeight {
+			clip.Height = contentHeight - scrollTop
+		} else {
+			clip.Height = scrollY
+			if scrollTop != 0 {
+				clip.Y += opt.FixedTop
+			}
+		}
+
+		req := &proto.PageCaptureScreenshot{
+			Format:                opt.Format,
+			Quality:               opt.Quality,
+			Clip:                  clip,
+			FromSurface:           false,
+			CaptureBeyondViewport: false,
+			OptimizeForSpeed:      false,
+		}
+		shot, err := req.Call(p)
+		if err != nil {
+			return nil, err
+		}
+
+		images = append(images, utils.ImgWithBox{Img: shot.Data})
+
+		scrollTop += scrollY
+		if scrollTop >= contentHeight {
+			break
+		}
+
+		err = p.Mouse.Scroll(0, scrollY, 1)
+		if err != nil {
+			return nil, fmt.Errorf("scroll error: %w", err)
+		}
+
+		err = p.WaitDOMStable(opt.WaitPerScroll, 0)
+		if err != nil {
+			return nil, fmt.Errorf("WaitDOMStable error: %w", err)
+		}
+	}
+
+	var imgOption *utils.ImgOption
+	if opt.Quality != nil {
+		imgOption = &utils.ImgOption{
+			Quality: *opt.Quality,
+		}
+	}
+	bs, err := utils.SplicePngVertical(images, opt.Format, imgOption)
+	if err != nil {
+		return nil, err
+	}
+
+	return bs, nil
+}
+
+// CaptureDOMSnapshot Returns a document snapshot, including the full DOM tree of the root node
+// (including iframes, template contents, and imported documents) in a flattened array,
+// as well as layout and white-listed computed style information for the nodes.
+// Shadow DOM in the returned DOM tree is flattened.
+// `Documents` The nodes in the DOM tree. The DOMNode at index 0 corresponds to the root document.
+// `Strings` Shared string table that all string properties refer to with indexes.
+// Normally use `Strings` is enough.
+func (p *Page) CaptureDOMSnapshot() (domSnapshot *proto.DOMSnapshotCaptureSnapshotResult, err error) {
+	_ = proto.DOMSnapshotEnable{}.Call(p)
+
+	snapshot, err := proto.DOMSnapshotCaptureSnapshot{
+		ComputedStyles:                 []string{},
+		IncludePaintOrder:              true,
+		IncludeDOMRects:                true,
+		IncludeBlendedBackgroundColors: true,
+		IncludeTextColorOpacities:      true,
+	}.Call(p)
+	if err != nil {
+		return nil, err
+	}
+	return snapshot, nil
+}
+
+// PDF prints page as PDF.
 func (p *Page) PDF(req *proto.PagePrintToPDF) (*StreamReader, error) {
 	req.TransferMode = proto.PagePrintToPDFTransferModeReturnAsStream
 	res, err := req.Call(p)
@@ -454,7 +625,7 @@ func (p *Page) PDF(req *proto.PagePrintToPDF) (*StreamReader, error) {
 }
 
 // GetResource content by the url. Such as image, css, html, etc.
-// Use the proto.PageGetResourceTree to list all the resources.
+// Use the [proto.PageGetResourceTree] to list all the resources.
 func (p *Page) GetResource(url string) ([]byte, error) {
 	res, err := proto.PageGetResourceContent{
 		FrameID: p.FrameID,
@@ -477,7 +648,7 @@ func (p *Page) GetResource(url string) ([]byte, error) {
 	return bin, nil
 }
 
-// WaitOpen waits for the next new page opened by the current one
+// WaitOpen waits for the next new page opened by the current one.
 func (p *Page) WaitOpen() func() (*Page, error) {
 	var targetID proto.TargetTargetID
 
@@ -520,7 +691,7 @@ func (p *Page) WaitEvent(e proto.Event) (wait func()) {
 }
 
 // WaitNavigation wait for a page lifecycle event when navigating.
-// Usually you will wait for proto.PageLifecycleEventNameNetworkAlmostIdle
+// Usually you will wait for [proto.PageLifecycleEventNameNetworkAlmostIdle].
 func (p *Page) WaitNavigation(name proto.PageLifecycleEventName) func() {
 	_ = proto.PageSetLifecycleEventsEnabled{Enabled: true}.Call(p)
 
@@ -537,9 +708,25 @@ func (p *Page) WaitNavigation(name proto.PageLifecycleEventName) func() {
 
 // WaitRequestIdle returns a wait function that waits until no request for d duration.
 // Be careful, d is not the max wait timeout, it's the least idle time.
-// If you want to set a timeout you can use the "Page.Timeout" function.
+// If you want to set a timeout you can use the [Page.Timeout] function.
 // Use the includes and excludes regexp list to filter the requests by their url.
-func (p *Page) WaitRequestIdle(d time.Duration, includes, excludes []string) func() {
+func (p *Page) WaitRequestIdle(
+	d time.Duration,
+	includes, excludes []string,
+	excludeTypes []proto.NetworkResourceType,
+) func() {
+	defer p.tryTrace(TraceTypeWait, "request-idle")()
+
+	if excludeTypes == nil {
+		excludeTypes = []proto.NetworkResourceType{
+			proto.NetworkResourceTypeWebSocket,
+			proto.NetworkResourceTypeEventSource,
+			proto.NetworkResourceTypeMedia,
+			proto.NetworkResourceTypeImage,
+			proto.NetworkResourceTypeFont,
+		}
+	}
+
 	if len(includes) == 0 {
 		includes = []string{""}
 	}
@@ -560,6 +747,12 @@ func (p *Page) WaitRequestIdle(d time.Duration, includes, excludes []string) fun
 	}
 
 	wait := p.EachEvent(func(sent *proto.NetworkRequestWillBeSent) {
+		for _, t := range excludeTypes {
+			if sent.Type == t {
+				return
+			}
+		}
+
 		if match(sent.Request.URL) {
 			// Redirect will send multiple NetworkRequestWillBeSent events with the same RequestID,
 			// we should filter them out.
@@ -582,6 +775,67 @@ func (p *Page) WaitRequestIdle(d time.Duration, includes, excludes []string) fun
 		}()
 		wait()
 	}
+}
+
+// WaitDOMStable waits until the change of the DOM tree is less or equal than diff percent for d duration.
+// Be careful, d is not the max wait timeout, it's the least stable time.
+// If you want to set a timeout you can use the [Page.Timeout] function.
+func (p *Page) WaitDOMStable(d time.Duration, diff float64) error {
+	defer p.tryTrace(TraceTypeWait, "dom-stable")()
+
+	domSnapshot, err := p.CaptureDOMSnapshot()
+	if err != nil {
+		return err
+	}
+
+	t := time.NewTicker(d)
+	defer t.Stop()
+
+	for {
+		select {
+		case <-t.C:
+		case <-p.ctx.Done():
+			return p.ctx.Err()
+		}
+
+		currentDomSnapshot, err := p.CaptureDOMSnapshot()
+		if err != nil {
+			return err
+		}
+
+		xs := lcs.NewWords(domSnapshot.Strings)
+		ys := lcs.NewWords(currentDomSnapshot.Strings)
+		lcs := xs.YadLCS(p.ctx, ys)
+
+		df := 1 - float64(len(lcs))/float64(len(ys))
+		if df <= diff {
+			break
+		}
+
+		domSnapshot = currentDomSnapshot
+	}
+	return nil
+}
+
+// WaitStable waits until the page is stable for d duration.
+func (p *Page) WaitStable(d time.Duration) error {
+	defer p.tryTrace(TraceTypeWait, "stable")()
+
+	var err error
+
+	setErr := sync.Once{}
+
+	utils.All(func() {
+		e := p.WaitLoad()
+		setErr.Do(func() { err = e })
+	}, func() {
+		p.WaitRequestIdle(d, nil, nil, nil)()
+	}, func() {
+		e := p.WaitDOMStable(d, 0)
+		setErr.Do(func() { err = e })
+	})()
+
+	return err
 }
 
 // WaitIdle waits until the next window.requestIdleCallback is called.
@@ -637,7 +891,7 @@ func (p *Page) EvalOnNewDocument(js string) (remove func() error, err error) {
 	return
 }
 
-// Wait until the js returns true
+// Wait until the js returns true.
 func (p *Page) Wait(opts *EvalOptions) error {
 	return utils.Retry(p.ctx, p.sleeper(), func() (bool, error) {
 		res, err := p.Evaluate(opts)
@@ -649,12 +903,12 @@ func (p *Page) Wait(opts *EvalOptions) error {
 	})
 }
 
-// WaitElementsMoreThan Wait until there are more than <num> <selector> elements.
+// WaitElementsMoreThan waits until there are more than num elements that match the selector.
 func (p *Page) WaitElementsMoreThan(selector string, num int) error {
 	return p.Wait(Eval(`(s, n) => document.querySelectorAll(s).length > n`, selector, num))
 }
 
-// ObjectToJSON by object id
+// ObjectToJSON by object id.
 func (p *Page) ObjectToJSON(obj *proto.RuntimeRemoteObject) (gson.JSON, error) {
 	if obj.ObjectID == "" {
 		return obj.Value, nil
@@ -699,7 +953,7 @@ func (p *Page) ElementFromObject(obj *proto.RuntimeRemoteObject) (*Element, erro
 	}, nil
 }
 
-// ElementFromNode creates an Element from the node, NodeID or BackendNodeID must be specified.
+// ElementFromNode creates an Element from the node, [proto.DOMNodeID] or [proto.DOMBackendNodeID] must be specified.
 func (p *Page) ElementFromNode(node *proto.DOMNode) (*Element, error) {
 	res, err := proto.DOMResolveNode{
 		NodeID:        node.NodeID,
@@ -750,12 +1004,12 @@ func (p *Page) Release(obj *proto.RuntimeRemoteObject) error {
 	return err
 }
 
-// Call implements the proto.Client
+// Call implements the [proto.Client].
 func (p *Page) Call(ctx context.Context, sessionID, methodName string, params interface{}) (res []byte, err error) {
 	return p.browser.Call(ctx, sessionID, methodName, params)
 }
 
-// Event of the page
+// Event of the page.
 func (p *Page) Event() <-chan *Message {
 	dst := make(chan *Message)
 	s := p.event.Subscribe(p.ctx)
@@ -773,7 +1027,7 @@ func (p *Page) Event() <-chan *Message {
 				select {
 				case <-p.ctx.Done():
 					return
-				case dst <- msg.(*Message):
+				case dst <- msg.(*Message): //nolint: forcetypeassert
 				}
 			}
 		}

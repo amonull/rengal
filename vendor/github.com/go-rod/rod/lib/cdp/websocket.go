@@ -3,9 +3,10 @@ package cdp
 import (
 	"bufio"
 	"context"
+	"crypto/sha1"
+	"encoding/base64"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
@@ -27,7 +28,7 @@ type WebSocket struct {
 	r    *bufio.Reader
 }
 
-// Connect to browser
+// Connect to browser.
 func (ws *WebSocket) Connect(ctx context.Context, wsURL string, header http.Header) error {
 	if ws.conn != nil {
 		panic("duplicated connection: " + wsURL)
@@ -108,7 +109,7 @@ func (ws *WebSocket) send(msg []byte) error {
 	copy(header[i+2:], mask)
 
 	for i := range msg {
-		msg[i] = msg[i] ^ mask[i%4]
+		msg[i] ^= mask[i%4]
 	}
 
 	data := make([]byte, i+6+len(msg))
@@ -119,7 +120,7 @@ func (ws *WebSocket) send(msg []byte) error {
 	return err
 }
 
-// Read a message from browser
+// Read a message from browser.
 func (ws *WebSocket) Read() ([]byte, error) {
 	b, err := ws.read()
 	if err != nil {
@@ -170,31 +171,46 @@ func (ws *WebSocket) read() ([]byte, error) {
 	return data, err
 }
 
-// ErrBadHandshake type
-type ErrBadHandshake struct {
+// BadHandshakeError type.
+type BadHandshakeError struct {
 	Status string
 	Body   string
 }
 
-func (e *ErrBadHandshake) Error() string {
+func (e *BadHandshakeError) Error() string {
 	return fmt.Sprintf(
 		"websocket bad handshake: %s. %s",
 		e.Status, e.Body,
 	)
 }
 
+func verifyWebSocketAccept(responseHeaders http.Header, websocketKey string) bool {
+	expectedKey := websocketKey + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+	hash := sha1.New()
+	hash.Write([]byte(expectedKey))
+	expectedAccept := base64.StdEncoding.EncodeToString(hash.Sum(nil))
+
+	return responseHeaders.Get("Sec-WebSocket-Accept") == expectedAccept
+}
+
 func (ws *WebSocket) handshake(ctx context.Context, u *url.URL, header http.Header) error {
+	defaultSecKey := "nil"
 	req := (&http.Request{Method: http.MethodGet, URL: u, Header: http.Header{
 		"Upgrade":               {"websocket"},
 		"Connection":            {"Upgrade"},
-		"Sec-WebSocket-Key":     {"nil"},
+		"Sec-WebSocket-Key":     {defaultSecKey},
 		"Sec-WebSocket-Version": {"13"},
 	}}).WithContext(ctx)
 
+	secKey := defaultSecKey
 	for k, vs := range header {
-		if k == "Host" && len(vs) > 0 {
+		switch {
+		case k == "Host" && len(vs) > 0:
 			req.Host = vs[0]
-		} else {
+		case k == "Sec-WebSocket-Key" && len(vs) > 0:
+			secKey = vs[0]
+			req.Header[k] = vs
+		default:
 			req.Header[k] = vs
 		}
 	}
@@ -210,10 +226,9 @@ func (ws *WebSocket) handshake(ctx context.Context, u *url.URL, header http.Head
 	}
 	defer func() { _ = res.Body.Close() }()
 
-	if res.StatusCode != http.StatusSwitchingProtocols ||
-		res.Header.Get("Sec-Websocket-Accept") != "Q67D9eATKx531lK8F7u2rqQNnNI=" {
-		body, _ := ioutil.ReadAll(res.Body)
-		return &ErrBadHandshake{
+	if res.StatusCode != http.StatusSwitchingProtocols || !verifyWebSocketAccept(res.Header, secKey) {
+		body, _ := io.ReadAll(res.Body)
+		return &BadHandshakeError{
 			Status: res.Status,
 			Body:   string(body),
 		}

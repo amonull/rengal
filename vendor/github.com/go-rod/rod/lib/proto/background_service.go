@@ -16,28 +16,27 @@ Defines events for background web platform features.
 type BackgroundServiceServiceName string
 
 const (
-	// BackgroundServiceServiceNameBackgroundFetch enum const
+	// BackgroundServiceServiceNameBackgroundFetch enum const.
 	BackgroundServiceServiceNameBackgroundFetch BackgroundServiceServiceName = "backgroundFetch"
 
-	// BackgroundServiceServiceNameBackgroundSync enum const
+	// BackgroundServiceServiceNameBackgroundSync enum const.
 	BackgroundServiceServiceNameBackgroundSync BackgroundServiceServiceName = "backgroundSync"
 
-	// BackgroundServiceServiceNamePushMessaging enum const
+	// BackgroundServiceServiceNamePushMessaging enum const.
 	BackgroundServiceServiceNamePushMessaging BackgroundServiceServiceName = "pushMessaging"
 
-	// BackgroundServiceServiceNameNotifications enum const
+	// BackgroundServiceServiceNameNotifications enum const.
 	BackgroundServiceServiceNameNotifications BackgroundServiceServiceName = "notifications"
 
-	// BackgroundServiceServiceNamePaymentHandler enum const
+	// BackgroundServiceServiceNamePaymentHandler enum const.
 	BackgroundServiceServiceNamePaymentHandler BackgroundServiceServiceName = "paymentHandler"
 
-	// BackgroundServiceServiceNamePeriodicBackgroundSync enum const
+	// BackgroundServiceServiceNamePeriodicBackgroundSync enum const.
 	BackgroundServiceServiceNamePeriodicBackgroundSync BackgroundServiceServiceName = "periodicBackgroundSync"
 )
 
 // BackgroundServiceEventMetadata A key-value pair for additional event information to pass along.
 type BackgroundServiceEventMetadata struct {
-
 	// Key ...
 	Key string `json:"key"`
 
@@ -47,8 +46,7 @@ type BackgroundServiceEventMetadata struct {
 
 // BackgroundServiceBackgroundServiceEvent ...
 type BackgroundServiceBackgroundServiceEvent struct {
-
-	// Timestamp Timestamp of the event (in seconds).
+	// Timestamp of the event (in seconds).
 	Timestamp TimeSinceEpoch `json:"timestamp"`
 
 	// Origin The origin this event belongs to.
@@ -75,37 +73,34 @@ type BackgroundServiceBackgroundServiceEvent struct {
 
 // BackgroundServiceStartObserving Enables event updates for the service.
 type BackgroundServiceStartObserving struct {
-
 	// Service ...
 	Service BackgroundServiceServiceName `json:"service"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m BackgroundServiceStartObserving) ProtoReq() string { return "BackgroundService.startObserving" }
 
-// Call sends the request
+// Call sends the request.
 func (m BackgroundServiceStartObserving) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // BackgroundServiceStopObserving Disables event updates for the service.
 type BackgroundServiceStopObserving struct {
-
 	// Service ...
 	Service BackgroundServiceServiceName `json:"service"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m BackgroundServiceStopObserving) ProtoReq() string { return "BackgroundService.stopObserving" }
 
-// Call sends the request
+// Call sends the request.
 func (m BackgroundServiceStopObserving) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // BackgroundServiceSetRecording Set the recording state for the service.
 type BackgroundServiceSetRecording struct {
-
 	// ShouldRecord ...
 	ShouldRecord bool `json:"shouldRecord"`
 
@@ -113,32 +108,30 @@ type BackgroundServiceSetRecording struct {
 	Service BackgroundServiceServiceName `json:"service"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m BackgroundServiceSetRecording) ProtoReq() string { return "BackgroundService.setRecording" }
 
-// Call sends the request
+// Call sends the request.
 func (m BackgroundServiceSetRecording) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // BackgroundServiceClearEvents Clears all stored data for the service.
 type BackgroundServiceClearEvents struct {
-
 	// Service ...
 	Service BackgroundServiceServiceName `json:"service"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m BackgroundServiceClearEvents) ProtoReq() string { return "BackgroundService.clearEvents" }
 
-// Call sends the request
+// Call sends the request.
 func (m BackgroundServiceClearEvents) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // BackgroundServiceRecordingStateChanged Called when the recording state for the service has been updated.
 type BackgroundServiceRecordingStateChanged struct {
-
 	// IsRecording ...
 	IsRecording bool `json:"isRecording"`
 
@@ -146,7 +139,7 @@ type BackgroundServiceRecordingStateChanged struct {
 	Service BackgroundServiceServiceName `json:"service"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt BackgroundServiceRecordingStateChanged) ProtoEvent() string {
 	return "BackgroundService.recordingStateChanged"
 }
@@ -154,12 +147,11 @@ func (evt BackgroundServiceRecordingStateChanged) ProtoEvent() string {
 // BackgroundServiceBackgroundServiceEventReceived Called with all existing backgroundServiceEvents when enabled, and all new
 // events afterwards if enabled and recording.
 type BackgroundServiceBackgroundServiceEventReceived struct {
-
 	// BackgroundServiceEvent ...
 	BackgroundServiceEvent *BackgroundServiceBackgroundServiceEvent `json:"backgroundServiceEvent"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt BackgroundServiceBackgroundServiceEventReceived) ProtoEvent() string {
 	return "BackgroundService.backgroundServiceEventReceived"
 }

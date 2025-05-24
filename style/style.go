@@ -10,15 +10,15 @@ func NewColored(foreground, background lipgloss.Color) lipgloss.Style {
 	return New().Foreground(foreground).Background(background)
 }
 
-func Fg(color lipgloss.Color) func(string) string {
+func Fg(color lipgloss.Color) func(...string) string {
 	return NewColored(color, "").Render
 }
 
-func Bg(color lipgloss.Color) func(string) string {
+func Bg(color lipgloss.Color) func(...string) string {
 	return NewColored("", color).Render
 }
 
-func Truncate(max int) func(string) string {
+func Truncate(max int) func(...string) string {
 	return New().Width(max).Render
 }
 

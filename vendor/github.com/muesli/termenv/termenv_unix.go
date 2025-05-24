@@ -1,5 +1,5 @@
-//go:build darwin || dragonfly || freebsd || linux || netbsd || openbsd || solaris
-// +build darwin dragonfly freebsd linux netbsd openbsd solaris
+//go:build darwin || dragonfly || freebsd || linux || netbsd || openbsd || solaris || zos
+// +build darwin dragonfly freebsd linux netbsd openbsd solaris zos
 
 package termenv
 
@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	// timeout for OSC queries
+	// timeout for OSC queries.
 	OSCTimeout = 5 * time.Second
 )
 
@@ -23,6 +23,10 @@ const (
 func (o *Output) ColorProfile() Profile {
 	if !o.isTTY() {
 		return Ascii
+	}
+
+	if o.environ.Getenv("GOOGLE_CLOUD_SHELL") == "true" {
+		return TrueColor
 	}
 
 	term := o.environ.Getenv("TERM")
@@ -46,9 +50,15 @@ func (o *Output) ColorProfile() Profile {
 	}
 
 	switch term {
-	case "xterm-kitty":
+	case
+		"alacritty",
+		"contour",
+		"rio",
+		"wezterm",
+		"xterm-ghostty",
+		"xterm-kitty":
 		return TrueColor
-	case "linux":
+	case "linux", "xterm":
 		return ANSI
 	}
 
@@ -65,6 +75,7 @@ func (o *Output) ColorProfile() Profile {
 	return Ascii
 }
 
+//nolint:mnd
 func (o Output) foregroundColor() Color {
 	s, err := o.termStatusReport(10)
 	if err == nil {
@@ -87,6 +98,7 @@ func (o Output) foregroundColor() Color {
 	return ANSIColor(7)
 }
 
+//nolint:mnd
 func (o Output) backgroundColor() Color {
 	s, err := o.termStatusReport(11)
 	if err == nil {
@@ -113,15 +125,15 @@ func (o *Output) waitForData(timeout time.Duration) error {
 	fd := o.TTY().Fd()
 	tv := unix.NsecToTimeval(int64(timeout))
 	var readfds unix.FdSet
-	readfds.Set(int(fd))
+	readfds.Set(int(fd)) //nolint:gosec
 
 	for {
-		n, err := unix.Select(int(fd)+1, &readfds, nil, nil, &tv)
+		n, err := unix.Select(int(fd)+1, &readfds, nil, nil, &tv) //nolint:gosec
 		if err == unix.EINTR {
 			continue
 		}
 		if err != nil {
-			return err
+			return err //nolint:wrapcheck
 		}
 		if n == 0 {
 			return fmt.Errorf("timeout")
@@ -143,7 +155,7 @@ func (o *Output) readNextByte() (byte, error) {
 	var b [1]byte
 	n, err := o.TTY().Read(b[:])
 	if err != nil {
-		return 0, err
+		return 0, err //nolint:wrapcheck
 	}
 
 	if n == 0 {
@@ -211,7 +223,7 @@ func (o *Output) readNextResponse() (response string, isOSC bool, err error) {
 		}
 
 		// both responses have less than 25 bytes, so if we read more, that's an error
-		if len(response) > 25 {
+		if len(response) > 25 { //nolint:mnd
 			break
 		}
 	}
@@ -223,7 +235,7 @@ func (o Output) termStatusReport(sequence int) (string, error) {
 	// screen/tmux can't support OSC, because they can be connected to multiple
 	// terminals concurrently.
 	term := o.environ.Getenv("TERM")
-	if strings.HasPrefix(term, "screen") || strings.HasPrefix(term, "tmux") {
+	if strings.HasPrefix(term, "screen") || strings.HasPrefix(term, "tmux") || strings.HasPrefix(term, "dumb") {
 		return "", ErrStatusReport
 	}
 
@@ -233,7 +245,7 @@ func (o Output) termStatusReport(sequence int) (string, error) {
 	}
 
 	if !o.unsafe {
-		fd := int(tty.Fd())
+		fd := int(tty.Fd()) //nolint:gosec
 		// if in background, we can't control the terminal
 		if !isForeground(fd) {
 			return "", ErrStatusReport
@@ -254,10 +266,10 @@ func (o Output) termStatusReport(sequence int) (string, error) {
 	}
 
 	// first, send OSC query, which is ignored by terminal which do not support it
-	fmt.Fprintf(tty, OSC+"%d;?"+ST, sequence)
+	fmt.Fprintf(tty, OSC+"%d;?"+ST, sequence) //nolint:errcheck
 
 	// then, query cursor position, should be supported by all terminals
-	fmt.Fprintf(tty, CSI+"6n")
+	fmt.Fprintf(tty, CSI+"6n") //nolint:errcheck
 
 	// read the next response
 	res, isOSC, err := o.readNextResponse()
@@ -284,6 +296,6 @@ func (o Output) termStatusReport(sequence int) (string, error) {
 // Windows for w and returns a function that restores w to its previous state.
 // On non-Windows platforms, or if w does not refer to a terminal, then it
 // returns a non-nil no-op function and no error.
-func EnableVirtualTerminalProcessing(w io.Writer) (func() error, error) {
+func EnableVirtualTerminalProcessing(_ io.Writer) (func() error, error) {
 	return func() error { return nil }, nil
 }

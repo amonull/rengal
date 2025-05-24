@@ -1,6 +1,8 @@
 package pdf
 
 import (
+	"io"
+
 	"github.com/metafates/mangal/filesystem"
 	"github.com/metafates/mangal/key"
 	"github.com/metafates/mangal/source"
@@ -8,8 +10,8 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/log"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/spf13/viper"
-	"io"
 )
 
 type PDF struct{}
@@ -45,12 +47,12 @@ func save(chapter *source.Chapter, temp bool) (path string, err error) {
 
 // pagesToPDF will convert images to PDF and write to w
 func pagesToPDF(w io.Writer, pages []*source.Page) error {
-	conf := pdfcpu.NewDefaultConfiguration()
-	conf.Cmd = pdfcpu.IMPORTIMAGES
+	conf := model.NewDefaultConfiguration()
+	conf.Cmd = model.IMPORTIMAGES
 	imp := pdfcpu.DefaultImportConfig()
 
 	var (
-		ctx *pdfcpu.Context
+		ctx *model.Context
 		err error
 	)
 
@@ -70,8 +72,8 @@ func pagesToPDF(w io.Writer, pages []*source.Page) error {
 		return err
 	}
 
-	for _, r := range pages {
-		indRef, err := pdfcpu.NewPageForImage(ctx.XRefTable, r, pagesIndRef, imp)
+	for _, page := range pages {
+		indRefs, err := pdfcpu.NewPagesForImage(ctx.XRefTable, page, pagesIndRef, imp)
 
 		if err != nil {
 			if viper.GetBool(key.FormatsSkipUnsupportedImages) {
@@ -81,7 +83,7 @@ func pagesToPDF(w io.Writer, pages []*source.Page) error {
 			return err
 		}
 
-		if err = pdfcpu.AppendPageTree(indRef, 1, pagesDict); err != nil {
+		if err = model.AppendPageTree(indRefs[0], 1, pagesDict); err != nil {
 			return err
 		}
 

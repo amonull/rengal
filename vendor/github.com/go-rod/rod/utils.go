@@ -28,7 +28,7 @@ type CDPClient interface {
 	Call(ctx context.Context, sessionID, method string, params interface{}) ([]byte, error)
 }
 
-// Message represents a cdp.Event
+// Message represents a cdp.Event.
 type Message struct {
 	SessionID proto.TargetSessionID
 	Method    string
@@ -63,7 +63,7 @@ func (msg *Message) Load(e proto.Event) bool {
 	return true
 }
 
-// DefaultLogger for rod
+// DefaultLogger for rod.
 var DefaultLogger = log.New(os.Stdout, "[rod] ", log.LstdFlags)
 
 // DefaultSleeper generates the default sleeper for retry, it uses backoff to grow the interval.
@@ -77,87 +77,61 @@ var DefaultSleeper = func() utils.Sleeper {
 	return utils.BackoffSleeper(100*time.Millisecond, time.Second, nil)
 }
 
-// PagePool to thread-safely limit the number of pages at the same time.
+// NewPagePool instance.
+func NewPagePool(limit int) Pool[Page] {
+	return NewPool[Page](limit)
+}
+
+// NewBrowserPool instance.
+func NewBrowserPool(limit int) Pool[Browser] {
+	return NewPool[Browser](limit)
+}
+
+// Pool is used to thread-safely limit the number of elements at the same time.
 // It's a common practice to use a channel to limit concurrency, it's not special for rod.
 // This helper is more like an example to use Go Channel.
 // Reference: https://golang.org/doc/effective_go#channels
-type PagePool chan *Page
+type Pool[T any] chan *T
 
-// NewPagePool instance
-func NewPagePool(limit int) PagePool {
-	pp := make(chan *Page, limit)
+// NewPool instance.
+func NewPool[T any](limit int) Pool[T] {
+	p := make(chan *T, limit)
 	for i := 0; i < limit; i++ {
-		pp <- nil
-	}
-	return pp
-}
-
-// Get a page from the pool. Use the PagePool.Put to make it reusable later.
-func (pp PagePool) Get(create func() *Page) *Page {
-	p := <-pp
-	if p == nil {
-		p = create()
+		p <- nil
 	}
 	return p
 }
 
-// Put a page back to the pool
-func (pp PagePool) Put(p *Page) {
-	pp <- p
-}
-
-// Cleanup helper
-func (pp PagePool) Cleanup(iteratee func(*Page)) {
-	for i := 0; i < cap(pp); i++ {
-		p := <-pp
-		if p != nil {
-			iteratee(p)
-		}
+// Get a elem from the pool, allow error. Use the [Pool[T].Put] to make it reusable later.
+func (p Pool[T]) Get(create func() (*T, error)) (elem *T, err error) {
+	elem = <-p
+	if elem == nil {
+		elem, err = create()
 	}
+	return
 }
 
-// BrowserPool to thread-safely limit the number of browsers at the same time.
-// It's a common practice to use a channel to limit concurrency, it's not special for rod.
-// This helper is more like an example to use Go Channel.
-// Reference: https://golang.org/doc/effective_go#channels
-type BrowserPool chan *Browser
-
-// NewBrowserPool instance
-func NewBrowserPool(limit int) BrowserPool {
-	pp := make(chan *Browser, limit)
-	for i := 0; i < limit; i++ {
-		pp <- nil
-	}
-	return pp
+// Put an elem back to the pool.
+func (p Pool[T]) Put(elem *T) {
+	p <- elem
 }
 
-// Get a browser from the pool. Use the BrowserPool.Put to make it reusable later.
-func (bp BrowserPool) Get(create func() *Browser) *Browser {
-	p := <-bp
-	if p == nil {
-		p = create()
-	}
-	return p
-}
-
-// Put a browser back to the pool
-func (bp BrowserPool) Put(p *Browser) {
-	bp <- p
-}
-
-// Cleanup helper
-func (bp BrowserPool) Cleanup(iteratee func(*Browser)) {
-	for i := 0; i < cap(bp); i++ {
-		p := <-bp
-		if p != nil {
-			iteratee(p)
+// Cleanup helper.
+func (p Pool[T]) Cleanup(iteratee func(*T)) {
+	for i := 0; i < cap(p); i++ {
+		select {
+		case elem := <-p:
+			if elem != nil {
+				iteratee(elem)
+			}
+		default:
 		}
 	}
 }
 
 var _ io.ReadCloser = &StreamReader{}
 
-// StreamReader for browser data stream
+// StreamReader for browser data stream.
 type StreamReader struct {
 	Offset *int
 
@@ -166,7 +140,7 @@ type StreamReader struct {
 	buf    *bytes.Buffer
 }
 
-// NewStreamReader instance
+// NewStreamReader instance.
 func NewStreamReader(c proto.Client, h proto.IOStreamHandle) *StreamReader {
 	return &StreamReader{
 		c:      c,
@@ -206,11 +180,11 @@ func (sr *StreamReader) Close() error {
 	return proto.IOClose{Handle: sr.handle}.Call(sr.c)
 }
 
-// Try try fn with recover, return the panic as rod.ErrTry
+// Try try fn with recover, return the panic as rod.ErrTry.
 func Try(fn func()) (err error) {
 	defer func() {
 		if val := recover(); val != nil {
-			err = &ErrTry{val, string(debug.Stack())}
+			err = &TryError{val, string(debug.Stack())}
 		}
 	}()
 

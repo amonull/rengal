@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -17,7 +16,7 @@ import (
 
 var _ io.Writer = &URLParser{}
 
-// URLParser to get control url from stderr
+// URLParser to get control url from stderr.
 type URLParser struct {
 	URL    chan string
 	Buffer string // buffer for the browser stdout
@@ -27,7 +26,7 @@ type URLParser struct {
 	done bool
 }
 
-// NewURLParser instance
+// NewURLParser instance.
 func NewURLParser() *URLParser {
 	return &URLParser{
 		URL:  make(chan string),
@@ -38,13 +37,13 @@ func NewURLParser() *URLParser {
 
 var regWS = regexp.MustCompile(`ws://.+/`)
 
-// Context sets the context
+// Context sets the context.
 func (r *URLParser) Context(ctx context.Context) *URLParser {
 	r.ctx = ctx
 	return r
 }
 
-// Write interface
+// Write interface.
 func (r *URLParser) Write(p []byte) (n int, err error) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
@@ -70,7 +69,7 @@ func (r *URLParser) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-// Err returns the common error parsed from stdout and stderr
+// Err returns the common error parsed from stdout and stderr.
 func (r *URLParser) Err() error {
 	r.lock.Lock()
 	defer r.lock.Unlock()
@@ -84,15 +83,17 @@ func (r *URLParser) Err() error {
 	return errors.New(msg + r.Buffer)
 }
 
-// MustResolveURL is similar to ResolveURL
+// MustResolveURL is similar to ResolveURL.
 func MustResolveURL(u string) string {
 	u, err := ResolveURL(u)
 	utils.E(err)
 	return u
 }
 
-var regPort = regexp.MustCompile(`^\:?(\d+)$`)
-var regProtocol = regexp.MustCompile(`^\w+://`)
+var (
+	regPort     = regexp.MustCompile(`^\:?(\d+)$`)
+	regProtocol = regexp.MustCompile(`^\w+://`)
+)
 
 // ResolveURL by requesting the u, it will try best to normalize the u.
 // The format of u can be "9222", ":9222", "host:9222", "ws://host:9222", "wss://host:9222",
@@ -118,14 +119,21 @@ func ResolveURL(u string) (string, error) {
 	parsed = toHTTP(*parsed)
 	parsed.Path = "/json/version"
 
-	res, err := http.Get(parsed.String())
+	res, err := http.Get(parsed.String()) //nolint: noctx
 	if err != nil {
 		return "", err
 	}
 	defer func() { _ = res.Body.Close() }()
 
-	data, err := ioutil.ReadAll(res.Body)
+	data, err := io.ReadAll(res.Body)
 	utils.E(err)
 
-	return gson.New(data).Get("webSocketDebuggerUrl").Str(), nil
+	wsURL := gson.New(data).Get("webSocketDebuggerUrl").Str()
+
+	parsedWS, err := url.Parse(wsURL)
+	utils.E(err)
+
+	parsedWS.Host = parsed.Host
+
+	return parsedWS.String(), nil
 }
