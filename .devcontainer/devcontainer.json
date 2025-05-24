@@ -20,9 +20,7 @@
                 "timonwong.shellcheck",
                 
                 // QOL
-                "streetsidesoftware.code-spell-checker",
-                "GitHub.vscode-pull-request-github",
-                "GitHub.vscode-github-actions"
+                "streetsidesoftware.code-spell-checker"
             ]
         }
     },
