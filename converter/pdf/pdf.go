@@ -83,6 +83,7 @@ func pagesToPDF(w io.Writer, pages []*source.Page) error {
 			return err
 		}
 
+		// TODO: this is a shit fix but doesnt seem to break building pdfs from images
 		if err = model.AppendPageTree(indRefs[0], 1, pagesDict); err != nil {
 			return err
 		}
