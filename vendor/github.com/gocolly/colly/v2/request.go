@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -31,6 +30,8 @@ type Request struct {
 	URL *url.URL
 	// Headers contains the Request's HTTP headers
 	Headers *http.Header
+	// the Host header
+	Host string
 	// Ctx is a context between a Request and a Response
 	Ctx *Context
 	// Depth is the number of the parents of the request
@@ -60,20 +61,26 @@ type serializableRequest struct {
 	ID      uint32
 	Ctx     map[string]interface{}
 	Headers http.Header
+	Host    string
 }
 
 // New creates a new request with the context of the original request
 func (r *Request) New(method, URL string, body io.Reader) (*Request, error) {
-	u, err := url.Parse(URL)
+	u, err := urlParser.Parse(URL)
+	if err != nil {
+		return nil, err
+	}
+	u2, err := url.Parse(u.Href(false))
 	if err != nil {
 		return nil, err
 	}
 	return &Request{
 		Method:    method,
-		URL:       u,
+		URL:       u2,
 		Body:      body,
 		Ctx:       r.Ctx,
 		Headers:   &http.Header{},
+		Host:      r.Host,
 		ID:        atomic.AddUint32(&r.collector.requestCount, 1),
 		collector: r.collector,
 	}, nil
@@ -97,15 +104,12 @@ func (r *Request) AbsoluteURL(u string) string {
 	} else {
 		base = r.URL
 	}
-	absURL, err := base.Parse(u)
+
+	absURL, err := urlParser.ParseRef(base.String(), u)
 	if err != nil {
 		return ""
 	}
-	absURL.Fragment = ""
-	if absURL.Scheme == "//" {
-		absURL.Scheme = r.URL.Scheme
-	}
-	return absURL.String()
+	return absURL.Href(false)
 }
 
 // Visit continues Collector's collecting job by creating a
@@ -148,6 +152,9 @@ func (r *Request) PostMultipart(URL string, requestData map[string][]byte) error
 // Retry submits HTTP request again with the same parameters
 func (r *Request) Retry() error {
 	r.Headers.Del("Cookie")
+	if _, ok := r.Body.(io.ReadSeeker); r.Body != nil && !ok {
+		return ErrRetryBodyUnseekable
+	}
 	return r.collector.scrape(r.URL.String(), r.Method, r.Depth, r.Body, r.Ctx, *r.Headers, false)
 }
 
@@ -168,13 +175,14 @@ func (r *Request) Marshal() ([]byte, error) {
 	var err error
 	var body []byte
 	if r.Body != nil {
-		body, err = ioutil.ReadAll(r.Body)
+		body, err = io.ReadAll(r.Body)
 		if err != nil {
 			return nil, err
 		}
 	}
 	sr := &serializableRequest{
 		URL:    r.URL.String(),
+		Host:   r.Host,
 		Method: r.Method,
 		Depth:  r.Depth,
 		Body:   body,

@@ -10,7 +10,6 @@ Performance
 
 // PerformanceMetric Run-time execution metric.
 type PerformanceMetric struct {
-
 	// Name Metric name.
 	Name string `json:"name"`
 
@@ -19,51 +18,49 @@ type PerformanceMetric struct {
 }
 
 // PerformanceDisable Disable collecting and reporting metrics.
-type PerformanceDisable struct {
-}
+type PerformanceDisable struct{}
 
-// ProtoReq name
+// ProtoReq name.
 func (m PerformanceDisable) ProtoReq() string { return "Performance.disable" }
 
-// Call sends the request
+// Call sends the request.
 func (m PerformanceDisable) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
-// PerformanceEnableTimeDomain enum
+// PerformanceEnableTimeDomain enum.
 type PerformanceEnableTimeDomain string
 
 const (
-	// PerformanceEnableTimeDomainTimeTicks enum const
+	// PerformanceEnableTimeDomainTimeTicks enum const.
 	PerformanceEnableTimeDomainTimeTicks PerformanceEnableTimeDomain = "timeTicks"
 
-	// PerformanceEnableTimeDomainThreadTicks enum const
+	// PerformanceEnableTimeDomainThreadTicks enum const.
 	PerformanceEnableTimeDomainThreadTicks PerformanceEnableTimeDomain = "threadTicks"
 )
 
 // PerformanceEnable Enable collecting and reporting metrics.
 type PerformanceEnable struct {
-
 	// TimeDomain (optional) Time domain to use for collecting and reporting duration metrics.
 	TimeDomain PerformanceEnableTimeDomain `json:"timeDomain,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m PerformanceEnable) ProtoReq() string { return "Performance.enable" }
 
-// Call sends the request
+// Call sends the request.
 func (m PerformanceEnable) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
-// PerformanceSetTimeDomainTimeDomain enum
+// PerformanceSetTimeDomainTimeDomain enum.
 type PerformanceSetTimeDomainTimeDomain string
 
 const (
-	// PerformanceSetTimeDomainTimeDomainTimeTicks enum const
+	// PerformanceSetTimeDomainTimeDomainTimeTicks enum const.
 	PerformanceSetTimeDomainTimeDomainTimeTicks PerformanceSetTimeDomainTimeDomain = "timeTicks"
 
-	// PerformanceSetTimeDomainTimeDomainThreadTicks enum const
+	// PerformanceSetTimeDomainTimeDomainThreadTicks enum const.
 	PerformanceSetTimeDomainTimeDomainThreadTicks PerformanceSetTimeDomainTimeDomain = "threadTicks"
 )
 
@@ -71,27 +68,25 @@ const (
 // Note that this must be called before enabling metrics collection. Calling
 // this method while metrics collection is enabled returns an error.
 type PerformanceSetTimeDomain struct {
-
 	// TimeDomain Time domain
 	TimeDomain PerformanceSetTimeDomainTimeDomain `json:"timeDomain"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m PerformanceSetTimeDomain) ProtoReq() string { return "Performance.setTimeDomain" }
 
-// Call sends the request
+// Call sends the request.
 func (m PerformanceSetTimeDomain) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // PerformanceGetMetrics Retrieve current values of run-time metrics.
-type PerformanceGetMetrics struct {
-}
+type PerformanceGetMetrics struct{}
 
-// ProtoReq name
+// ProtoReq name.
 func (m PerformanceGetMetrics) ProtoReq() string { return "Performance.getMetrics" }
 
-// Call the request
+// Call the request.
 func (m PerformanceGetMetrics) Call(c Client) (*PerformanceGetMetricsResult, error) {
 	var res PerformanceGetMetricsResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -99,14 +94,12 @@ func (m PerformanceGetMetrics) Call(c Client) (*PerformanceGetMetricsResult, err
 
 // PerformanceGetMetricsResult ...
 type PerformanceGetMetricsResult struct {
-
 	// Metrics Current values for run-time metrics.
 	Metrics []*PerformanceMetric `json:"metrics"`
 }
 
 // PerformanceMetrics Current values of the metrics.
 type PerformanceMetrics struct {
-
 	// Metrics Current values of the metrics.
 	Metrics []*PerformanceMetric `json:"metrics"`
 
@@ -114,7 +107,7 @@ type PerformanceMetrics struct {
 	Title string `json:"title"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt PerformanceMetrics) ProtoEvent() string {
 	return "Performance.metrics"
 }

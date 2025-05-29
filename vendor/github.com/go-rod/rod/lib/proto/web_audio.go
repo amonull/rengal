@@ -11,79 +11,78 @@ https://webaudio.github.io/web-audio-api/
 
 */
 
-// WebAudioGraphObjectID An unique ID for a graph object (AudioContext, AudioNode, AudioParam) in Web Audio API
+// WebAudioGraphObjectID An unique ID for a graph object (AudioContext, AudioNode, AudioParam) in Web Audio API.
 type WebAudioGraphObjectID string
 
-// WebAudioContextType Enum of BaseAudioContext types
+// WebAudioContextType Enum of BaseAudioContext types.
 type WebAudioContextType string
 
 const (
-	// WebAudioContextTypeRealtime enum const
+	// WebAudioContextTypeRealtime enum const.
 	WebAudioContextTypeRealtime WebAudioContextType = "realtime"
 
-	// WebAudioContextTypeOffline enum const
+	// WebAudioContextTypeOffline enum const.
 	WebAudioContextTypeOffline WebAudioContextType = "offline"
 )
 
-// WebAudioContextState Enum of AudioContextState from the spec
+// WebAudioContextState Enum of AudioContextState from the spec.
 type WebAudioContextState string
 
 const (
-	// WebAudioContextStateSuspended enum const
+	// WebAudioContextStateSuspended enum const.
 	WebAudioContextStateSuspended WebAudioContextState = "suspended"
 
-	// WebAudioContextStateRunning enum const
+	// WebAudioContextStateRunning enum const.
 	WebAudioContextStateRunning WebAudioContextState = "running"
 
-	// WebAudioContextStateClosed enum const
+	// WebAudioContextStateClosed enum const.
 	WebAudioContextStateClosed WebAudioContextState = "closed"
 )
 
-// WebAudioNodeType Enum of AudioNode types
+// WebAudioNodeType Enum of AudioNode types.
 type WebAudioNodeType string
 
-// WebAudioChannelCountMode Enum of AudioNode::ChannelCountMode from the spec
+// WebAudioChannelCountMode Enum of AudioNode::ChannelCountMode from the spec.
 type WebAudioChannelCountMode string
 
 const (
-	// WebAudioChannelCountModeClampedMax enum const
+	// WebAudioChannelCountModeClampedMax enum const.
 	WebAudioChannelCountModeClampedMax WebAudioChannelCountMode = "clamped-max"
 
-	// WebAudioChannelCountModeExplicit enum const
+	// WebAudioChannelCountModeExplicit enum const.
 	WebAudioChannelCountModeExplicit WebAudioChannelCountMode = "explicit"
 
-	// WebAudioChannelCountModeMax enum const
+	// WebAudioChannelCountModeMax enum const.
 	WebAudioChannelCountModeMax WebAudioChannelCountMode = "max"
 )
 
-// WebAudioChannelInterpretation Enum of AudioNode::ChannelInterpretation from the spec
+// WebAudioChannelInterpretation Enum of AudioNode::ChannelInterpretation from the spec.
 type WebAudioChannelInterpretation string
 
 const (
-	// WebAudioChannelInterpretationDiscrete enum const
+	// WebAudioChannelInterpretationDiscrete enum const.
 	WebAudioChannelInterpretationDiscrete WebAudioChannelInterpretation = "discrete"
 
-	// WebAudioChannelInterpretationSpeakers enum const
+	// WebAudioChannelInterpretationSpeakers enum const.
 	WebAudioChannelInterpretationSpeakers WebAudioChannelInterpretation = "speakers"
 )
 
-// WebAudioParamType Enum of AudioParam types
+// WebAudioParamType Enum of AudioParam types.
 type WebAudioParamType string
 
-// WebAudioAutomationRate Enum of AudioParam::AutomationRate from the spec
+// WebAudioAutomationRate Enum of AudioParam::AutomationRate from the spec.
 type WebAudioAutomationRate string
 
 const (
-	// WebAudioAutomationRateARate enum const
+	// WebAudioAutomationRateARate enum const.
 	WebAudioAutomationRateARate WebAudioAutomationRate = "a-rate"
 
-	// WebAudioAutomationRateKRate enum const
+	// WebAudioAutomationRateKRate enum const.
 	WebAudioAutomationRateKRate WebAudioAutomationRate = "k-rate"
 )
 
 // WebAudioContextRealtimeData Fields in AudioContext that change in real-time.
 type WebAudioContextRealtimeData struct {
-
 	// CurrentTime The current context time in second in BaseAudioContext.
 	CurrentTime float64 `json:"currentTime"`
 
@@ -99,9 +98,8 @@ type WebAudioContextRealtimeData struct {
 	CallbackIntervalVariance float64 `json:"callbackIntervalVariance"`
 }
 
-// WebAudioBaseAudioContext Protocol object for BaseAudioContext
+// WebAudioBaseAudioContext Protocol object for BaseAudioContext.
 type WebAudioBaseAudioContext struct {
-
 	// ContextID ...
 	ContextID WebAudioGraphObjectID `json:"contextId"`
 
@@ -124,9 +122,8 @@ type WebAudioBaseAudioContext struct {
 	SampleRate float64 `json:"sampleRate"`
 }
 
-// WebAudioAudioListener Protocol object for AudioListener
+// WebAudioAudioListener Protocol object for AudioListener.
 type WebAudioAudioListener struct {
-
 	// ListenerID ...
 	ListenerID WebAudioGraphObjectID `json:"listenerId"`
 
@@ -134,9 +131,8 @@ type WebAudioAudioListener struct {
 	ContextID WebAudioGraphObjectID `json:"contextId"`
 }
 
-// WebAudioAudioNode Protocol object for AudioNode
+// WebAudioAudioNode Protocol object for AudioNode.
 type WebAudioAudioNode struct {
-
 	// NodeID ...
 	NodeID WebAudioGraphObjectID `json:"nodeId"`
 
@@ -162,9 +158,8 @@ type WebAudioAudioNode struct {
 	ChannelInterpretation WebAudioChannelInterpretation `json:"channelInterpretation"`
 }
 
-// WebAudioAudioParam Protocol object for AudioParam
+// WebAudioAudioParam Protocol object for AudioParam.
 type WebAudioAudioParam struct {
-
 	// ParamID ...
 	ParamID WebAudioGraphObjectID `json:"paramId"`
 
@@ -191,40 +186,37 @@ type WebAudioAudioParam struct {
 }
 
 // WebAudioEnable Enables the WebAudio domain and starts sending context lifetime events.
-type WebAudioEnable struct {
-}
+type WebAudioEnable struct{}
 
-// ProtoReq name
+// ProtoReq name.
 func (m WebAudioEnable) ProtoReq() string { return "WebAudio.enable" }
 
-// Call sends the request
+// Call sends the request.
 func (m WebAudioEnable) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // WebAudioDisable Disables the WebAudio domain.
-type WebAudioDisable struct {
-}
+type WebAudioDisable struct{}
 
-// ProtoReq name
+// ProtoReq name.
 func (m WebAudioDisable) ProtoReq() string { return "WebAudio.disable" }
 
-// Call sends the request
+// Call sends the request.
 func (m WebAudioDisable) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // WebAudioGetRealtimeData Fetch the realtime data from the registered contexts.
 type WebAudioGetRealtimeData struct {
-
 	// ContextID ...
 	ContextID WebAudioGraphObjectID `json:"contextId"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m WebAudioGetRealtimeData) ProtoReq() string { return "WebAudio.getRealtimeData" }
 
-// Call the request
+// Call the request.
 func (m WebAudioGetRealtimeData) Call(c Client) (*WebAudioGetRealtimeDataResult, error) {
 	var res WebAudioGetRealtimeDataResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -232,62 +224,56 @@ func (m WebAudioGetRealtimeData) Call(c Client) (*WebAudioGetRealtimeDataResult,
 
 // WebAudioGetRealtimeDataResult ...
 type WebAudioGetRealtimeDataResult struct {
-
 	// RealtimeData ...
 	RealtimeData *WebAudioContextRealtimeData `json:"realtimeData"`
 }
 
 // WebAudioContextCreated Notifies that a new BaseAudioContext has been created.
 type WebAudioContextCreated struct {
-
 	// Context ...
 	Context *WebAudioBaseAudioContext `json:"context"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt WebAudioContextCreated) ProtoEvent() string {
 	return "WebAudio.contextCreated"
 }
 
 // WebAudioContextWillBeDestroyed Notifies that an existing BaseAudioContext will be destroyed.
 type WebAudioContextWillBeDestroyed struct {
-
 	// ContextID ...
 	ContextID WebAudioGraphObjectID `json:"contextId"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt WebAudioContextWillBeDestroyed) ProtoEvent() string {
 	return "WebAudio.contextWillBeDestroyed"
 }
 
 // WebAudioContextChanged Notifies that existing BaseAudioContext has changed some properties (id stays the same)..
 type WebAudioContextChanged struct {
-
 	// Context ...
 	Context *WebAudioBaseAudioContext `json:"context"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt WebAudioContextChanged) ProtoEvent() string {
 	return "WebAudio.contextChanged"
 }
 
 // WebAudioAudioListenerCreated Notifies that the construction of an AudioListener has finished.
 type WebAudioAudioListenerCreated struct {
-
 	// Listener ...
 	Listener *WebAudioAudioListener `json:"listener"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt WebAudioAudioListenerCreated) ProtoEvent() string {
 	return "WebAudio.audioListenerCreated"
 }
 
 // WebAudioAudioListenerWillBeDestroyed Notifies that a new AudioListener has been created.
 type WebAudioAudioListenerWillBeDestroyed struct {
-
 	// ContextID ...
 	ContextID WebAudioGraphObjectID `json:"contextId"`
 
@@ -295,26 +281,24 @@ type WebAudioAudioListenerWillBeDestroyed struct {
 	ListenerID WebAudioGraphObjectID `json:"listenerId"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt WebAudioAudioListenerWillBeDestroyed) ProtoEvent() string {
 	return "WebAudio.audioListenerWillBeDestroyed"
 }
 
 // WebAudioAudioNodeCreated Notifies that a new AudioNode has been created.
 type WebAudioAudioNodeCreated struct {
-
 	// Node ...
 	Node *WebAudioAudioNode `json:"node"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt WebAudioAudioNodeCreated) ProtoEvent() string {
 	return "WebAudio.audioNodeCreated"
 }
 
 // WebAudioAudioNodeWillBeDestroyed Notifies that an existing AudioNode has been destroyed.
 type WebAudioAudioNodeWillBeDestroyed struct {
-
 	// ContextID ...
 	ContextID WebAudioGraphObjectID `json:"contextId"`
 
@@ -322,26 +306,24 @@ type WebAudioAudioNodeWillBeDestroyed struct {
 	NodeID WebAudioGraphObjectID `json:"nodeId"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt WebAudioAudioNodeWillBeDestroyed) ProtoEvent() string {
 	return "WebAudio.audioNodeWillBeDestroyed"
 }
 
 // WebAudioAudioParamCreated Notifies that a new AudioParam has been created.
 type WebAudioAudioParamCreated struct {
-
 	// Param ...
 	Param *WebAudioAudioParam `json:"param"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt WebAudioAudioParamCreated) ProtoEvent() string {
 	return "WebAudio.audioParamCreated"
 }
 
 // WebAudioAudioParamWillBeDestroyed Notifies that an existing AudioParam has been destroyed.
 type WebAudioAudioParamWillBeDestroyed struct {
-
 	// ContextID ...
 	ContextID WebAudioGraphObjectID `json:"contextId"`
 
@@ -352,14 +334,13 @@ type WebAudioAudioParamWillBeDestroyed struct {
 	ParamID WebAudioGraphObjectID `json:"paramId"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt WebAudioAudioParamWillBeDestroyed) ProtoEvent() string {
 	return "WebAudio.audioParamWillBeDestroyed"
 }
 
 // WebAudioNodesConnected Notifies that two AudioNodes are connected.
 type WebAudioNodesConnected struct {
-
 	// ContextID ...
 	ContextID WebAudioGraphObjectID `json:"contextId"`
 
@@ -376,14 +357,13 @@ type WebAudioNodesConnected struct {
 	DestinationInputIndex *float64 `json:"destinationInputIndex,omitempty"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt WebAudioNodesConnected) ProtoEvent() string {
 	return "WebAudio.nodesConnected"
 }
 
 // WebAudioNodesDisconnected Notifies that AudioNodes are disconnected. The destination can be null, and it means all the outgoing connections from the source are disconnected.
 type WebAudioNodesDisconnected struct {
-
 	// ContextID ...
 	ContextID WebAudioGraphObjectID `json:"contextId"`
 
@@ -400,14 +380,13 @@ type WebAudioNodesDisconnected struct {
 	DestinationInputIndex *float64 `json:"destinationInputIndex,omitempty"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt WebAudioNodesDisconnected) ProtoEvent() string {
 	return "WebAudio.nodesDisconnected"
 }
 
 // WebAudioNodeParamConnected Notifies that an AudioNode is connected to an AudioParam.
 type WebAudioNodeParamConnected struct {
-
 	// ContextID ...
 	ContextID WebAudioGraphObjectID `json:"contextId"`
 
@@ -421,14 +400,13 @@ type WebAudioNodeParamConnected struct {
 	SourceOutputIndex *float64 `json:"sourceOutputIndex,omitempty"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt WebAudioNodeParamConnected) ProtoEvent() string {
 	return "WebAudio.nodeParamConnected"
 }
 
 // WebAudioNodeParamDisconnected Notifies that an AudioNode is disconnected to an AudioParam.
 type WebAudioNodeParamDisconnected struct {
-
 	// ContextID ...
 	ContextID WebAudioGraphObjectID `json:"contextId"`
 
@@ -442,7 +420,7 @@ type WebAudioNodeParamDisconnected struct {
 	SourceOutputIndex *float64 `json:"sourceOutputIndex,omitempty"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt WebAudioNodeParamDisconnected) ProtoEvent() string {
 	return "WebAudio.nodeParamDisconnected"
 }

@@ -3,7 +3,7 @@
 [![tag](https://img.shields.io/github/tag/samber/mo.svg)](https://github.com/samber/mo/releases)
 ![Go Version](https://img.shields.io/badge/Go-%3E%3D%201.18-%23007d9c)
 [![GoDoc](https://godoc.org/github.com/samber/mo?status.svg)](https://pkg.go.dev/github.com/samber/mo)
-![Build Status](https://github.com/samber/mo/actions/workflows/go.yml/badge.svg)
+![Build Status](https://github.com/samber/mo/actions/workflows/test.yml/badge.svg)
 [![Go report](https://goreportcard.com/badge/github.com/samber/mo)](https://goreportcard.com/report/github.com/samber/mo)
 [![Coverage](https://img.shields.io/codecov/c/github/samber/do)](https://codecov.io/gh/samber/mo)
 [![License](https://img.shields.io/github/license/samber/mo)](./LICENSE)
@@ -23,7 +23,7 @@
 
 **Why this name?**
 
-I love **short name** for such utility library. This name is similar to "Monad Go" and no Go package currently uses this name.
+I love **short name** for such utility library. This name is similar to "Monad Go" and no Go package uses this name.
 
 ## 💡 Features
 
@@ -49,6 +49,8 @@ go get github.com/samber/mo@v1
 This library is v1 and follows SemVer strictly.
 
 No breaking changes will be made to exported APIs before v2.0.0.
+
+This library has no dependencies except the Go std lib.
 
 ## 💡 Quick start
 
@@ -120,12 +122,16 @@ I take no responsibility on this junk. 😁 💩
 
 `Option` is a container for an optional value of type `T`. If value exists, `Option` is of type `Some`. If the value is absent, `Option` is of type `None`.
 
+Implements:
+- `mo.Foldable[T, U]`
+
 Constructors:
 
 - `mo.Some()` [doc](https://pkg.go.dev/github.com/samber/mo#Some) - [play](https://go.dev/play/p/iqz2n9n0tDM)
 - `mo.None()` [doc](https://pkg.go.dev/github.com/samber/mo#None) - [play](https://go.dev/play/p/yYQPsYCSYlD)
 - `mo.TupleToOption()` [doc](https://pkg.go.dev/github.com/samber/mo#TupleToOption) - [play](https://go.dev/play/p/gkrg2pZwOty)
 - `mo.EmptyableToOption()` [doc](https://pkg.go.dev/github.com/samber/mo#EmptyableToOption) - [play](https://go.dev/play/p/GSpQQ-q-UES)
+- `mo.PointerToOption()` [doc](https://pkg.go.dev/github.com/samber/mo#PointerToOption) - [play](https://go.dev/play/p/yPVMj4DUb-I)
 
 Methods:
 
@@ -136,6 +142,7 @@ Methods:
 - `.MustGet()` [doc](https://pkg.go.dev/github.com/samber/mo#Option.MustGet) - [play](https://go.dev/play/p/RVBckjdi5WR)
 - `.OrElse()` [doc](https://pkg.go.dev/github.com/samber/mo#Option.OrElse) - [play](https://go.dev/play/p/TrGByFWCzXS)
 - `.OrEmpty()` [doc](https://pkg.go.dev/github.com/samber/mo#Option.OrEmpty) - [play](https://go.dev/play/p/SpSUJcE-tQm)
+- `.ToPointer()` [doc](https://pkg.go.dev/github.com/samber/mo#Option.ToPointer) - [play](https://go.dev/play/p/N43w92SM-Bs)
 - `.ForEach()` [doc](https://pkg.go.dev/github.com/samber/mo#Option.ForEach)
 - `.Match()` [doc](https://pkg.go.dev/github.com/samber/mo#Option.Match) - [play](https://go.dev/play/p/1V6st3LDJsM)
 - `.Map()` [doc](https://pkg.go.dev/github.com/samber/mo#Option.Map) - [play](https://go.dev/play/p/mvfP3pcP_eJ)
@@ -152,14 +159,22 @@ Methods:
 - `.Scan()` [doc](https://pkg.go.dev/github.com/samber/mo#Option.Scan)
 - `.Value()` [doc](https://pkg.go.dev/github.com/samber/mo#Option.Value)
 
+Other:
+
+- `mo.Fold[T, U, R any](f Foldable[T, U], successFunc func(U) R, failureFunc func(T) R) R` [doc](https://pkg.go.dev/github.com/samber/mo#Fold)
+
 ### Result[T any]
 
 `Result` respresent a result of an action having one of the following output: success or failure. An instance of `Result` is an instance of either `Ok` or `Err`. It could be compared to `Either[error, T]`.
+
+Implements:
+- `mo.Foldable[T, U]`
 
 Constructors:
 
 - `mo.Ok()` [doc](https://pkg.go.dev/github.com/samber/mo#Ok) - [play](https://go.dev/play/p/PDwADdzNoyZ)
 - `mo.Err()` [doc](https://pkg.go.dev/github.com/samber/mo#Err) - [play](https://go.dev/play/p/PDwADdzNoyZ)
+- `mo.Errf()` [doc](https://pkg.go.dev/github.com/samber/mo#Errf) - [play](https://go.dev/play/p/N43w92SM-Bs)
 - `mo.TupleToResult()` [doc](https://pkg.go.dev/github.com/samber/mo#TupleToResult) - [play](https://go.dev/play/p/KWjfqQDHQwa)
 - `mo.Try()` [doc](https://pkg.go.dev/github.com/samber/mo#Try) - [play](https://go.dev/play/p/ilOlQx-Mx42)
 
@@ -179,9 +194,17 @@ Methods:
 - `.MapErr()` [doc](https://pkg.go.dev/github.com/samber/mo#Result.MapErr) - [play](https://go.dev/play/p/WraZixg9GGf)
 - `.FlatMap()` [doc](https://pkg.go.dev/github.com/samber/mo#Result.FlatMap) - [play](https://go.dev/play/p/Ud5QjZOqg-7)
 
+Other:
+
+- `mo.Fold[T, U, R any](f Foldable[T, U], successFunc func(U) R, failureFunc func(T) R) R` [doc](https://pkg.go.dev/github.com/samber/mo#Fold)
+- `mo.Do[T any](fn func() T) (result mo.Result[T])` [doc](https://pkg.go.dev/github.com/samber/mo#Do)
+
 ### Either[L any, R any]
 
-`Either` respresents a value of 2 possible types. An instance of `Either` is an instance of either `A` or `B`.
+`Either` represents a value of 2 possible types. An instance of `Either` is an instance of either `A` or `B`.
+
+Implements:
+- `mo.Foldable[T, U]`
 
 Constructors:
 
@@ -206,6 +229,10 @@ Methods:
 - `.Match()` [doc](https://pkg.go.dev/github.com/samber/mo#Either.Match)
 - `.MapLeft()` [doc](https://pkg.go.dev/github.com/samber/mo#Either.MapLeft)
 - `.MapRight()` [doc](https://pkg.go.dev/github.com/samber/mo#Either.MapRight)
+
+Other:
+
+- `mo.Fold[T, U, R any](f Foldable[T, U], successFunc func(U) R, failureFunc func(T) R) R` [doc](https://pkg.go.dev/github.com/samber/mo#Fold)
 
 ### EitherX[T1, ..., TX] (With X between 3 and 5)
 
@@ -341,6 +368,12 @@ Methods:
 - `.Modify()` [doc](https://pkg.go.dev/github.com/samber/mo#TaskEither.Modify)
 - `.Put()` [doc](https://pkg.go.dev/github.com/samber/mo#TaskEither.Put)
 
+### Foldable[T, U]
+
+Foldable represents a type that can be folded into a single value based on its state.
+
+- `mo.Fold[T, U, R any](f Foldable[T, U], successFunc func(U) R, failureFunc func(T) R) R` [doc](https://pkg.go.dev/github.com/samber/mo#Fold)
+
 ## 🛩 Benchmark
 
 // @TODO
@@ -349,7 +382,7 @@ This library does not use `reflect` package. We don't expect overhead.
 
 ## 🤝 Contributing
 
-- Ping me on twitter [@samuelberthe](https://twitter.com/samuelberthe) (DMs, mentions, whatever :))
+- Ping me on Twitter [@samuelberthe](https://twitter.com/samuelberthe) (DMs, mentions, whatever :))
 - Fork the [project](https://github.com/samber/mo)
 - Fix [open issues](https://github.com/samber/mo/issues) or request new features
 
@@ -381,7 +414,7 @@ make watch-test
 
 Give a ⭐️ if this project helped you!
 
-[![support us](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/samber)
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/samber?style=for-the-badge)](https://github.com/sponsors/samber)
 
 ## 📝 License
 

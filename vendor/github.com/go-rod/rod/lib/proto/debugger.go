@@ -23,7 +23,6 @@ type DebuggerCallFrameID string
 
 // DebuggerLocation Location in the source code.
 type DebuggerLocation struct {
-
 	// ScriptID Script identifier as reported in the `Debugger.scriptParsed`.
 	ScriptID RuntimeScriptID `json:"scriptId"`
 
@@ -36,7 +35,6 @@ type DebuggerLocation struct {
 
 // DebuggerScriptPosition (experimental) Location in the source code.
 type DebuggerScriptPosition struct {
-
 	// LineNumber ...
 	LineNumber int `json:"lineNumber"`
 
@@ -46,7 +44,6 @@ type DebuggerScriptPosition struct {
 
 // DebuggerLocationRange (experimental) Location range within one script.
 type DebuggerLocationRange struct {
-
 	// ScriptID ...
 	ScriptID RuntimeScriptID `json:"scriptId"`
 
@@ -59,7 +56,6 @@ type DebuggerLocationRange struct {
 
 // DebuggerCallFrame JavaScript call frame. Array of call frames form the call stack.
 type DebuggerCallFrame struct {
-
 	// CallFrameID Call frame identifier. This identifier is only valid while the virtual machine is paused.
 	CallFrameID DebuggerCallFrameID `json:"callFrameId"`
 
@@ -69,7 +65,7 @@ type DebuggerCallFrame struct {
 	// FunctionLocation (optional) Location in the source code.
 	FunctionLocation *DebuggerLocation `json:"functionLocation,omitempty"`
 
-	// Location Location in the source code.
+	// Location in the source code.
 	Location *DebuggerLocation `json:"location"`
 
 	// URL (deprecated) JavaScript script name or url.
@@ -93,48 +89,47 @@ type DebuggerCallFrame struct {
 	CanBeRestarted bool `json:"canBeRestarted,omitempty"`
 }
 
-// DebuggerScopeType enum
+// DebuggerScopeType enum.
 type DebuggerScopeType string
 
 const (
-	// DebuggerScopeTypeGlobal enum const
+	// DebuggerScopeTypeGlobal enum const.
 	DebuggerScopeTypeGlobal DebuggerScopeType = "global"
 
-	// DebuggerScopeTypeLocal enum const
+	// DebuggerScopeTypeLocal enum const.
 	DebuggerScopeTypeLocal DebuggerScopeType = "local"
 
-	// DebuggerScopeTypeWith enum const
+	// DebuggerScopeTypeWith enum const.
 	DebuggerScopeTypeWith DebuggerScopeType = "with"
 
-	// DebuggerScopeTypeClosure enum const
+	// DebuggerScopeTypeClosure enum const.
 	DebuggerScopeTypeClosure DebuggerScopeType = "closure"
 
-	// DebuggerScopeTypeCatch enum const
+	// DebuggerScopeTypeCatch enum const.
 	DebuggerScopeTypeCatch DebuggerScopeType = "catch"
 
-	// DebuggerScopeTypeBlock enum const
+	// DebuggerScopeTypeBlock enum const.
 	DebuggerScopeTypeBlock DebuggerScopeType = "block"
 
-	// DebuggerScopeTypeScript enum const
+	// DebuggerScopeTypeScript enum const.
 	DebuggerScopeTypeScript DebuggerScopeType = "script"
 
-	// DebuggerScopeTypeEval enum const
+	// DebuggerScopeTypeEval enum const.
 	DebuggerScopeTypeEval DebuggerScopeType = "eval"
 
-	// DebuggerScopeTypeModule enum const
+	// DebuggerScopeTypeModule enum const.
 	DebuggerScopeTypeModule DebuggerScopeType = "module"
 
-	// DebuggerScopeTypeWasmExpressionStack enum const
+	// DebuggerScopeTypeWasmExpressionStack enum const.
 	DebuggerScopeTypeWasmExpressionStack DebuggerScopeType = "wasm-expression-stack"
 )
 
 // DebuggerScope Scope description.
 type DebuggerScope struct {
-
 	// Type Scope type.
 	Type DebuggerScopeType `json:"type"`
 
-	// Object Object representing the scope. For `global` and `with` scopes it represents the actual
+	// Object representing the scope. For `global` and `with` scopes it represents the actual
 	// object; for the rest of the scopes, it is artificial transient object enumerating scope
 	// variables as its properties.
 	Object *RuntimeRemoteObject `json:"object"`
@@ -151,7 +146,6 @@ type DebuggerScope struct {
 
 // DebuggerSearchMatch Search match for resource.
 type DebuggerSearchMatch struct {
-
 	// LineNumber Line number in resource content.
 	LineNumber float64 `json:"lineNumber"`
 
@@ -159,23 +153,22 @@ type DebuggerSearchMatch struct {
 	LineContent string `json:"lineContent"`
 }
 
-// DebuggerBreakLocationType enum
+// DebuggerBreakLocationType enum.
 type DebuggerBreakLocationType string
 
 const (
-	// DebuggerBreakLocationTypeDebuggerStatement enum const
+	// DebuggerBreakLocationTypeDebuggerStatement enum const.
 	DebuggerBreakLocationTypeDebuggerStatement DebuggerBreakLocationType = "debuggerStatement"
 
-	// DebuggerBreakLocationTypeCall enum const
+	// DebuggerBreakLocationTypeCall enum const.
 	DebuggerBreakLocationTypeCall DebuggerBreakLocationType = "call"
 
-	// DebuggerBreakLocationTypeReturn enum const
+	// DebuggerBreakLocationTypeReturn enum const.
 	DebuggerBreakLocationTypeReturn DebuggerBreakLocationType = "return"
 )
 
 // DebuggerBreakLocation ...
 type DebuggerBreakLocation struct {
-
 	// ScriptID Script identifier as reported in the `Debugger.scriptParsed`.
 	ScriptID RuntimeScriptID `json:"scriptId"`
 
@@ -191,7 +184,6 @@ type DebuggerBreakLocation struct {
 
 // DebuggerWasmDisassemblyChunk (experimental) ...
 type DebuggerWasmDisassemblyChunk struct {
-
 	// Lines The next chunk of disassembled lines.
 	Lines []string `json:"lines"`
 
@@ -203,77 +195,74 @@ type DebuggerWasmDisassemblyChunk struct {
 type DebuggerScriptLanguage string
 
 const (
-	// DebuggerScriptLanguageJavaScript enum const
+	// DebuggerScriptLanguageJavaScript enum const.
 	DebuggerScriptLanguageJavaScript DebuggerScriptLanguage = "JavaScript"
 
-	// DebuggerScriptLanguageWebAssembly enum const
+	// DebuggerScriptLanguageWebAssembly enum const.
 	DebuggerScriptLanguageWebAssembly DebuggerScriptLanguage = "WebAssembly"
 )
 
-// DebuggerDebugSymbolsType enum
+// DebuggerDebugSymbolsType enum.
 type DebuggerDebugSymbolsType string
 
 const (
-	// DebuggerDebugSymbolsTypeNone enum const
+	// DebuggerDebugSymbolsTypeNone enum const.
 	DebuggerDebugSymbolsTypeNone DebuggerDebugSymbolsType = "None"
 
-	// DebuggerDebugSymbolsTypeSourceMap enum const
+	// DebuggerDebugSymbolsTypeSourceMap enum const.
 	DebuggerDebugSymbolsTypeSourceMap DebuggerDebugSymbolsType = "SourceMap"
 
-	// DebuggerDebugSymbolsTypeEmbeddedDWARF enum const
+	// DebuggerDebugSymbolsTypeEmbeddedDWARF enum const.
 	DebuggerDebugSymbolsTypeEmbeddedDWARF DebuggerDebugSymbolsType = "EmbeddedDWARF"
 
-	// DebuggerDebugSymbolsTypeExternalDWARF enum const
+	// DebuggerDebugSymbolsTypeExternalDWARF enum const.
 	DebuggerDebugSymbolsTypeExternalDWARF DebuggerDebugSymbolsType = "ExternalDWARF"
 )
 
 // DebuggerDebugSymbols Debug symbols available for a wasm script.
 type DebuggerDebugSymbols struct {
-
-	// Type Type of the debug symbols.
+	// Type of the debug symbols.
 	Type DebuggerDebugSymbolsType `json:"type"`
 
 	// ExternalURL (optional) URL of the external symbol source.
 	ExternalURL string `json:"externalURL,omitempty"`
 }
 
-// DebuggerContinueToLocationTargetCallFrames enum
+// DebuggerContinueToLocationTargetCallFrames enum.
 type DebuggerContinueToLocationTargetCallFrames string
 
 const (
-	// DebuggerContinueToLocationTargetCallFramesAny enum const
+	// DebuggerContinueToLocationTargetCallFramesAny enum const.
 	DebuggerContinueToLocationTargetCallFramesAny DebuggerContinueToLocationTargetCallFrames = "any"
 
-	// DebuggerContinueToLocationTargetCallFramesCurrent enum const
+	// DebuggerContinueToLocationTargetCallFramesCurrent enum const.
 	DebuggerContinueToLocationTargetCallFramesCurrent DebuggerContinueToLocationTargetCallFrames = "current"
 )
 
 // DebuggerContinueToLocation Continues execution until specific location is reached.
 type DebuggerContinueToLocation struct {
-
-	// Location Location to continue to.
+	// Location to continue to.
 	Location *DebuggerLocation `json:"location"`
 
 	// TargetCallFrames (optional) ...
 	TargetCallFrames DebuggerContinueToLocationTargetCallFrames `json:"targetCallFrames,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerContinueToLocation) ProtoReq() string { return "Debugger.continueToLocation" }
 
-// Call sends the request
+// Call sends the request.
 func (m DebuggerContinueToLocation) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DebuggerDisable Disables debugger for given page.
-type DebuggerDisable struct {
-}
+type DebuggerDisable struct{}
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerDisable) ProtoReq() string { return "Debugger.disable" }
 
-// Call sends the request
+// Call sends the request.
 func (m DebuggerDisable) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
@@ -281,16 +270,15 @@ func (m DebuggerDisable) Call(c Client) error {
 // DebuggerEnable Enables debugger for the given page. Clients should not assume that the debugging has been
 // enabled until the result for this command is received.
 type DebuggerEnable struct {
-
 	// MaxScriptsCacheSize (experimental) (optional) The maximum size in bytes of collected scripts (not referenced by other heap objects)
 	// the debugger can hold. Puts no limit if parameter is omitted.
 	MaxScriptsCacheSize *float64 `json:"maxScriptsCacheSize,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerEnable) ProtoReq() string { return "Debugger.enable" }
 
-// Call the request
+// Call the request.
 func (m DebuggerEnable) Call(c Client) (*DebuggerEnableResult, error) {
 	var res DebuggerEnableResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -298,18 +286,16 @@ func (m DebuggerEnable) Call(c Client) (*DebuggerEnableResult, error) {
 
 // DebuggerEnableResult ...
 type DebuggerEnableResult struct {
-
 	// DebuggerID (experimental) Unique identifier of the debugger.
 	DebuggerID RuntimeUniqueDebuggerID `json:"debuggerId"`
 }
 
 // DebuggerEvaluateOnCallFrame Evaluates expression on a given call frame.
 type DebuggerEvaluateOnCallFrame struct {
-
 	// CallFrameID Call frame identifier to evaluate on.
 	CallFrameID DebuggerCallFrameID `json:"callFrameId"`
 
-	// Expression Expression to evaluate.
+	// Expression to evaluate.
 	Expression string `json:"expression"`
 
 	// ObjectGroup (optional) String object group name to put result into (allows rapid releasing resulting object handles
@@ -337,10 +323,10 @@ type DebuggerEvaluateOnCallFrame struct {
 	Timeout RuntimeTimeDelta `json:"timeout,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerEvaluateOnCallFrame) ProtoReq() string { return "Debugger.evaluateOnCallFrame" }
 
-// Call the request
+// Call the request.
 func (m DebuggerEvaluateOnCallFrame) Call(c Client) (*DebuggerEvaluateOnCallFrameResult, error) {
 	var res DebuggerEvaluateOnCallFrameResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -348,7 +334,6 @@ func (m DebuggerEvaluateOnCallFrame) Call(c Client) (*DebuggerEvaluateOnCallFram
 
 // DebuggerEvaluateOnCallFrameResult ...
 type DebuggerEvaluateOnCallFrameResult struct {
-
 	// Result Object wrapper for the evaluation result.
 	Result *RuntimeRemoteObject `json:"result"`
 
@@ -359,8 +344,7 @@ type DebuggerEvaluateOnCallFrameResult struct {
 // DebuggerGetPossibleBreakpoints Returns possible locations for breakpoint. scriptId in start and end range locations should be
 // the same.
 type DebuggerGetPossibleBreakpoints struct {
-
-	// Start Start of range to search possible breakpoint locations in.
+	// Start of range to search possible breakpoint locations in.
 	Start *DebuggerLocation `json:"start"`
 
 	// End (optional) End of range to search possible breakpoint locations in (excluding). When not specified, end
@@ -371,10 +355,10 @@ type DebuggerGetPossibleBreakpoints struct {
 	RestrictToFunction bool `json:"restrictToFunction,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerGetPossibleBreakpoints) ProtoReq() string { return "Debugger.getPossibleBreakpoints" }
 
-// Call the request
+// Call the request.
 func (m DebuggerGetPossibleBreakpoints) Call(c Client) (*DebuggerGetPossibleBreakpointsResult, error) {
 	var res DebuggerGetPossibleBreakpointsResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -382,22 +366,20 @@ func (m DebuggerGetPossibleBreakpoints) Call(c Client) (*DebuggerGetPossibleBrea
 
 // DebuggerGetPossibleBreakpointsResult ...
 type DebuggerGetPossibleBreakpointsResult struct {
-
 	// Locations List of the possible breakpoint locations.
 	Locations []*DebuggerBreakLocation `json:"locations"`
 }
 
 // DebuggerGetScriptSource Returns source for the script with given id.
 type DebuggerGetScriptSource struct {
-
 	// ScriptID Id of the script to get source for.
 	ScriptID RuntimeScriptID `json:"scriptId"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerGetScriptSource) ProtoReq() string { return "Debugger.getScriptSource" }
 
-// Call the request
+// Call the request.
 func (m DebuggerGetScriptSource) Call(c Client) (*DebuggerGetScriptSourceResult, error) {
 	var res DebuggerGetScriptSourceResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -405,7 +387,6 @@ func (m DebuggerGetScriptSource) Call(c Client) (*DebuggerGetScriptSourceResult,
 
 // DebuggerGetScriptSourceResult ...
 type DebuggerGetScriptSourceResult struct {
-
 	// ScriptSource Script source (empty in case of Wasm bytecode).
 	ScriptSource string `json:"scriptSource"`
 
@@ -415,15 +396,14 @@ type DebuggerGetScriptSourceResult struct {
 
 // DebuggerDisassembleWasmModule (experimental) ...
 type DebuggerDisassembleWasmModule struct {
-
 	// ScriptID Id of the script to disassemble
 	ScriptID RuntimeScriptID `json:"scriptId"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerDisassembleWasmModule) ProtoReq() string { return "Debugger.disassembleWasmModule" }
 
-// Call the request
+// Call the request.
 func (m DebuggerDisassembleWasmModule) Call(c Client) (*DebuggerDisassembleWasmModuleResult, error) {
 	var res DebuggerDisassembleWasmModuleResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -431,7 +411,6 @@ func (m DebuggerDisassembleWasmModule) Call(c Client) (*DebuggerDisassembleWasmM
 
 // DebuggerDisassembleWasmModuleResult (experimental) ...
 type DebuggerDisassembleWasmModuleResult struct {
-
 	// StreamID (optional) For large modules, return a stream from which additional chunks of
 	// disassembly can be read successively.
 	StreamID string `json:"streamId,omitempty"`
@@ -452,17 +431,16 @@ type DebuggerDisassembleWasmModuleResult struct {
 // and return an empty chunk. Any subsequent calls for the now invalid stream
 // will return errors.
 type DebuggerNextWasmDisassemblyChunk struct {
-
 	// StreamID ...
 	StreamID string `json:"streamId"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerNextWasmDisassemblyChunk) ProtoReq() string {
 	return "Debugger.nextWasmDisassemblyChunk"
 }
 
-// Call the request
+// Call the request.
 func (m DebuggerNextWasmDisassemblyChunk) Call(c Client) (*DebuggerNextWasmDisassemblyChunkResult, error) {
 	var res DebuggerNextWasmDisassemblyChunkResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -470,22 +448,20 @@ func (m DebuggerNextWasmDisassemblyChunk) Call(c Client) (*DebuggerNextWasmDisas
 
 // DebuggerNextWasmDisassemblyChunkResult (experimental) ...
 type DebuggerNextWasmDisassemblyChunkResult struct {
-
 	// Chunk The next chunk of disassembly.
 	Chunk *DebuggerWasmDisassemblyChunk `json:"chunk"`
 }
 
 // DebuggerGetWasmBytecode (deprecated) This command is deprecated. Use getScriptSource instead.
 type DebuggerGetWasmBytecode struct {
-
 	// ScriptID Id of the Wasm script to get source for.
 	ScriptID RuntimeScriptID `json:"scriptId"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerGetWasmBytecode) ProtoReq() string { return "Debugger.getWasmBytecode" }
 
-// Call the request
+// Call the request.
 func (m DebuggerGetWasmBytecode) Call(c Client) (*DebuggerGetWasmBytecodeResult, error) {
 	var res DebuggerGetWasmBytecodeResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -493,22 +469,20 @@ func (m DebuggerGetWasmBytecode) Call(c Client) (*DebuggerGetWasmBytecodeResult,
 
 // DebuggerGetWasmBytecodeResult (deprecated) ...
 type DebuggerGetWasmBytecodeResult struct {
-
 	// Bytecode Script source.
 	Bytecode []byte `json:"bytecode"`
 }
 
 // DebuggerGetStackTrace (experimental) Returns stack trace with given `stackTraceId`.
 type DebuggerGetStackTrace struct {
-
 	// StackTraceID ...
 	StackTraceID *RuntimeStackTraceID `json:"stackTraceId"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerGetStackTrace) ProtoReq() string { return "Debugger.getStackTrace" }
 
-// Call the request
+// Call the request.
 func (m DebuggerGetStackTrace) Call(c Client) (*DebuggerGetStackTraceResult, error) {
 	var res DebuggerGetStackTraceResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -516,65 +490,61 @@ func (m DebuggerGetStackTrace) Call(c Client) (*DebuggerGetStackTraceResult, err
 
 // DebuggerGetStackTraceResult (experimental) ...
 type DebuggerGetStackTraceResult struct {
-
 	// StackTrace ...
 	StackTrace *RuntimeStackTrace `json:"stackTrace"`
 }
 
 // DebuggerPause Stops on the next JavaScript statement.
-type DebuggerPause struct {
-}
+type DebuggerPause struct{}
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerPause) ProtoReq() string { return "Debugger.pause" }
 
-// Call sends the request
+// Call sends the request.
 func (m DebuggerPause) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DebuggerPauseOnAsyncCall (deprecated) (experimental) ...
 type DebuggerPauseOnAsyncCall struct {
-
 	// ParentStackTraceID Debugger will pause when async call with given stack trace is started.
 	ParentStackTraceID *RuntimeStackTraceID `json:"parentStackTraceId"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerPauseOnAsyncCall) ProtoReq() string { return "Debugger.pauseOnAsyncCall" }
 
-// Call sends the request
+// Call sends the request.
 func (m DebuggerPauseOnAsyncCall) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DebuggerRemoveBreakpoint Removes JavaScript breakpoint.
 type DebuggerRemoveBreakpoint struct {
-
 	// BreakpointID ...
 	BreakpointID DebuggerBreakpointID `json:"breakpointId"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerRemoveBreakpoint) ProtoReq() string { return "Debugger.removeBreakpoint" }
 
-// Call sends the request
+// Call sends the request.
 func (m DebuggerRemoveBreakpoint) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
-// DebuggerRestartFrameMode enum
+// DebuggerRestartFrameMode enum.
 type DebuggerRestartFrameMode string
 
 const (
-	// DebuggerRestartFrameModeStepInto enum const
+	// DebuggerRestartFrameModeStepInto enum const.
 	DebuggerRestartFrameModeStepInto DebuggerRestartFrameMode = "StepInto"
 )
 
 // DebuggerRestartFrame Restarts particular call frame from the beginning. The old, deprecated
 // behavior of `restartFrame` is to stay paused and allow further CDP commands
 // after a restart was scheduled. This can cause problems with restarting, so
-// we now continue execution immediatly after it has been scheduled until we
+// we now continue execution immediately after it has been scheduled until we
 // reach the beginning of the restarted frame.
 //
 // To stay back-wards compatible, `restartFrame` now expects a `mode`
@@ -585,7 +555,6 @@ const (
 // Use the call frames from the `Debugger#paused` events instead, that fires
 // once V8 pauses at the beginning of the restarted function.
 type DebuggerRestartFrame struct {
-
 	// CallFrameID Call frame identifier to evaluate on.
 	CallFrameID DebuggerCallFrameID `json:"callFrameId"`
 
@@ -594,10 +563,10 @@ type DebuggerRestartFrame struct {
 	Mode DebuggerRestartFrameMode `json:"mode,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerRestartFrame) ProtoReq() string { return "Debugger.restartFrame" }
 
-// Call the request
+// Call the request.
 func (m DebuggerRestartFrame) Call(c Client) (*DebuggerRestartFrameResult, error) {
 	var res DebuggerRestartFrameResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -605,7 +574,6 @@ func (m DebuggerRestartFrame) Call(c Client) (*DebuggerRestartFrameResult, error
 
 // DebuggerRestartFrameResult ...
 type DebuggerRestartFrameResult struct {
-
 	// CallFrames (deprecated) New stack trace.
 	CallFrames []*DebuggerCallFrame `json:"callFrames"`
 
@@ -618,7 +586,6 @@ type DebuggerRestartFrameResult struct {
 
 // DebuggerResume Resumes JavaScript execution.
 type DebuggerResume struct {
-
 	// TerminateOnResume (optional) Set to true to terminate execution upon resuming execution. In contrast
 	// to Runtime.terminateExecution, this will allows to execute further
 	// JavaScript (i.e. via evaluation) until execution of the paused code
@@ -627,17 +594,16 @@ type DebuggerResume struct {
 	TerminateOnResume bool `json:"terminateOnResume,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerResume) ProtoReq() string { return "Debugger.resume" }
 
-// Call sends the request
+// Call sends the request.
 func (m DebuggerResume) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DebuggerSearchInContent Searches for given string in script content.
 type DebuggerSearchInContent struct {
-
 	// ScriptID Id of the script to search in.
 	ScriptID RuntimeScriptID `json:"scriptId"`
 
@@ -651,10 +617,10 @@ type DebuggerSearchInContent struct {
 	IsRegex bool `json:"isRegex,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerSearchInContent) ProtoReq() string { return "Debugger.searchInContent" }
 
-// Call the request
+// Call the request.
 func (m DebuggerSearchInContent) Call(c Client) (*DebuggerSearchInContentResult, error) {
 	var res DebuggerSearchInContentResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -662,23 +628,21 @@ func (m DebuggerSearchInContent) Call(c Client) (*DebuggerSearchInContentResult,
 
 // DebuggerSearchInContentResult ...
 type DebuggerSearchInContentResult struct {
-
 	// Result List of search matches.
 	Result []*DebuggerSearchMatch `json:"result"`
 }
 
 // DebuggerSetAsyncCallStackDepth Enables or disables async call stacks tracking.
 type DebuggerSetAsyncCallStackDepth struct {
-
 	// MaxDepth Maximum depth of async call stacks. Setting to `0` will effectively disable collecting async
 	// call stacks (default).
 	MaxDepth int `json:"maxDepth"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerSetAsyncCallStackDepth) ProtoReq() string { return "Debugger.setAsyncCallStackDepth" }
 
-// Call sends the request
+// Call sends the request.
 func (m DebuggerSetAsyncCallStackDepth) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
@@ -687,15 +651,14 @@ func (m DebuggerSetAsyncCallStackDepth) Call(c Client) error {
 // scripts with url matching one of the patterns. VM will try to leave blackboxed script by
 // performing 'step in' several times, finally resorting to 'step out' if unsuccessful.
 type DebuggerSetBlackboxPatterns struct {
-
 	// Patterns Array of regexps that will be used to check script url for blackbox state.
 	Patterns []string `json:"patterns"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerSetBlackboxPatterns) ProtoReq() string { return "Debugger.setBlackboxPatterns" }
 
-// Call sends the request
+// Call sends the request.
 func (m DebuggerSetBlackboxPatterns) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
@@ -705,7 +668,6 @@ func (m DebuggerSetBlackboxPatterns) Call(c Client) error {
 // Positions array contains positions where blackbox state is changed. First interval isn't
 // blackboxed. Array should be sorted.
 type DebuggerSetBlackboxedRanges struct {
-
 	// ScriptID Id of the script.
 	ScriptID RuntimeScriptID `json:"scriptId"`
 
@@ -713,18 +675,17 @@ type DebuggerSetBlackboxedRanges struct {
 	Positions []*DebuggerScriptPosition `json:"positions"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerSetBlackboxedRanges) ProtoReq() string { return "Debugger.setBlackboxedRanges" }
 
-// Call sends the request
+// Call sends the request.
 func (m DebuggerSetBlackboxedRanges) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DebuggerSetBreakpoint Sets JavaScript breakpoint at a given location.
 type DebuggerSetBreakpoint struct {
-
-	// Location Location to set breakpoint in.
+	// Location to set breakpoint in.
 	Location *DebuggerLocation `json:"location"`
 
 	// Condition (optional) Expression to use as a breakpoint condition. When specified, debugger will only stop on the
@@ -732,10 +693,10 @@ type DebuggerSetBreakpoint struct {
 	Condition string `json:"condition,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerSetBreakpoint) ProtoReq() string { return "Debugger.setBreakpoint" }
 
-// Call the request
+// Call the request.
 func (m DebuggerSetBreakpoint) Call(c Client) (*DebuggerSetBreakpointResult, error) {
 	var res DebuggerSetBreakpointResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -743,7 +704,6 @@ func (m DebuggerSetBreakpoint) Call(c Client) (*DebuggerSetBreakpointResult, err
 
 // DebuggerSetBreakpointResult ...
 type DebuggerSetBreakpointResult struct {
-
 	// BreakpointID Id of the created breakpoint for further reference.
 	BreakpointID DebuggerBreakpointID `json:"breakpointId"`
 
@@ -751,30 +711,29 @@ type DebuggerSetBreakpointResult struct {
 	ActualLocation *DebuggerLocation `json:"actualLocation"`
 }
 
-// DebuggerSetInstrumentationBreakpointInstrumentation enum
+// DebuggerSetInstrumentationBreakpointInstrumentation enum.
 type DebuggerSetInstrumentationBreakpointInstrumentation string
 
 const (
-	// DebuggerSetInstrumentationBreakpointInstrumentationBeforeScriptExecution enum const
+	// DebuggerSetInstrumentationBreakpointInstrumentationBeforeScriptExecution enum const.
 	DebuggerSetInstrumentationBreakpointInstrumentationBeforeScriptExecution DebuggerSetInstrumentationBreakpointInstrumentation = "beforeScriptExecution"
 
-	// DebuggerSetInstrumentationBreakpointInstrumentationBeforeScriptWithSourceMapExecution enum const
+	// DebuggerSetInstrumentationBreakpointInstrumentationBeforeScriptWithSourceMapExecution enum const.
 	DebuggerSetInstrumentationBreakpointInstrumentationBeforeScriptWithSourceMapExecution DebuggerSetInstrumentationBreakpointInstrumentation = "beforeScriptWithSourceMapExecution"
 )
 
 // DebuggerSetInstrumentationBreakpoint Sets instrumentation breakpoint.
 type DebuggerSetInstrumentationBreakpoint struct {
-
-	// Instrumentation Instrumentation name.
+	// Instrumentation name.
 	Instrumentation DebuggerSetInstrumentationBreakpointInstrumentation `json:"instrumentation"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerSetInstrumentationBreakpoint) ProtoReq() string {
 	return "Debugger.setInstrumentationBreakpoint"
 }
 
-// Call the request
+// Call the request.
 func (m DebuggerSetInstrumentationBreakpoint) Call(c Client) (*DebuggerSetInstrumentationBreakpointResult, error) {
 	var res DebuggerSetInstrumentationBreakpointResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -782,7 +741,6 @@ func (m DebuggerSetInstrumentationBreakpoint) Call(c Client) (*DebuggerSetInstru
 
 // DebuggerSetInstrumentationBreakpointResult ...
 type DebuggerSetInstrumentationBreakpointResult struct {
-
 	// BreakpointID Id of the created breakpoint for further reference.
 	BreakpointID DebuggerBreakpointID `json:"breakpointId"`
 }
@@ -792,7 +750,6 @@ type DebuggerSetInstrumentationBreakpointResult struct {
 // `locations` property. Further matching script parsing will result in subsequent
 // `breakpointResolved` events issued. This logical breakpoint will survive page reloads.
 type DebuggerSetBreakpointByURL struct {
-
 	// LineNumber Line number to set breakpoint at.
 	LineNumber int `json:"lineNumber"`
 
@@ -814,10 +771,10 @@ type DebuggerSetBreakpointByURL struct {
 	Condition string `json:"condition,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerSetBreakpointByURL) ProtoReq() string { return "Debugger.setBreakpointByUrl" }
 
-// Call the request
+// Call the request.
 func (m DebuggerSetBreakpointByURL) Call(c Client) (*DebuggerSetBreakpointByURLResult, error) {
 	var res DebuggerSetBreakpointByURLResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -825,7 +782,6 @@ func (m DebuggerSetBreakpointByURL) Call(c Client) (*DebuggerSetBreakpointByURLR
 
 // DebuggerSetBreakpointByURLResult ...
 type DebuggerSetBreakpointByURLResult struct {
-
 	// BreakpointID Id of the created breakpoint for further reference.
 	BreakpointID DebuggerBreakpointID `json:"breakpointId"`
 
@@ -837,7 +793,6 @@ type DebuggerSetBreakpointByURLResult struct {
 // If another function was created from the same source as a given one,
 // calling it will also trigger the breakpoint.
 type DebuggerSetBreakpointOnFunctionCall struct {
-
 	// ObjectID Function object id.
 	ObjectID RuntimeRemoteObjectID `json:"objectId"`
 
@@ -846,12 +801,12 @@ type DebuggerSetBreakpointOnFunctionCall struct {
 	Condition string `json:"condition,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerSetBreakpointOnFunctionCall) ProtoReq() string {
 	return "Debugger.setBreakpointOnFunctionCall"
 }
 
-// Call the request
+// Call the request.
 func (m DebuggerSetBreakpointOnFunctionCall) Call(c Client) (*DebuggerSetBreakpointOnFunctionCallResult, error) {
 	var res DebuggerSetBreakpointOnFunctionCallResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -859,70 +814,66 @@ func (m DebuggerSetBreakpointOnFunctionCall) Call(c Client) (*DebuggerSetBreakpo
 
 // DebuggerSetBreakpointOnFunctionCallResult (experimental) ...
 type DebuggerSetBreakpointOnFunctionCallResult struct {
-
 	// BreakpointID Id of the created breakpoint for further reference.
 	BreakpointID DebuggerBreakpointID `json:"breakpointId"`
 }
 
 // DebuggerSetBreakpointsActive Activates / deactivates all breakpoints on the page.
 type DebuggerSetBreakpointsActive struct {
-
 	// Active New value for breakpoints active state.
 	Active bool `json:"active"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerSetBreakpointsActive) ProtoReq() string { return "Debugger.setBreakpointsActive" }
 
-// Call sends the request
+// Call sends the request.
 func (m DebuggerSetBreakpointsActive) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
-// DebuggerSetPauseOnExceptionsState enum
+// DebuggerSetPauseOnExceptionsState enum.
 type DebuggerSetPauseOnExceptionsState string
 
 const (
-	// DebuggerSetPauseOnExceptionsStateNone enum const
+	// DebuggerSetPauseOnExceptionsStateNone enum const.
 	DebuggerSetPauseOnExceptionsStateNone DebuggerSetPauseOnExceptionsState = "none"
 
-	// DebuggerSetPauseOnExceptionsStateCaught enum const
+	// DebuggerSetPauseOnExceptionsStateCaught enum const.
 	DebuggerSetPauseOnExceptionsStateCaught DebuggerSetPauseOnExceptionsState = "caught"
 
-	// DebuggerSetPauseOnExceptionsStateUncaught enum const
+	// DebuggerSetPauseOnExceptionsStateUncaught enum const.
 	DebuggerSetPauseOnExceptionsStateUncaught DebuggerSetPauseOnExceptionsState = "uncaught"
 
-	// DebuggerSetPauseOnExceptionsStateAll enum const
+	// DebuggerSetPauseOnExceptionsStateAll enum const.
 	DebuggerSetPauseOnExceptionsStateAll DebuggerSetPauseOnExceptionsState = "all"
 )
 
 // DebuggerSetPauseOnExceptions Defines pause on exceptions state. Can be set to stop on all exceptions, uncaught exceptions,
 // or caught exceptions, no exceptions. Initial pause on exceptions state is `none`.
 type DebuggerSetPauseOnExceptions struct {
-
 	// State Pause on exceptions mode.
 	State DebuggerSetPauseOnExceptionsState `json:"state"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerSetPauseOnExceptions) ProtoReq() string { return "Debugger.setPauseOnExceptions" }
 
-// Call sends the request
+// Call sends the request.
 func (m DebuggerSetPauseOnExceptions) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DebuggerSetReturnValue (experimental) Changes return value in top frame. Available only at return break position.
 type DebuggerSetReturnValue struct {
-
 	// NewValue New return value.
 	NewValue *RuntimeCallArgument `json:"newValue"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerSetReturnValue) ProtoReq() string { return "Debugger.setReturnValue" }
 
-// Call sends the request
+// Call sends the request.
 func (m DebuggerSetReturnValue) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
@@ -935,7 +886,6 @@ func (m DebuggerSetReturnValue) Call(c Client) error {
 // the live edit will be successful and a `Debugger.restartFrame` for the
 // top-most function is automatically triggered.
 type DebuggerSetScriptSource struct {
-
 	// ScriptID Id of the script to edit.
 	ScriptID RuntimeScriptID `json:"scriptId"`
 
@@ -951,35 +901,37 @@ type DebuggerSetScriptSource struct {
 	AllowTopFrameEditing bool `json:"allowTopFrameEditing,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerSetScriptSource) ProtoReq() string { return "Debugger.setScriptSource" }
 
-// Call the request
+// Call the request.
 func (m DebuggerSetScriptSource) Call(c Client) (*DebuggerSetScriptSourceResult, error) {
 	var res DebuggerSetScriptSourceResult
 	return &res, call(m.ProtoReq(), m, &res, c)
 }
 
-// DebuggerSetScriptSourceResultStatus enum
+// DebuggerSetScriptSourceResultStatus enum.
 type DebuggerSetScriptSourceResultStatus string
 
 const (
-	// DebuggerSetScriptSourceResultStatusOk enum const
+	// DebuggerSetScriptSourceResultStatusOk enum const.
 	DebuggerSetScriptSourceResultStatusOk DebuggerSetScriptSourceResultStatus = "Ok"
 
-	// DebuggerSetScriptSourceResultStatusCompileError enum const
+	// DebuggerSetScriptSourceResultStatusCompileError enum const.
 	DebuggerSetScriptSourceResultStatusCompileError DebuggerSetScriptSourceResultStatus = "CompileError"
 
-	// DebuggerSetScriptSourceResultStatusBlockedByActiveGenerator enum const
+	// DebuggerSetScriptSourceResultStatusBlockedByActiveGenerator enum const.
 	DebuggerSetScriptSourceResultStatusBlockedByActiveGenerator DebuggerSetScriptSourceResultStatus = "BlockedByActiveGenerator"
 
-	// DebuggerSetScriptSourceResultStatusBlockedByActiveFunction enum const
+	// DebuggerSetScriptSourceResultStatusBlockedByActiveFunction enum const.
 	DebuggerSetScriptSourceResultStatusBlockedByActiveFunction DebuggerSetScriptSourceResultStatus = "BlockedByActiveFunction"
+
+	// DebuggerSetScriptSourceResultStatusBlockedByTopLevelEsModuleChange enum const.
+	DebuggerSetScriptSourceResultStatusBlockedByTopLevelEsModuleChange DebuggerSetScriptSourceResultStatus = "BlockedByTopLevelEsModuleChange"
 )
 
 // DebuggerSetScriptSourceResult ...
 type DebuggerSetScriptSourceResult struct {
-
 	// CallFrames (deprecated) (optional) New stack trace in case editing has happened while VM was stopped.
 	CallFrames []*DebuggerCallFrame `json:"callFrames,omitempty"`
 
@@ -1003,15 +955,14 @@ type DebuggerSetScriptSourceResult struct {
 
 // DebuggerSetSkipAllPauses Makes page not interrupt on any pauses (breakpoint, exception, dom exception etc).
 type DebuggerSetSkipAllPauses struct {
-
 	// Skip New value for skip pauses state.
 	Skip bool `json:"skip"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerSetSkipAllPauses) ProtoReq() string { return "Debugger.setSkipAllPauses" }
 
-// Call sends the request
+// Call sends the request.
 func (m DebuggerSetSkipAllPauses) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
@@ -1019,7 +970,6 @@ func (m DebuggerSetSkipAllPauses) Call(c Client) error {
 // DebuggerSetVariableValue Changes value of variable in a callframe. Object-based scopes are not supported and must be
 // mutated manually.
 type DebuggerSetVariableValue struct {
-
 	// ScopeNumber 0-based number of scope as was listed in scope chain. Only 'local', 'closure' and 'catch'
 	// scope types are allowed. Other scopes could be manipulated manually.
 	ScopeNumber int `json:"scopeNumber"`
@@ -1034,17 +984,16 @@ type DebuggerSetVariableValue struct {
 	CallFrameID DebuggerCallFrameID `json:"callFrameId"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerSetVariableValue) ProtoReq() string { return "Debugger.setVariableValue" }
 
-// Call sends the request
+// Call sends the request.
 func (m DebuggerSetVariableValue) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DebuggerStepInto Steps into the function call.
 type DebuggerStepInto struct {
-
 	// BreakOnAsyncCall (experimental) (optional) Debugger will pause on the execution of the first async task which was scheduled
 	// before next pause.
 	BreakOnAsyncCall bool `json:"breakOnAsyncCall,omitempty"`
@@ -1053,44 +1002,41 @@ type DebuggerStepInto struct {
 	SkipList []*DebuggerLocationRange `json:"skipList,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerStepInto) ProtoReq() string { return "Debugger.stepInto" }
 
-// Call sends the request
+// Call sends the request.
 func (m DebuggerStepInto) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DebuggerStepOut Steps out of the function call.
-type DebuggerStepOut struct {
-}
+type DebuggerStepOut struct{}
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerStepOut) ProtoReq() string { return "Debugger.stepOut" }
 
-// Call sends the request
+// Call sends the request.
 func (m DebuggerStepOut) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DebuggerStepOver Steps over the statement.
 type DebuggerStepOver struct {
-
 	// SkipList (experimental) (optional) The skipList specifies location ranges that should be skipped on step over.
 	SkipList []*DebuggerLocationRange `json:"skipList,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DebuggerStepOver) ProtoReq() string { return "Debugger.stepOver" }
 
-// Call sends the request
+// Call sends the request.
 func (m DebuggerStepOver) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DebuggerBreakpointResolved Fired when breakpoint is resolved to an actual script and location.
 type DebuggerBreakpointResolved struct {
-
 	// BreakpointID Breakpoint unique identifier.
 	BreakpointID DebuggerBreakpointID `json:"breakpointId"`
 
@@ -1098,55 +1044,57 @@ type DebuggerBreakpointResolved struct {
 	Location *DebuggerLocation `json:"location"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt DebuggerBreakpointResolved) ProtoEvent() string {
 	return "Debugger.breakpointResolved"
 }
 
-// DebuggerPausedReason enum
+// DebuggerPausedReason enum.
 type DebuggerPausedReason string
 
 const (
-	// DebuggerPausedReasonAmbiguous enum const
+	// DebuggerPausedReasonAmbiguous enum const.
 	DebuggerPausedReasonAmbiguous DebuggerPausedReason = "ambiguous"
 
-	// DebuggerPausedReasonAssert enum const
+	// DebuggerPausedReasonAssert enum const.
 	DebuggerPausedReasonAssert DebuggerPausedReason = "assert"
 
-	// DebuggerPausedReasonCSPViolation enum const
+	// DebuggerPausedReasonCSPViolation enum const.
 	DebuggerPausedReasonCSPViolation DebuggerPausedReason = "CSPViolation"
 
-	// DebuggerPausedReasonDebugCommand enum const
+	// DebuggerPausedReasonDebugCommand enum const.
 	DebuggerPausedReasonDebugCommand DebuggerPausedReason = "debugCommand"
 
-	// DebuggerPausedReasonDOM enum const
+	// DebuggerPausedReasonDOM enum const.
 	DebuggerPausedReasonDOM DebuggerPausedReason = "DOM"
 
-	// DebuggerPausedReasonEventListener enum const
+	// DebuggerPausedReasonEventListener enum const.
 	DebuggerPausedReasonEventListener DebuggerPausedReason = "EventListener"
 
-	// DebuggerPausedReasonException enum const
+	// DebuggerPausedReasonException enum const.
 	DebuggerPausedReasonException DebuggerPausedReason = "exception"
 
-	// DebuggerPausedReasonInstrumentation enum const
+	// DebuggerPausedReasonInstrumentation enum const.
 	DebuggerPausedReasonInstrumentation DebuggerPausedReason = "instrumentation"
 
-	// DebuggerPausedReasonOOM enum const
+	// DebuggerPausedReasonOOM enum const.
 	DebuggerPausedReasonOOM DebuggerPausedReason = "OOM"
 
-	// DebuggerPausedReasonOther enum const
+	// DebuggerPausedReasonOther enum const.
 	DebuggerPausedReasonOther DebuggerPausedReason = "other"
 
-	// DebuggerPausedReasonPromiseRejection enum const
+	// DebuggerPausedReasonPromiseRejection enum const.
 	DebuggerPausedReasonPromiseRejection DebuggerPausedReason = "promiseRejection"
 
-	// DebuggerPausedReasonXHR enum const
+	// DebuggerPausedReasonXHR enum const.
 	DebuggerPausedReasonXHR DebuggerPausedReason = "XHR"
+
+	// DebuggerPausedReasonStep enum const.
+	DebuggerPausedReasonStep DebuggerPausedReason = "step"
 )
 
 // DebuggerPaused Fired when the virtual machine stopped on breakpoint or exception or any other stop criteria.
 type DebuggerPaused struct {
-
 	// CallFrames Call stack the virtual machine stopped on.
 	CallFrames []*DebuggerCallFrame `json:"callFrames"`
 
@@ -1169,27 +1117,25 @@ type DebuggerPaused struct {
 	AsyncCallStackTraceID *RuntimeStackTraceID `json:"asyncCallStackTraceId,omitempty"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt DebuggerPaused) ProtoEvent() string {
 	return "Debugger.paused"
 }
 
 // DebuggerResumed Fired when the virtual machine resumed execution.
-type DebuggerResumed struct {
-}
+type DebuggerResumed struct{}
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt DebuggerResumed) ProtoEvent() string {
 	return "Debugger.resumed"
 }
 
 // DebuggerScriptFailedToParse Fired when virtual machine fails to parse the script.
 type DebuggerScriptFailedToParse struct {
-
 	// ScriptID Identifier of the script parsed.
 	ScriptID RuntimeScriptID `json:"scriptId"`
 
-	// URL URL or name of the script parsed (if any).
+	// URL or name of the script parsed (if any).
 	URL string `json:"url"`
 
 	// StartLine Line offset of the script within the resource with given URL (for script tags).
@@ -1210,7 +1156,7 @@ type DebuggerScriptFailedToParse struct {
 	// Hash Content hash of the script, SHA-256.
 	Hash string `json:"hash"`
 
-	// ExecutionContextAuxData (optional) Embedder-specific auxiliary data.
+	// ExecutionContextAuxData (optional) Embedder-specific auxiliary data likely matching {isDefault: boolean, type: 'default'|'isolated'|'worker', frameId: string}
 	ExecutionContextAuxData map[string]gson.JSON `json:"executionContextAuxData,omitempty"`
 
 	// SourceMapURL (optional) URL of source map associated with script (if any).
@@ -1238,7 +1184,7 @@ type DebuggerScriptFailedToParse struct {
 	EmbedderName string `json:"embedderName,omitempty"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt DebuggerScriptFailedToParse) ProtoEvent() string {
 	return "Debugger.scriptFailedToParse"
 }
@@ -1246,11 +1192,10 @@ func (evt DebuggerScriptFailedToParse) ProtoEvent() string {
 // DebuggerScriptParsed Fired when virtual machine parses script. This event is also fired for all known and uncollected
 // scripts upon enabling debugger.
 type DebuggerScriptParsed struct {
-
 	// ScriptID Identifier of the script parsed.
 	ScriptID RuntimeScriptID `json:"scriptId"`
 
-	// URL URL or name of the script parsed (if any).
+	// URL or name of the script parsed (if any).
 	URL string `json:"url"`
 
 	// StartLine Line offset of the script within the resource with given URL (for script tags).
@@ -1271,7 +1216,7 @@ type DebuggerScriptParsed struct {
 	// Hash Content hash of the script, SHA-256.
 	Hash string `json:"hash"`
 
-	// ExecutionContextAuxData (optional) Embedder-specific auxiliary data.
+	// ExecutionContextAuxData (optional) Embedder-specific auxiliary data likely matching {isDefault: boolean, type: 'default'|'isolated'|'worker', frameId: string}
 	ExecutionContextAuxData map[string]gson.JSON `json:"executionContextAuxData,omitempty"`
 
 	// IsLiveEdit (experimental) (optional) True, if this script is generated as a result of the live edit operation.
@@ -1305,7 +1250,7 @@ type DebuggerScriptParsed struct {
 	EmbedderName string `json:"embedderName,omitempty"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt DebuggerScriptParsed) ProtoEvent() string {
 	return "Debugger.scriptParsed"
 }

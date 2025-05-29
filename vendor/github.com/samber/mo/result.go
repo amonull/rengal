@@ -1,5 +1,11 @@
 package mo
 
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+)
+
 // Ok builds a Result when value is valid.
 // Play: https://go.dev/play/p/PDwADdzNoyZ
 func Ok[T any](value T) Result[T] {
@@ -18,6 +24,13 @@ func Err[T any](err error) Result[T] {
 	}
 }
 
+// Errf builds a Result when value is invalid.
+// Errf formats according to a format specifier and returns the error as a value that satisfies Result[T].
+// Play: https://go.dev/play/p/N43w92SM-Bs
+func Errf[T any](format string, a ...any) Result[T] {
+	return Err[T](fmt.Errorf(format, a...))
+}
+
 // TupleToResult convert a pair of T and error into a Result.
 // Play: https://go.dev/play/p/KWjfqQDHQwa
 func TupleToResult[T any](value T, err error) Result[T] {
@@ -33,7 +46,7 @@ func Try[T any](f func() (T, error)) Result[T] {
 	return TupleToResult(f())
 }
 
-// Result respresent a result of an action having one
+// Result represents a result of an action having one
 // of the following output: success or failure.
 // An instance of Result is an instance of either Ok or Err.
 // It could be compared to `Either[error, T]`.
@@ -152,4 +165,72 @@ func (r Result[T]) FlatMap(mapper func(value T) Result[T]) Result[T] {
 	}
 
 	return Err[T](r.err)
+}
+
+// MarshalJSON encodes Result into json, following the JSON-RPC specification for results,
+// with one exception: when the result is an error, the "code" field is not included.
+// Reference: https://www.jsonrpc.org/specification
+func (o Result[T]) MarshalJSON() ([]byte, error) {
+	if o.isErr {
+		return json.Marshal(map[string]any{
+			"error": map[string]any{
+				"message": o.err.Error(),
+			},
+		})
+	}
+
+	return json.Marshal(map[string]any{
+		"result": o.value,
+	})
+}
+
+// UnmarshalJSON decodes json into Result. If "error" is set, the result is an
+// Err containing the error message as a generic error object. Otherwise, the
+// result is an Ok containing the result. If the JSON object contains netiher
+// an error nor a result, the result is an Ok containing an empty value. If the
+// JSON object contains both an error and a result, the result is an Err. Finally,
+// if the JSON object contains an error but is not structured correctly (no message
+// field), the unmarshaling fails.
+func (o *Result[T]) UnmarshalJSON(data []byte) error {
+	var result struct {
+		Result T `json:"result"`
+		Error  struct {
+			Message string `json:"message"`
+		} `json:"error"`
+	}
+
+	if err := json.Unmarshal(data, &result); err != nil {
+		return err
+	}
+
+	if result.Error.Message != "" {
+		o.err = errors.New(result.Error.Message)
+		o.isErr = true
+		return nil
+	}
+
+	o.value = result.Result
+	o.isErr = false
+	return nil
+}
+
+// leftValue returns the error if the Result is an error, otherwise nil
+//
+//nolint:unused
+func (r Result[T]) leftValue() error {
+	return r.err
+}
+
+// rightValue returns the value if the Result is a success, otherwise the zero value of T
+//
+//nolint:unused
+func (r Result[T]) rightValue() T {
+	return r.value
+}
+
+// hasLeftValue returns true if the Result represents an error state.
+//
+//nolint:unused
+func (r Result[T]) hasLeftValue() bool {
+	return r.isErr
 }

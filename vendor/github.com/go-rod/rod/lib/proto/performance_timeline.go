@@ -11,9 +11,8 @@ https://w3c.github.io/performance-timeline/#dom-performanceobserver.
 
 */
 
-// PerformanceTimelineLargestContentfulPaint See https://github.com/WICG/LargestContentfulPaint and largest_contentful_paint.idl
+// PerformanceTimelineLargestContentfulPaint See https://github.com/WICG/LargestContentfulPaint and largest_contentful_paint.idl.
 type PerformanceTimelineLargestContentfulPaint struct {
-
 	// RenderTime ...
 	RenderTime TimeSinceEpoch `json:"renderTime"`
 
@@ -35,7 +34,6 @@ type PerformanceTimelineLargestContentfulPaint struct {
 
 // PerformanceTimelineLayoutShiftAttribution ...
 type PerformanceTimelineLayoutShiftAttribution struct {
-
 	// PreviousRect ...
 	PreviousRect *DOMRect `json:"previousRect"`
 
@@ -46,9 +44,8 @@ type PerformanceTimelineLayoutShiftAttribution struct {
 	NodeID DOMBackendNodeID `json:"nodeId,omitempty"`
 }
 
-// PerformanceTimelineLayoutShift See https://wicg.github.io/layout-instability/#sec-layout-shift and layout_shift.idl
+// PerformanceTimelineLayoutShift See https://wicg.github.io/layout-instability/#sec-layout-shift and layout_shift.idl.
 type PerformanceTimelineLayoutShift struct {
-
 	// Value Score increment produced by this event.
 	Value float64 `json:"value"`
 
@@ -64,18 +61,17 @@ type PerformanceTimelineLayoutShift struct {
 
 // PerformanceTimelineTimelineEvent ...
 type PerformanceTimelineTimelineEvent struct {
-
 	// FrameID Identifies the frame that this event is related to. Empty for non-frame targets.
 	FrameID PageFrameID `json:"frameId"`
 
 	// Type The event type, as specified in https://w3c.github.io/performance-timeline/#dom-performanceentry-entrytype
-	// This determines which of the optional "details" fiedls is present.
+	// This determines which of the optional "details" fields is present.
 	Type string `json:"type"`
 
-	// Name Name may be empty depending on the type.
+	// Name may be empty depending on the type.
 	Name string `json:"name"`
 
-	// Time Time in seconds since Epoch, monotonically increasing within document lifetime.
+	// Time in seconds since Epoch, monotonically increasing within document lifetime.
 	Time TimeSinceEpoch `json:"time"`
 
 	// Duration (optional) Event duration, if applicable.
@@ -89,9 +85,8 @@ type PerformanceTimelineTimelineEvent struct {
 }
 
 // PerformanceTimelineEnable Previously buffered events would be reported before method returns.
-// See also: timelineEventAdded
+// See also: timelineEventAdded.
 type PerformanceTimelineEnable struct {
-
 	// EventTypes The types of event to report, as specified in
 	// https://w3c.github.io/performance-timeline/#dom-performanceentry-entrytype
 	// The specified filter overrides any previous filters, passing empty
@@ -100,22 +95,21 @@ type PerformanceTimelineEnable struct {
 	EventTypes []string `json:"eventTypes"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m PerformanceTimelineEnable) ProtoReq() string { return "PerformanceTimeline.enable" }
 
-// Call sends the request
+// Call sends the request.
 func (m PerformanceTimelineEnable) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // PerformanceTimelineTimelineEventAdded Sent when a performance timeline event is added. See reportPerformanceTimeline method.
 type PerformanceTimelineTimelineEventAdded struct {
-
 	// Event ...
 	Event *PerformanceTimelineTimelineEvent `json:"event"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt PerformanceTimelineTimelineEventAdded) ProtoEvent() string {
 	return "PerformanceTimeline.timelineEventAdded"
 }

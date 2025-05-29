@@ -37,8 +37,13 @@ func (f ccittDecode) Encode(r io.Reader) (io.Reader, error) {
 
 // Decode implements decoding for a CCITTDecode filter.
 func (f ccittDecode) Decode(r io.Reader) (io.Reader, error) {
+	return f.DecodeLength(r, -1)
+}
 
-	log.Trace.Println("DecodeCCITT begin")
+func (f ccittDecode) DecodeLength(r io.Reader, maxLen int64) (io.Reader, error) {
+	if log.TraceEnabled() {
+		log.Trace.Println("DecodeCCITT begin")
+	}
 
 	var ok bool
 
@@ -87,7 +92,10 @@ func (f ccittDecode) Decode(r io.Reader) (io.Reader, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Trace.Printf("DecodeCCITT: decoded %d bytes.\n", written)
+
+	if log.TraceEnabled() {
+		log.Trace.Printf("DecodeCCITT: decoded %d bytes.\n", written)
+	}
 
 	return &b, nil
 }

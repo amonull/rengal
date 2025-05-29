@@ -2,6 +2,7 @@ package mo
 
 import (
 	"bytes"
+	"database/sql"
 	"database/sql/driver"
 	"encoding/gob"
 	"encoding/json"
@@ -50,6 +51,16 @@ func EmptyableToOption[T any](value T) Option[T] {
 	return Some(value)
 }
 
+// PointerToOption builds a Some Option when value is not nil, or None.
+// Play: https://go.dev/play/p/yPVMj4DUb-I
+func PointerToOption[T any](value *T) Option[T] {
+	if value == nil {
+		return None[T]()
+	}
+
+	return Some(*value)
+}
+
 // Option is a container for an optional value of type T. If value exists, Option is
 // of type Some. If the value is absent, Option is of type None.
 type Option[T any] struct {
@@ -57,13 +68,13 @@ type Option[T any] struct {
 	value     T
 }
 
-// IsPresent returns true when value is absent.
+// IsPresent returns false when value is absent.
 // Play: https://go.dev/play/p/nDqIaiihyCA
 func (o Option[T]) IsPresent() bool {
 	return o.isPresent
 }
 
-// IsAbsent returns true when value is present.
+// IsAbsent returns false when value is present.
 // Play: https://go.dev/play/p/23e2zqyVOQm
 func (o Option[T]) IsAbsent() bool {
 	return !o.isPresent
@@ -162,6 +173,16 @@ func (o Option[T]) FlatMap(mapper func(value T) Option[T]) Option[T] {
 	return None[T]()
 }
 
+// ToPointer returns value if present or a nil pointer.
+// Play: https://go.dev/play/p/N43w92SM-Bs
+func (o Option[T]) ToPointer() *T {
+	if !o.isPresent {
+		return nil
+	}
+
+	return &o.value
+}
+
 // MarshalJSON encodes Option into json.
 func (o Option[T]) MarshalJSON() ([]byte, error) {
 	if o.isPresent {
@@ -198,7 +219,7 @@ func (o *Option[T]) UnmarshalText(data []byte) error {
 	return json.Unmarshal(data, o)
 }
 
-// BinaryMarshaler is the interface implemented by an object that can marshal itself into a binary form.
+// MarshalBinary is the interface implemented by an object that can marshal itself into a binary form.
 func (o Option[T]) MarshalBinary() ([]byte, error) {
 	if !o.isPresent {
 		return []byte{0}, nil
@@ -214,7 +235,7 @@ func (o Option[T]) MarshalBinary() ([]byte, error) {
 	return append([]byte{1}, buf.Bytes()...), nil
 }
 
-// BinaryUnmarshaler is the interface implemented by an object that can unmarshal a binary representation of itself.
+// UnmarshalBinary is the interface implemented by an object that can unmarshal a binary representation of itself.
 func (o *Option[T]) UnmarshalBinary(data []byte) error {
 	if len(data) == 0 {
 		return errors.New("Option[T].UnmarshalBinary: no data")
@@ -247,11 +268,24 @@ func (o *Option[T]) GobDecode(data []byte) error {
 	return o.UnmarshalBinary(data)
 }
 
-// Scan implements the SQL driver.Scanner interface.
+// Scan implements the SQL sql.Scanner interface.
 func (o *Option[T]) Scan(src any) error {
 	if src == nil {
 		o.isPresent = false
 		o.value = empty[T]()
+		return nil
+	}
+
+	// is is only possible to assert interfaces, so convert first
+	// https://go.googlesource.com/proposal/+/refs/heads/master/design/43651-type-parameters.md#why-not-permit-type-assertions-on-values-whose-type-is-a-type-parameter
+	var t T
+	if tScanner, ok := interface{}(&t).(sql.Scanner); ok {
+		if err := tScanner.Scan(src); err != nil {
+			return fmt.Errorf("failed to scan: %w", err)
+		}
+
+		o.isPresent = true
+		o.value = t
 		return nil
 	}
 
@@ -263,7 +297,7 @@ func (o *Option[T]) Scan(src any) error {
 		}
 	}
 
-	return fmt.Errorf("failed to scan Option[T]")
+	return o.scanConvertValue(src)
 }
 
 // Value implements the driver Valuer interface.
@@ -272,5 +306,33 @@ func (o Option[T]) Value() (driver.Value, error) {
 		return nil, nil
 	}
 
-	return o.value, nil
+	return driver.DefaultParameterConverter.ConvertValue(o.value)
+}
+
+// leftValue returns an error if the Option is None, otherwise nil
+//
+//nolint:unused
+func (o Option[T]) leftValue() error {
+	if !o.isPresent {
+		return optionNoSuchElement
+	}
+	return nil
+}
+
+// rightValue returns the value if the Option is Some, otherwise the zero value of T
+//
+//nolint:unused
+func (o Option[T]) rightValue() T {
+	if !o.isPresent {
+		var zero T
+		return zero
+	}
+	return o.value
+}
+
+// hasLeftValue returns true if the Option represents a None state
+//
+//nolint:unused
+func (o Option[T]) hasLeftValue() bool {
+	return !o.isPresent
 }

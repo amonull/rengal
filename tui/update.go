@@ -2,6 +2,8 @@ package tui
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/amonull/rengal/anilist"
 	"github.com/amonull/rengal/color"
 	"github.com/amonull/rengal/history"
@@ -21,7 +23,6 @@ import (
 	"github.com/samber/mo"
 	"github.com/spf13/viper"
 	"golang.org/x/exp/slices"
-	"time"
 )
 
 func (b *statefulBubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -634,8 +635,16 @@ func (b *statefulBubble) updateConfirm(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return b, tea.Quit
 		case key.Matches(msg, b.keymap.confirm):
 			chapters := lo.Keys(b.selectedChapters)
-			slices.SortFunc(chapters, func(a, b *source.Chapter) bool {
-				return a.Index > b.Index
+			slices.SortFunc(chapters, func(a, b *source.Chapter) int {
+				if a.Index < b.Index {
+					return 1
+				}
+
+				if a.Index > b.Index {
+					return -1
+				}
+
+				return 0
 			})
 
 			for _, chapter := range chapters {

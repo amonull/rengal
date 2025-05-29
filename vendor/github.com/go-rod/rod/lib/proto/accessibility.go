@@ -19,55 +19,55 @@ type AccessibilityAXNodeID string
 type AccessibilityAXValueType string
 
 const (
-	// AccessibilityAXValueTypeBoolean enum const
+	// AccessibilityAXValueTypeBoolean enum const.
 	AccessibilityAXValueTypeBoolean AccessibilityAXValueType = "boolean"
 
-	// AccessibilityAXValueTypeTristate enum const
+	// AccessibilityAXValueTypeTristate enum const.
 	AccessibilityAXValueTypeTristate AccessibilityAXValueType = "tristate"
 
-	// AccessibilityAXValueTypeBooleanOrUndefined enum const
+	// AccessibilityAXValueTypeBooleanOrUndefined enum const.
 	AccessibilityAXValueTypeBooleanOrUndefined AccessibilityAXValueType = "booleanOrUndefined"
 
-	// AccessibilityAXValueTypeIdref enum const
+	// AccessibilityAXValueTypeIdref enum const.
 	AccessibilityAXValueTypeIdref AccessibilityAXValueType = "idref"
 
-	// AccessibilityAXValueTypeIdrefList enum const
+	// AccessibilityAXValueTypeIdrefList enum const.
 	AccessibilityAXValueTypeIdrefList AccessibilityAXValueType = "idrefList"
 
-	// AccessibilityAXValueTypeInteger enum const
+	// AccessibilityAXValueTypeInteger enum const.
 	AccessibilityAXValueTypeInteger AccessibilityAXValueType = "integer"
 
-	// AccessibilityAXValueTypeNode enum const
+	// AccessibilityAXValueTypeNode enum const.
 	AccessibilityAXValueTypeNode AccessibilityAXValueType = "node"
 
-	// AccessibilityAXValueTypeNodeList enum const
+	// AccessibilityAXValueTypeNodeList enum const.
 	AccessibilityAXValueTypeNodeList AccessibilityAXValueType = "nodeList"
 
-	// AccessibilityAXValueTypeNumber enum const
+	// AccessibilityAXValueTypeNumber enum const.
 	AccessibilityAXValueTypeNumber AccessibilityAXValueType = "number"
 
-	// AccessibilityAXValueTypeString enum const
+	// AccessibilityAXValueTypeString enum const.
 	AccessibilityAXValueTypeString AccessibilityAXValueType = "string"
 
-	// AccessibilityAXValueTypeComputedString enum const
+	// AccessibilityAXValueTypeComputedString enum const.
 	AccessibilityAXValueTypeComputedString AccessibilityAXValueType = "computedString"
 
-	// AccessibilityAXValueTypeToken enum const
+	// AccessibilityAXValueTypeToken enum const.
 	AccessibilityAXValueTypeToken AccessibilityAXValueType = "token"
 
-	// AccessibilityAXValueTypeTokenList enum const
+	// AccessibilityAXValueTypeTokenList enum const.
 	AccessibilityAXValueTypeTokenList AccessibilityAXValueType = "tokenList"
 
-	// AccessibilityAXValueTypeDomRelation enum const
+	// AccessibilityAXValueTypeDomRelation enum const.
 	AccessibilityAXValueTypeDomRelation AccessibilityAXValueType = "domRelation"
 
-	// AccessibilityAXValueTypeRole enum const
+	// AccessibilityAXValueTypeRole enum const.
 	AccessibilityAXValueTypeRole AccessibilityAXValueType = "role"
 
-	// AccessibilityAXValueTypeInternalRole enum const
+	// AccessibilityAXValueTypeInternalRole enum const.
 	AccessibilityAXValueTypeInternalRole AccessibilityAXValueType = "internalRole"
 
-	// AccessibilityAXValueTypeValueUndefined enum const
+	// AccessibilityAXValueTypeValueUndefined enum const.
 	AccessibilityAXValueTypeValueUndefined AccessibilityAXValueType = "valueUndefined"
 )
 
@@ -75,22 +75,22 @@ const (
 type AccessibilityAXValueSourceType string
 
 const (
-	// AccessibilityAXValueSourceTypeAttribute enum const
+	// AccessibilityAXValueSourceTypeAttribute enum const.
 	AccessibilityAXValueSourceTypeAttribute AccessibilityAXValueSourceType = "attribute"
 
-	// AccessibilityAXValueSourceTypeImplicit enum const
+	// AccessibilityAXValueSourceTypeImplicit enum const.
 	AccessibilityAXValueSourceTypeImplicit AccessibilityAXValueSourceType = "implicit"
 
-	// AccessibilityAXValueSourceTypeStyle enum const
+	// AccessibilityAXValueSourceTypeStyle enum const.
 	AccessibilityAXValueSourceTypeStyle AccessibilityAXValueSourceType = "style"
 
-	// AccessibilityAXValueSourceTypeContents enum const
+	// AccessibilityAXValueSourceTypeContents enum const.
 	AccessibilityAXValueSourceTypeContents AccessibilityAXValueSourceType = "contents"
 
-	// AccessibilityAXValueSourceTypePlaceholder enum const
+	// AccessibilityAXValueSourceTypePlaceholder enum const.
 	AccessibilityAXValueSourceTypePlaceholder AccessibilityAXValueSourceType = "placeholder"
 
-	// AccessibilityAXValueSourceTypeRelatedElement enum const
+	// AccessibilityAXValueSourceTypeRelatedElement enum const.
 	AccessibilityAXValueSourceTypeRelatedElement AccessibilityAXValueSourceType = "relatedElement"
 )
 
@@ -98,40 +98,39 @@ const (
 type AccessibilityAXValueNativeSourceType string
 
 const (
-	// AccessibilityAXValueNativeSourceTypeDescription enum const
+	// AccessibilityAXValueNativeSourceTypeDescription enum const.
 	AccessibilityAXValueNativeSourceTypeDescription AccessibilityAXValueNativeSourceType = "description"
 
-	// AccessibilityAXValueNativeSourceTypeFigcaption enum const
+	// AccessibilityAXValueNativeSourceTypeFigcaption enum const.
 	AccessibilityAXValueNativeSourceTypeFigcaption AccessibilityAXValueNativeSourceType = "figcaption"
 
-	// AccessibilityAXValueNativeSourceTypeLabel enum const
+	// AccessibilityAXValueNativeSourceTypeLabel enum const.
 	AccessibilityAXValueNativeSourceTypeLabel AccessibilityAXValueNativeSourceType = "label"
 
-	// AccessibilityAXValueNativeSourceTypeLabelfor enum const
+	// AccessibilityAXValueNativeSourceTypeLabelfor enum const.
 	AccessibilityAXValueNativeSourceTypeLabelfor AccessibilityAXValueNativeSourceType = "labelfor"
 
-	// AccessibilityAXValueNativeSourceTypeLabelwrapped enum const
+	// AccessibilityAXValueNativeSourceTypeLabelwrapped enum const.
 	AccessibilityAXValueNativeSourceTypeLabelwrapped AccessibilityAXValueNativeSourceType = "labelwrapped"
 
-	// AccessibilityAXValueNativeSourceTypeLegend enum const
+	// AccessibilityAXValueNativeSourceTypeLegend enum const.
 	AccessibilityAXValueNativeSourceTypeLegend AccessibilityAXValueNativeSourceType = "legend"
 
-	// AccessibilityAXValueNativeSourceTypeRubyannotation enum const
+	// AccessibilityAXValueNativeSourceTypeRubyannotation enum const.
 	AccessibilityAXValueNativeSourceTypeRubyannotation AccessibilityAXValueNativeSourceType = "rubyannotation"
 
-	// AccessibilityAXValueNativeSourceTypeTablecaption enum const
+	// AccessibilityAXValueNativeSourceTypeTablecaption enum const.
 	AccessibilityAXValueNativeSourceTypeTablecaption AccessibilityAXValueNativeSourceType = "tablecaption"
 
-	// AccessibilityAXValueNativeSourceTypeTitle enum const
+	// AccessibilityAXValueNativeSourceTypeTitle enum const.
 	AccessibilityAXValueNativeSourceTypeTitle AccessibilityAXValueNativeSourceType = "title"
 
-	// AccessibilityAXValueNativeSourceTypeOther enum const
+	// AccessibilityAXValueNativeSourceTypeOther enum const.
 	AccessibilityAXValueNativeSourceTypeOther AccessibilityAXValueNativeSourceType = "other"
 )
 
 // AccessibilityAXValueSource A single source for a computed AX property.
 type AccessibilityAXValueSource struct {
-
 	// Type What type of source this is.
 	Type AccessibilityAXValueSourceType `json:"type"`
 
@@ -147,7 +146,7 @@ type AccessibilityAXValueSource struct {
 	// Superseded (optional) Whether this source is superseded by a higher priority source.
 	Superseded bool `json:"superseded,omitempty"`
 
-	// NativeSource (optional) The native markup source for this value, e.g. a <label> element.
+	// NativeSource (optional) The native markup source for this value, e.g. a `<label>` element.
 	NativeSource AccessibilityAXValueNativeSourceType `json:"nativeSource,omitempty"`
 
 	// NativeSourceValue (optional) The value, such as a node or node list, of the native source.
@@ -162,7 +161,6 @@ type AccessibilityAXValueSource struct {
 
 // AccessibilityAXRelatedNode ...
 type AccessibilityAXRelatedNode struct {
-
 	// BackendDOMNodeID The BackendNodeId of the related DOM node.
 	BackendDOMNodeID DOMBackendNodeID `json:"backendDOMNodeId"`
 
@@ -175,7 +173,6 @@ type AccessibilityAXRelatedNode struct {
 
 // AccessibilityAXProperty ...
 type AccessibilityAXProperty struct {
-
 	// Name The name of this property.
 	Name AccessibilityAXPropertyName `json:"name"`
 
@@ -185,7 +182,6 @@ type AccessibilityAXProperty struct {
 
 // AccessibilityAXValue A single computed AX property.
 type AccessibilityAXValue struct {
-
 	// Type The type of this value.
 	Type AccessibilityAXValueType `json:"type"`
 
@@ -208,127 +204,129 @@ type AccessibilityAXValue struct {
 type AccessibilityAXPropertyName string
 
 const (
-	// AccessibilityAXPropertyNameBusy enum const
+	// AccessibilityAXPropertyNameBusy enum const.
 	AccessibilityAXPropertyNameBusy AccessibilityAXPropertyName = "busy"
 
-	// AccessibilityAXPropertyNameDisabled enum const
+	// AccessibilityAXPropertyNameDisabled enum const.
 	AccessibilityAXPropertyNameDisabled AccessibilityAXPropertyName = "disabled"
 
-	// AccessibilityAXPropertyNameEditable enum const
+	// AccessibilityAXPropertyNameEditable enum const.
 	AccessibilityAXPropertyNameEditable AccessibilityAXPropertyName = "editable"
 
-	// AccessibilityAXPropertyNameFocusable enum const
+	// AccessibilityAXPropertyNameFocusable enum const.
 	AccessibilityAXPropertyNameFocusable AccessibilityAXPropertyName = "focusable"
 
-	// AccessibilityAXPropertyNameFocused enum const
+	// AccessibilityAXPropertyNameFocused enum const.
 	AccessibilityAXPropertyNameFocused AccessibilityAXPropertyName = "focused"
 
-	// AccessibilityAXPropertyNameHidden enum const
+	// AccessibilityAXPropertyNameHidden enum const.
 	AccessibilityAXPropertyNameHidden AccessibilityAXPropertyName = "hidden"
 
-	// AccessibilityAXPropertyNameHiddenRoot enum const
+	// AccessibilityAXPropertyNameHiddenRoot enum const.
 	AccessibilityAXPropertyNameHiddenRoot AccessibilityAXPropertyName = "hiddenRoot"
 
-	// AccessibilityAXPropertyNameInvalid enum const
+	// AccessibilityAXPropertyNameInvalid enum const.
 	AccessibilityAXPropertyNameInvalid AccessibilityAXPropertyName = "invalid"
 
-	// AccessibilityAXPropertyNameKeyshortcuts enum const
+	// AccessibilityAXPropertyNameKeyshortcuts enum const.
 	AccessibilityAXPropertyNameKeyshortcuts AccessibilityAXPropertyName = "keyshortcuts"
 
-	// AccessibilityAXPropertyNameSettable enum const
+	// AccessibilityAXPropertyNameSettable enum const.
 	AccessibilityAXPropertyNameSettable AccessibilityAXPropertyName = "settable"
 
-	// AccessibilityAXPropertyNameRoledescription enum const
+	// AccessibilityAXPropertyNameRoledescription enum const.
 	AccessibilityAXPropertyNameRoledescription AccessibilityAXPropertyName = "roledescription"
 
-	// AccessibilityAXPropertyNameLive enum const
+	// AccessibilityAXPropertyNameLive enum const.
 	AccessibilityAXPropertyNameLive AccessibilityAXPropertyName = "live"
 
-	// AccessibilityAXPropertyNameAtomic enum const
+	// AccessibilityAXPropertyNameAtomic enum const.
 	AccessibilityAXPropertyNameAtomic AccessibilityAXPropertyName = "atomic"
 
-	// AccessibilityAXPropertyNameRelevant enum const
+	// AccessibilityAXPropertyNameRelevant enum const.
 	AccessibilityAXPropertyNameRelevant AccessibilityAXPropertyName = "relevant"
 
-	// AccessibilityAXPropertyNameRoot enum const
+	// AccessibilityAXPropertyNameRoot enum const.
 	AccessibilityAXPropertyNameRoot AccessibilityAXPropertyName = "root"
 
-	// AccessibilityAXPropertyNameAutocomplete enum const
+	// AccessibilityAXPropertyNameAutocomplete enum const.
 	AccessibilityAXPropertyNameAutocomplete AccessibilityAXPropertyName = "autocomplete"
 
-	// AccessibilityAXPropertyNameHasPopup enum const
+	// AccessibilityAXPropertyNameHasPopup enum const.
 	AccessibilityAXPropertyNameHasPopup AccessibilityAXPropertyName = "hasPopup"
 
-	// AccessibilityAXPropertyNameLevel enum const
+	// AccessibilityAXPropertyNameLevel enum const.
 	AccessibilityAXPropertyNameLevel AccessibilityAXPropertyName = "level"
 
-	// AccessibilityAXPropertyNameMultiselectable enum const
+	// AccessibilityAXPropertyNameMultiselectable enum const.
 	AccessibilityAXPropertyNameMultiselectable AccessibilityAXPropertyName = "multiselectable"
 
-	// AccessibilityAXPropertyNameOrientation enum const
+	// AccessibilityAXPropertyNameOrientation enum const.
 	AccessibilityAXPropertyNameOrientation AccessibilityAXPropertyName = "orientation"
 
-	// AccessibilityAXPropertyNameMultiline enum const
+	// AccessibilityAXPropertyNameMultiline enum const.
 	AccessibilityAXPropertyNameMultiline AccessibilityAXPropertyName = "multiline"
 
-	// AccessibilityAXPropertyNameReadonly enum const
+	// AccessibilityAXPropertyNameReadonly enum const.
 	AccessibilityAXPropertyNameReadonly AccessibilityAXPropertyName = "readonly"
 
-	// AccessibilityAXPropertyNameRequired enum const
+	// AccessibilityAXPropertyNameRequired enum const.
 	AccessibilityAXPropertyNameRequired AccessibilityAXPropertyName = "required"
 
-	// AccessibilityAXPropertyNameValuemin enum const
+	// AccessibilityAXPropertyNameValuemin enum const.
 	AccessibilityAXPropertyNameValuemin AccessibilityAXPropertyName = "valuemin"
 
-	// AccessibilityAXPropertyNameValuemax enum const
+	// AccessibilityAXPropertyNameValuemax enum const.
 	AccessibilityAXPropertyNameValuemax AccessibilityAXPropertyName = "valuemax"
 
-	// AccessibilityAXPropertyNameValuetext enum const
+	// AccessibilityAXPropertyNameValuetext enum const.
 	AccessibilityAXPropertyNameValuetext AccessibilityAXPropertyName = "valuetext"
 
-	// AccessibilityAXPropertyNameChecked enum const
+	// AccessibilityAXPropertyNameChecked enum const.
 	AccessibilityAXPropertyNameChecked AccessibilityAXPropertyName = "checked"
 
-	// AccessibilityAXPropertyNameExpanded enum const
+	// AccessibilityAXPropertyNameExpanded enum const.
 	AccessibilityAXPropertyNameExpanded AccessibilityAXPropertyName = "expanded"
 
-	// AccessibilityAXPropertyNameModal enum const
+	// AccessibilityAXPropertyNameModal enum const.
 	AccessibilityAXPropertyNameModal AccessibilityAXPropertyName = "modal"
 
-	// AccessibilityAXPropertyNamePressed enum const
+	// AccessibilityAXPropertyNamePressed enum const.
 	AccessibilityAXPropertyNamePressed AccessibilityAXPropertyName = "pressed"
 
-	// AccessibilityAXPropertyNameSelected enum const
+	// AccessibilityAXPropertyNameSelected enum const.
 	AccessibilityAXPropertyNameSelected AccessibilityAXPropertyName = "selected"
 
-	// AccessibilityAXPropertyNameActivedescendant enum const
+	// AccessibilityAXPropertyNameActivedescendant enum const.
 	AccessibilityAXPropertyNameActivedescendant AccessibilityAXPropertyName = "activedescendant"
 
-	// AccessibilityAXPropertyNameControls enum const
+	// AccessibilityAXPropertyNameControls enum const.
 	AccessibilityAXPropertyNameControls AccessibilityAXPropertyName = "controls"
 
-	// AccessibilityAXPropertyNameDescribedby enum const
+	// AccessibilityAXPropertyNameDescribedby enum const.
 	AccessibilityAXPropertyNameDescribedby AccessibilityAXPropertyName = "describedby"
 
-	// AccessibilityAXPropertyNameDetails enum const
+	// AccessibilityAXPropertyNameDetails enum const.
 	AccessibilityAXPropertyNameDetails AccessibilityAXPropertyName = "details"
 
-	// AccessibilityAXPropertyNameErrormessage enum const
+	// AccessibilityAXPropertyNameErrormessage enum const.
 	AccessibilityAXPropertyNameErrormessage AccessibilityAXPropertyName = "errormessage"
 
-	// AccessibilityAXPropertyNameFlowto enum const
+	// AccessibilityAXPropertyNameFlowto enum const.
 	AccessibilityAXPropertyNameFlowto AccessibilityAXPropertyName = "flowto"
 
-	// AccessibilityAXPropertyNameLabelledby enum const
+	// AccessibilityAXPropertyNameLabelledby enum const.
 	AccessibilityAXPropertyNameLabelledby AccessibilityAXPropertyName = "labelledby"
 
-	// AccessibilityAXPropertyNameOwns enum const
+	// AccessibilityAXPropertyNameOwns enum const.
 	AccessibilityAXPropertyNameOwns AccessibilityAXPropertyName = "owns"
+
+	// AccessibilityAXPropertyNameURL enum const.
+	AccessibilityAXPropertyNameURL AccessibilityAXPropertyName = "url"
 )
 
 // AccessibilityAXNode A node in the accessibility tree.
 type AccessibilityAXNode struct {
-
 	// NodeID Unique identifier for this node.
 	NodeID AccessibilityAXNodeID `json:"nodeId"`
 
@@ -359,8 +357,8 @@ type AccessibilityAXNode struct {
 	// ParentID (optional) ID for this node's parent.
 	ParentID AccessibilityAXNodeID `json:"parentId,omitempty"`
 
-	// ChildIds (optional) IDs for each of this node's child nodes.
-	ChildIds []AccessibilityAXNodeID `json:"childIds,omitempty"`
+	// ChildIDs (optional) IDs for each of this node's child nodes.
+	ChildIDs []AccessibilityAXNodeID `json:"childIds,omitempty"`
 
 	// BackendDOMNodeID (optional) The backend ID for the associated DOM node, if any.
 	BackendDOMNodeID DOMBackendNodeID `json:"backendDOMNodeId,omitempty"`
@@ -370,33 +368,30 @@ type AccessibilityAXNode struct {
 }
 
 // AccessibilityDisable Disables the accessibility domain.
-type AccessibilityDisable struct {
-}
+type AccessibilityDisable struct{}
 
-// ProtoReq name
+// ProtoReq name.
 func (m AccessibilityDisable) ProtoReq() string { return "Accessibility.disable" }
 
-// Call sends the request
+// Call sends the request.
 func (m AccessibilityDisable) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // AccessibilityEnable Enables the accessibility domain which causes `AXNodeId`s to remain consistent between method calls.
 // This turns on accessibility for the page, which can impact performance until accessibility is disabled.
-type AccessibilityEnable struct {
-}
+type AccessibilityEnable struct{}
 
-// ProtoReq name
+// ProtoReq name.
 func (m AccessibilityEnable) ProtoReq() string { return "Accessibility.enable" }
 
-// Call sends the request
+// Call sends the request.
 func (m AccessibilityEnable) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // AccessibilityGetPartialAXTree (experimental) Fetches the accessibility node and partial accessibility tree for this DOM node, if it exists.
 type AccessibilityGetPartialAXTree struct {
-
 	// NodeID (optional) Identifier of the node to get the partial accessibility tree for.
 	NodeID DOMNodeID `json:"nodeId,omitempty"`
 
@@ -406,14 +401,14 @@ type AccessibilityGetPartialAXTree struct {
 	// ObjectID (optional) JavaScript object id of the node wrapper to get the partial accessibility tree for.
 	ObjectID RuntimeRemoteObjectID `json:"objectId,omitempty"`
 
-	// FetchRelatives (optional) Whether to fetch this nodes ancestors, siblings and children. Defaults to true.
+	// FetchRelatives (optional) Whether to fetch this node's ancestors, siblings and children. Defaults to true.
 	FetchRelatives bool `json:"fetchRelatives,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m AccessibilityGetPartialAXTree) ProtoReq() string { return "Accessibility.getPartialAXTree" }
 
-// Call the request
+// Call the request.
 func (m AccessibilityGetPartialAXTree) Call(c Client) (*AccessibilityGetPartialAXTreeResult, error) {
 	var res AccessibilityGetPartialAXTreeResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -421,28 +416,26 @@ func (m AccessibilityGetPartialAXTree) Call(c Client) (*AccessibilityGetPartialA
 
 // AccessibilityGetPartialAXTreeResult (experimental) ...
 type AccessibilityGetPartialAXTreeResult struct {
-
 	// Nodes The `Accessibility.AXNode` for this DOM node, if it exists, plus its ancestors, siblings and
 	// children, if requested.
 	Nodes []*AccessibilityAXNode `json:"nodes"`
 }
 
-// AccessibilityGetFullAXTree (experimental) Fetches the entire accessibility tree for the root Document
+// AccessibilityGetFullAXTree (experimental) Fetches the entire accessibility tree for the root Document.
 type AccessibilityGetFullAXTree struct {
-
 	// Depth (optional) The maximum depth at which descendants of the root node should be retrieved.
 	// If omitted, the full tree is returned.
 	Depth *int `json:"depth,omitempty"`
 
 	// FrameID (optional) The frame for whose document the AX tree should be retrieved.
-	// If omited, the root frame is used.
+	// If omitted, the root frame is used.
 	FrameID PageFrameID `json:"frameId,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m AccessibilityGetFullAXTree) ProtoReq() string { return "Accessibility.getFullAXTree" }
 
-// Call the request
+// Call the request.
 func (m AccessibilityGetFullAXTree) Call(c Client) (*AccessibilityGetFullAXTreeResult, error) {
 	var res AccessibilityGetFullAXTreeResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -450,7 +443,6 @@ func (m AccessibilityGetFullAXTree) Call(c Client) (*AccessibilityGetFullAXTreeR
 
 // AccessibilityGetFullAXTreeResult (experimental) ...
 type AccessibilityGetFullAXTreeResult struct {
-
 	// Nodes ...
 	Nodes []*AccessibilityAXNode `json:"nodes"`
 }
@@ -458,16 +450,15 @@ type AccessibilityGetFullAXTreeResult struct {
 // AccessibilityGetRootAXNode (experimental) Fetches the root node.
 // Requires `enable()` to have been called previously.
 type AccessibilityGetRootAXNode struct {
-
 	// FrameID (optional) The frame in whose document the node resides.
 	// If omitted, the root frame is used.
 	FrameID PageFrameID `json:"frameId,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m AccessibilityGetRootAXNode) ProtoReq() string { return "Accessibility.getRootAXNode" }
 
-// Call the request
+// Call the request.
 func (m AccessibilityGetRootAXNode) Call(c Client) (*AccessibilityGetRootAXNodeResult, error) {
 	var res AccessibilityGetRootAXNodeResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -475,7 +466,6 @@ func (m AccessibilityGetRootAXNode) Call(c Client) (*AccessibilityGetRootAXNodeR
 
 // AccessibilityGetRootAXNodeResult (experimental) ...
 type AccessibilityGetRootAXNodeResult struct {
-
 	// Node ...
 	Node *AccessibilityAXNode `json:"node"`
 }
@@ -483,7 +473,6 @@ type AccessibilityGetRootAXNodeResult struct {
 // AccessibilityGetAXNodeAndAncestors (experimental) Fetches a node and all ancestors up to and including the root.
 // Requires `enable()` to have been called previously.
 type AccessibilityGetAXNodeAndAncestors struct {
-
 	// NodeID (optional) Identifier of the node to get.
 	NodeID DOMNodeID `json:"nodeId,omitempty"`
 
@@ -494,12 +483,12 @@ type AccessibilityGetAXNodeAndAncestors struct {
 	ObjectID RuntimeRemoteObjectID `json:"objectId,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m AccessibilityGetAXNodeAndAncestors) ProtoReq() string {
 	return "Accessibility.getAXNodeAndAncestors"
 }
 
-// Call the request
+// Call the request.
 func (m AccessibilityGetAXNodeAndAncestors) Call(c Client) (*AccessibilityGetAXNodeAndAncestorsResult, error) {
 	var res AccessibilityGetAXNodeAndAncestorsResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -507,7 +496,6 @@ func (m AccessibilityGetAXNodeAndAncestors) Call(c Client) (*AccessibilityGetAXN
 
 // AccessibilityGetAXNodeAndAncestorsResult (experimental) ...
 type AccessibilityGetAXNodeAndAncestorsResult struct {
-
 	// Nodes ...
 	Nodes []*AccessibilityAXNode `json:"nodes"`
 }
@@ -515,7 +503,6 @@ type AccessibilityGetAXNodeAndAncestorsResult struct {
 // AccessibilityGetChildAXNodes (experimental) Fetches a particular accessibility node by AXNodeId.
 // Requires `enable()` to have been called previously.
 type AccessibilityGetChildAXNodes struct {
-
 	// ID ...
 	ID AccessibilityAXNodeID `json:"id"`
 
@@ -524,10 +511,10 @@ type AccessibilityGetChildAXNodes struct {
 	FrameID PageFrameID `json:"frameId,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m AccessibilityGetChildAXNodes) ProtoReq() string { return "Accessibility.getChildAXNodes" }
 
-// Call the request
+// Call the request.
 func (m AccessibilityGetChildAXNodes) Call(c Client) (*AccessibilityGetChildAXNodesResult, error) {
 	var res AccessibilityGetChildAXNodesResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -535,18 +522,16 @@ func (m AccessibilityGetChildAXNodes) Call(c Client) (*AccessibilityGetChildAXNo
 
 // AccessibilityGetChildAXNodesResult (experimental) ...
 type AccessibilityGetChildAXNodesResult struct {
-
 	// Nodes ...
 	Nodes []*AccessibilityAXNode `json:"nodes"`
 }
 
 // AccessibilityQueryAXTree (experimental) Query a DOM node's accessibility subtree for accessible name and role.
 // This command computes the name and role for all nodes in the subtree, including those that are
-// ignored for accessibility, and returns those that mactch the specified name and role. If no DOM
+// ignored for accessibility, and returns those that match the specified name and role. If no DOM
 // node is specified, or the DOM node does not exist, the command returns an error. If neither
 // `accessibleName` or `role` is specified, it returns all the accessibility nodes in the subtree.
 type AccessibilityQueryAXTree struct {
-
 	// NodeID (optional) Identifier of the node for the root to query.
 	NodeID DOMNodeID `json:"nodeId,omitempty"`
 
@@ -563,10 +548,10 @@ type AccessibilityQueryAXTree struct {
 	Role string `json:"role,omitempty"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m AccessibilityQueryAXTree) ProtoReq() string { return "Accessibility.queryAXTree" }
 
-// Call the request
+// Call the request.
 func (m AccessibilityQueryAXTree) Call(c Client) (*AccessibilityQueryAXTreeResult, error) {
 	var res AccessibilityQueryAXTreeResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -574,7 +559,6 @@ func (m AccessibilityQueryAXTree) Call(c Client) (*AccessibilityQueryAXTreeResul
 
 // AccessibilityQueryAXTreeResult (experimental) ...
 type AccessibilityQueryAXTreeResult struct {
-
 	// Nodes A list of `Accessibility.AXNode` matching the specified attributes,
 	// including nodes that are ignored for accessibility.
 	Nodes []*AccessibilityAXNode `json:"nodes"`
@@ -583,24 +567,22 @@ type AccessibilityQueryAXTreeResult struct {
 // AccessibilityLoadComplete (experimental) The loadComplete event mirrors the load complete event sent by the browser to assistive
 // technology when the web page has finished loading.
 type AccessibilityLoadComplete struct {
-
 	// Root New document root node.
 	Root *AccessibilityAXNode `json:"root"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt AccessibilityLoadComplete) ProtoEvent() string {
 	return "Accessibility.loadComplete"
 }
 
 // AccessibilityNodesUpdated (experimental) The nodesUpdated event is sent every time a previously requested node has changed the in tree.
 type AccessibilityNodesUpdated struct {
-
 	// Nodes Updated node data.
 	Nodes []*AccessibilityAXNode `json:"nodes"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt AccessibilityNodesUpdated) ProtoEvent() string {
 	return "Accessibility.nodesUpdated"
 }

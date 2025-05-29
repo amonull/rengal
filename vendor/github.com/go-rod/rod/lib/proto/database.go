@@ -17,7 +17,6 @@ type DatabaseDatabaseID string
 
 // DatabaseDatabase Database object.
 type DatabaseDatabase struct {
-
 	// ID Database ID.
 	ID DatabaseDatabaseID `json:"id"`
 
@@ -33,7 +32,6 @@ type DatabaseDatabase struct {
 
 // DatabaseError Database error.
 type DatabaseError struct {
-
 	// Message Error message.
 	Message string `json:"message"`
 
@@ -42,32 +40,29 @@ type DatabaseError struct {
 }
 
 // DatabaseDisable Disables database tracking, prevents database events from being sent to the client.
-type DatabaseDisable struct {
-}
+type DatabaseDisable struct{}
 
-// ProtoReq name
+// ProtoReq name.
 func (m DatabaseDisable) ProtoReq() string { return "Database.disable" }
 
-// Call sends the request
+// Call sends the request.
 func (m DatabaseDisable) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DatabaseEnable Enables database tracking, database events will now be delivered to the client.
-type DatabaseEnable struct {
-}
+type DatabaseEnable struct{}
 
-// ProtoReq name
+// ProtoReq name.
 func (m DatabaseEnable) ProtoReq() string { return "Database.enable" }
 
-// Call sends the request
+// Call sends the request.
 func (m DatabaseEnable) Call(c Client) error {
 	return call(m.ProtoReq(), m, nil, c)
 }
 
 // DatabaseExecuteSQL ...
 type DatabaseExecuteSQL struct {
-
 	// DatabaseID ...
 	DatabaseID DatabaseDatabaseID `json:"databaseId"`
 
@@ -75,10 +70,10 @@ type DatabaseExecuteSQL struct {
 	Query string `json:"query"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DatabaseExecuteSQL) ProtoReq() string { return "Database.executeSQL" }
 
-// Call the request
+// Call the request.
 func (m DatabaseExecuteSQL) Call(c Client) (*DatabaseExecuteSQLResult, error) {
 	var res DatabaseExecuteSQLResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -86,7 +81,6 @@ func (m DatabaseExecuteSQL) Call(c Client) (*DatabaseExecuteSQLResult, error) {
 
 // DatabaseExecuteSQLResult ...
 type DatabaseExecuteSQLResult struct {
-
 	// ColumnNames (optional) ...
 	ColumnNames []string `json:"columnNames,omitempty"`
 
@@ -99,15 +93,14 @@ type DatabaseExecuteSQLResult struct {
 
 // DatabaseGetDatabaseTableNames ...
 type DatabaseGetDatabaseTableNames struct {
-
 	// DatabaseID ...
 	DatabaseID DatabaseDatabaseID `json:"databaseId"`
 }
 
-// ProtoReq name
+// ProtoReq name.
 func (m DatabaseGetDatabaseTableNames) ProtoReq() string { return "Database.getDatabaseTableNames" }
 
-// Call the request
+// Call the request.
 func (m DatabaseGetDatabaseTableNames) Call(c Client) (*DatabaseGetDatabaseTableNamesResult, error) {
 	var res DatabaseGetDatabaseTableNamesResult
 	return &res, call(m.ProtoReq(), m, &res, c)
@@ -115,19 +108,17 @@ func (m DatabaseGetDatabaseTableNames) Call(c Client) (*DatabaseGetDatabaseTable
 
 // DatabaseGetDatabaseTableNamesResult ...
 type DatabaseGetDatabaseTableNamesResult struct {
-
 	// TableNames ...
 	TableNames []string `json:"tableNames"`
 }
 
 // DatabaseAddDatabase ...
 type DatabaseAddDatabase struct {
-
 	// Database ...
 	Database *DatabaseDatabase `json:"database"`
 }
 
-// ProtoEvent name
+// ProtoEvent name.
 func (evt DatabaseAddDatabase) ProtoEvent() string {
 	return "Database.addDatabase"
 }

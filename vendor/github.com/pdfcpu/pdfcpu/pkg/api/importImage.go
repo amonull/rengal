@@ -20,36 +20,37 @@ import (
 	"bufio"
 	"io"
 	"os"
-	"time"
 
 	"github.com/pdfcpu/pdfcpu/pkg/log"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
 )
 
 // Import parses an Import command string into an internal structure.
-func Import(s string, u pdfcpu.DisplayUnit) (*pdfcpu.Import, error) {
+func Import(s string, u types.DisplayUnit) (*pdfcpu.Import, error) {
 	return pdfcpu.ParseImportDetails(s, u)
 }
 
 // ImportImages appends PDF pages containing images to rs and writes the result to w.
 // If rs == nil a new PDF file will be written to w.
-func ImportImages(rs io.ReadSeeker, w io.Writer, imgs []io.Reader, imp *pdfcpu.Import, conf *pdfcpu.Configuration) error {
+func ImportImages(rs io.ReadSeeker, w io.Writer, imgs []io.Reader, imp *pdfcpu.Import, conf *model.Configuration) error {
 	if conf == nil {
-		conf = pdfcpu.NewDefaultConfiguration()
+		conf = model.NewDefaultConfiguration()
 	}
-	conf.Cmd = pdfcpu.IMPORTIMAGES
+	conf.Cmd = model.IMPORTIMAGES
 
 	if imp == nil {
 		imp = pdfcpu.DefaultImportConfig()
 	}
 
 	var (
-		ctx *pdfcpu.Context
+		ctx *model.Context
 		err error
 	)
 
 	if rs != nil {
-		ctx, _, _, err = readAndValidate(rs, conf, time.Now())
+		ctx, err = ReadAndValidate(rs, conf)
 	} else {
 		ctx, err = pdfcpu.CreateContextWithXRefTable(conf, imp.PageDim)
 	}
@@ -62,7 +63,7 @@ func ImportImages(rs io.ReadSeeker, w io.Writer, imgs []io.Reader, imp *pdfcpu.I
 		return err
 	}
 
-	// This is the page tree root.
+	// Page tree root.
 	pagesDict, err := ctx.DereferenceDict(*pagesIndRef)
 	if err != nil {
 		return err
@@ -70,31 +71,23 @@ func ImportImages(rs io.ReadSeeker, w io.Writer, imgs []io.Reader, imp *pdfcpu.I
 
 	for _, r := range imgs {
 
-		indRef, err := pdfcpu.NewPageForImage(ctx.XRefTable, r, pagesIndRef, imp)
+		indRefs, err := pdfcpu.NewPagesForImage(ctx.XRefTable, r, pagesIndRef, imp)
 		if err != nil {
 			return err
 		}
 
-		if err = pdfcpu.AppendPageTree(indRef, 1, pagesDict); err != nil {
-			return err
-		}
-
-		ctx.PageCount++
-	}
-
-	if conf.ValidationMode != pdfcpu.ValidationNone {
-		if err = ValidateContext(ctx); err != nil {
-			return err
+		for _, indRef := range indRefs {
+			if err := ctx.SetValid(*indRef); err != nil {
+				return err
+			}
+			if err = model.AppendPageTree(indRef, 1, pagesDict); err != nil {
+				return err
+			}
+			ctx.PageCount++
 		}
 	}
 
-	if err = WriteContext(ctx, w); err != nil {
-		return err
-	}
-
-	log.Stats.Printf("XRefTable:\n%s\n", ctx)
-
-	return nil
+	return Write(ctx, w, conf)
 }
 
 func fileExists(filename string) bool {
@@ -108,8 +101,33 @@ func fileExists(filename string) bool {
 
 }
 
+func prepImgFiles(imgFiles []string, f1 *os.File) ([]io.ReadCloser, []io.Reader, error) {
+	rc := make([]io.ReadCloser, len(imgFiles))
+	rr := make([]io.Reader, len(imgFiles))
+
+	for i, fn := range imgFiles {
+		f, err := os.Open(fn)
+		if err != nil {
+			if f1 != nil {
+				f1.Close()
+			}
+			return nil, nil, err
+		}
+		rc[i] = f
+		rr[i] = bufio.NewReader(f)
+	}
+
+	return rc, rr, nil
+}
+
+func logImportImages(s, outFile string) {
+	if log.CLIEnabled() {
+		log.CLI.Printf("%s to %s...\n", s, outFile)
+	}
+}
+
 // ImportImagesFile appends PDF pages containing images to outFile which will be created if necessary.
-func ImportImagesFile(imgFiles []string, outFile string, imp *pdfcpu.Import, conf *pdfcpu.Configuration) (err error) {
+func ImportImagesFile(imgFiles []string, outFile string, imp *pdfcpu.Import, conf *model.Configuration) (err error) {
 	var f1, f2 *os.File
 
 	rs := io.ReadSeeker(nil)
@@ -121,23 +139,20 @@ func ImportImagesFile(imgFiles []string, outFile string, imp *pdfcpu.Import, con
 		}
 		rs = f1
 		tmpFile += ".tmp"
-		log.CLI.Printf("appending to %s...\n", outFile)
+		logImportImages("appending", outFile)
 	} else {
-		log.CLI.Printf("writing %s...\n", outFile)
+		logImportImages("writing", outFile)
 	}
 
-	rc := make([]io.ReadCloser, len(imgFiles))
-	rr := make([]io.Reader, len(imgFiles))
-	for i, fn := range imgFiles {
-		f, err := os.Open(fn)
-		if err != nil {
-			return err
-		}
-		rc[i] = f
-		rr[i] = bufio.NewReader(f)
+	rc, rr, err := prepImgFiles(imgFiles, f1)
+	if err != nil {
+		return err
 	}
 
 	if f2, err = os.Create(tmpFile); err != nil {
+		if f1 != nil {
+			f1.Close()
+		}
 		return err
 	}
 

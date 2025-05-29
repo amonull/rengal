@@ -10,21 +10,21 @@ import (
 	"strings"
 	"time"
 
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/ansi"
+	"github.com/sahilm/fuzzy"
+
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/paginator"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
-	"github.com/muesli/reflow/ansi"
-	"github.com/muesli/reflow/truncate"
-	"github.com/sahilm/fuzzy"
 )
 
 // Item is an item that appears in the list.
 type Item interface {
-	// Filter value is the value we use when filtering against this item when
+	// FilterValue is the value we use when filtering against this item when
 	// we're filtering the list.
 	FilterValue() string
 }
@@ -53,6 +53,7 @@ type ItemDelegate interface {
 }
 
 type filteredItem struct {
+	index   int   // index in the unfiltered list
 	item    Item  // item matched
 	matches []int // rune indices of matched items
 }
@@ -87,8 +88,22 @@ type Rank struct {
 // DefaultFilter uses the sahilm/fuzzy to filter through the list.
 // This is set by default.
 func DefaultFilter(term string, targets []string) []Rank {
-	var ranks = fuzzy.Find(term, targets)
+	ranks := fuzzy.Find(term, targets)
 	sort.Stable(ranks)
+	result := make([]Rank, len(ranks))
+	for i, r := range ranks {
+		result[i] = Rank{
+			Index:          r.Index,
+			MatchedIndexes: r.MatchedIndexes,
+		}
+	}
+	return result
+}
+
+// UnsortedFilter uses the sahilm/fuzzy to filter through the list. It does not
+// sort the results.
+func UnsortedFilter(term string, targets []string) []Rank {
+	ranks := fuzzy.FindNoSort(term, targets)
 	result := make([]Rank, len(ranks))
 	for i, r := range ranks {
 		result[i] = Rank{
@@ -132,8 +147,9 @@ type Model struct {
 	itemNameSingular string
 	itemNamePlural   string
 
-	Title  string
-	Styles Styles
+	Title             string
+	Styles            Styles
+	InfiniteScrolling bool
 
 	// Key mappings for navigating the list.
 	KeyMap KeyMap
@@ -183,18 +199,18 @@ type Model struct {
 func New(items []Item, delegate ItemDelegate, width, height int) Model {
 	styles := DefaultStyles()
 
-	sp := spinner.NewModel()
+	sp := spinner.New()
 	sp.Spinner = spinner.Line
 	sp.Style = styles.Spinner
 
-	filterInput := textinput.NewModel()
+	filterInput := textinput.New()
 	filterInput.Prompt = "Filter: "
 	filterInput.PromptStyle = styles.FilterPrompt
-	filterInput.CursorStyle = styles.FilterCursor
+	filterInput.Cursor.Style = styles.FilterCursor
 	filterInput.CharLimit = 64
 	filterInput.Focus()
 
-	p := paginator.NewModel()
+	p := paginator.New()
 	p.Type = paginator.Dots
 	p.ActiveDot = styles.ActivePaginationDot.String()
 	p.InactiveDot = styles.InactivePaginationDot.String()
@@ -221,7 +237,7 @@ func New(items []Item, delegate ItemDelegate, width, height int) Model {
 		items:     items,
 		Paginator: p,
 		spinner:   sp,
-		Help:      help.NewModel(),
+		Help:      help.New(),
 	}
 
 	m.updatePagination()
@@ -231,7 +247,7 @@ func New(items []Item, delegate ItemDelegate, width, height int) Model {
 
 // NewModel returns a new model with sensible defaults.
 //
-// Deprecated. Use New instead.
+// Deprecated: use [New] instead.
 var NewModel = New
 
 // SetFilteringEnabled enables or disables filtering. Note that this is different
@@ -255,12 +271,40 @@ func (m *Model) SetShowTitle(v bool) {
 	m.updatePagination()
 }
 
+// SetFilterText explicitly sets the filter text without relying on user input.
+// It also sets the filterState to a sane default of FilterApplied, but this
+// can be changed with SetFilterState.
+func (m *Model) SetFilterText(filter string) {
+	m.filterState = Filtering
+	m.FilterInput.SetValue(filter)
+	cmd := filterItems(*m)
+	msg := cmd()
+	fmm, _ := msg.(FilterMatchesMsg)
+	m.filteredItems = filteredItems(fmm)
+	m.filterState = FilterApplied
+	m.Paginator.Page = 0
+	m.cursor = 0
+	m.FilterInput.CursorEnd()
+	m.updatePagination()
+	m.updateKeybindings()
+}
+
+// SetFilterState allows setting the filtering state manually.
+func (m *Model) SetFilterState(state FilterState) {
+	m.Paginator.Page = 0
+	m.cursor = 0
+	m.filterState = state
+	m.FilterInput.CursorEnd()
+	m.FilterInput.Focus()
+	m.updateKeybindings()
+}
+
 // ShowTitle returns whether or not the title bar is set to be rendered.
 func (m Model) ShowTitle() bool {
 	return m.showTitle
 }
 
-// SetShowFilter shows or hides the filer bar. Note that this does not disable
+// SetShowFilter shows or hides the filter bar. Note that this does not disable
 // filtering, it simply hides the built-in filter view. This allows you to
 // use the FilterInput to render the filtering UI differently without having to
 // re-implement filtering from scratch.
@@ -291,7 +335,7 @@ func (m Model) ShowStatusBar() bool {
 	return m.showStatusBar
 }
 
-// SetStatusBarItemName defines a replacement for the items identifier.
+// SetStatusBarItemName defines a replacement for the item's identifier.
 // Defaults to item/items.
 func (m *Model) SetStatusBarItemName(singular, plural string) {
 	m.itemNameSingular = singular
@@ -303,7 +347,7 @@ func (m Model) StatusBarItemName() (string, string) {
 	return m.itemNameSingular, m.itemNamePlural
 }
 
-// SetShowPagination hides or shoes the paginator. Note that pagination will
+// SetShowPagination hides or shows the paginator. Note that pagination will
 // still be active, it simply won't be displayed.
 func (m *Model) SetShowPagination(v bool) {
 	m.showPagination = v
@@ -331,7 +375,7 @@ func (m Model) Items() []Item {
 	return m.items
 }
 
-// Set the items available in the list. This returns a command.
+// SetItems sets the items available in the list. This returns a command.
 func (m *Model) SetItems(i []Item) tea.Cmd {
 	var cmd tea.Cmd
 	m.items = i
@@ -362,7 +406,7 @@ func (m *Model) ResetFilter() {
 	m.resetFiltering()
 }
 
-// Replace an item at the given index. This returns a command.
+// SetItem replaces an item at the given index. This returns a command.
 func (m *Model) SetItem(index int, item Item) tea.Cmd {
 	var cmd tea.Cmd
 	m.items[index] = item
@@ -375,8 +419,8 @@ func (m *Model) SetItem(index int, item Item) tea.Cmd {
 	return cmd
 }
 
-// Insert an item at the given index. If index is out of the upper bound, the
-// item will be appended. This returns a command.
+// InsertItem inserts an item at the given index. If the index is out of the upper bound,
+// the item will be appended. This returns a command.
 func (m *Model) InsertItem(index int, item Item) tea.Cmd {
 	var cmd tea.Cmd
 	m.items = insertItemIntoSlice(m.items, item, index)
@@ -404,7 +448,7 @@ func (m *Model) RemoveItem(index int) {
 	m.updatePagination()
 }
 
-// Set the item delegate.
+// SetDelegate sets the item delegate.
 func (m *Model) SetDelegate(d ItemDelegate) {
 	m.delegate = d
 	m.updatePagination()
@@ -418,7 +462,7 @@ func (m Model) VisibleItems() []Item {
 	return m.items
 }
 
-// SelectedItems returns the current selected item in the list.
+// SelectedItem returns the current selected item in the list.
 func (m Model) SelectedItem() Item {
 	i := m.Index()
 
@@ -441,10 +485,24 @@ func (m Model) MatchesForItem(index int) []int {
 	return m.filteredItems[index].matches
 }
 
-// Index returns the index of the currently selected item as it appears in the
-// entire slice of items.
+// Index returns the index of the currently selected item as it is stored in the
+// filtered list of items.
+// Using this value with SetItem() might be incorrect, consider using
+// GlobalIndex() instead.
 func (m Model) Index() int {
 	return m.Paginator.Page*m.Paginator.PerPage + m.cursor
+}
+
+// GlobalIndex returns the index of the currently selected item as it is stored
+// in the unfiltered list of items. This value can be used with SetItem().
+func (m Model) GlobalIndex() int {
+	index := m.Index()
+
+	if m.filteredItems == nil || index >= len(m.filteredItems) {
+		return index
+	}
+
+	return m.filteredItems[index].index
 }
 
 // Cursor returns the index of the cursor on the current page.
@@ -459,6 +517,13 @@ func (m *Model) CursorUp() {
 
 	// If we're at the start, stop
 	if m.cursor < 0 && m.Paginator.Page == 0 {
+		// if infinite scrolling is enabled, go to the last item
+		if m.InfiniteScrolling {
+			m.Paginator.Page = m.Paginator.TotalPages - 1
+			m.cursor = m.Paginator.ItemsOnPage(len(m.VisibleItems())) - 1
+			return
+		}
+
 		m.cursor = 0
 		return
 	}
@@ -501,15 +566,21 @@ func (m *Model) CursorDown() {
 	}
 
 	m.cursor = itemsOnPage - 1
+
+	// if infinite scrolling is enabled, go to the first item
+	if m.InfiniteScrolling {
+		m.Paginator.Page = 0
+		m.cursor = 0
+	}
 }
 
 // PrevPage moves to the previous page, if available.
-func (m Model) PrevPage() {
+func (m *Model) PrevPage() {
 	m.Paginator.PrevPage()
 }
 
 // NextPage moves to the next page, if available.
-func (m Model) NextPage() {
+func (m *Model) NextPage() {
 	m.Paginator.NextPage()
 }
 
@@ -526,7 +597,7 @@ func (m Model) FilterValue() string {
 // SettingFilter returns whether or not the user is currently editing the
 // filter value. It's purely a convenience method for the following:
 //
-//     m.FilterState() == Filtering
+//	m.FilterState() == Filtering
 //
 // It's included here because it's a common thing to check for when
 // implementing this component.
@@ -537,8 +608,7 @@ func (m Model) SettingFilter() bool {
 // IsFiltered returns whether or not the list is currently filtered.
 // It's purely a convenience method for the following:
 //
-//	 m.FilterState() == FilterApplied
-//
+//	m.FilterState() == FilterApplied
 func (m Model) IsFiltered() bool {
 	return m.filterState == FilterApplied
 }
@@ -558,7 +628,7 @@ func (m *Model) SetSpinner(spinner spinner.Spinner) {
 	m.spinner.Spinner = spinner
 }
 
-// Toggle the spinner. Note that this also returns a command.
+// ToggleSpinner toggles the spinner. Note that this also returns a command.
 func (m *Model) ToggleSpinner() tea.Cmd {
 	if !m.showSpinner {
 		return m.StartSpinner()
@@ -570,7 +640,7 @@ func (m *Model) ToggleSpinner() tea.Cmd {
 // StartSpinner starts the spinner. Note that this returns a command.
 func (m *Model) StartSpinner() tea.Cmd {
 	m.showSpinner = true
-	return spinner.Tick
+	return m.spinner.Tick
 }
 
 // StopSpinner stops the spinner.
@@ -578,8 +648,8 @@ func (m *Model) StopSpinner() {
 	m.showSpinner = false
 }
 
-// Helper for disabling the keybindings used for quitting, in case you want to
-// handle this elsewhere in your application.
+// DisableQuitKeybindings is a helper for disabling the keybindings used for quitting,
+// in case you want to handle this elsewhere in your application.
 func (m *Model) DisableQuitKeybindings() {
 	m.disableQuitKeybindings = true
 	m.KeyMap.Quit.SetEnabled(false)
@@ -647,12 +717,12 @@ func (m Model) itemsAsFilterItems() filteredItems {
 			item: item,
 		}
 	}
-	return filteredItems(fi)
+	return fi
 }
 
 // Set keybindings according to the filter state.
 func (m *Model) updateKeybindings() {
-	switch m.filterState {
+	switch m.filterState { //nolint:exhaustive
 	case Filtering:
 		m.KeyMap.CursorUp.SetEnabled(false)
 		m.KeyMap.CursorDown.SetEnabled(false)
@@ -1023,7 +1093,7 @@ func (m Model) View() string {
 func (m Model) titleView() string {
 	var (
 		view          string
-		titleBarStyle = m.Styles.TitleBar.Copy()
+		titleBarStyle = m.Styles.TitleBar
 
 		// We need to account for the size of the spinner, even if we don't
 		// render it, to reserve some space for it should we turn it on later.
@@ -1048,7 +1118,7 @@ func (m Model) titleView() string {
 		// Status message
 		if m.filterState != Filtering {
 			view += "  " + m.statusMessage
-			view = truncate.StringWithTail(view, uint(m.width-spinnerWidth), ellipsis)
+			view = ansi.Truncate(view, m.width-spinnerWidth, ellipsis)
 		}
 	}
 
@@ -1083,7 +1153,7 @@ func (m Model) statusView() string {
 
 	itemsDisplay := fmt.Sprintf("%d %s", visibleItems, itemName)
 
-	if m.filterState == Filtering {
+	if m.filterState == Filtering { //nolint:nestif
 		// Filter results
 		if visibleItems == 0 {
 			status = m.Styles.StatusEmpty.Render("Nothing matched")
@@ -1099,7 +1169,7 @@ func (m Model) statusView() string {
 
 		if filtered {
 			f := strings.TrimSpace(m.FilterInput.Value())
-			f = truncate.StringWithTail(f, 10, "…")
+			f = ansi.Truncate(f, 10, "…") //nolint:mnd
 			status += fmt.Sprintf("“%s” ", f)
 		}
 
@@ -1116,7 +1186,7 @@ func (m Model) statusView() string {
 }
 
 func (m Model) paginationView() string {
-	if m.Paginator.TotalPages < 2 { //nolint:gomnd
+	if m.Paginator.TotalPages < 2 { //nolint:mnd
 		return ""
 	}
 
@@ -1124,14 +1194,14 @@ func (m Model) paginationView() string {
 
 	// If the dot pagination is wider than the width of the window
 	// use the arabic paginator.
-	if ansi.PrintableRuneWidth(s) > m.width {
+	if ansi.StringWidth(s) > m.width {
 		m.Paginator.Type = paginator.Arabic
 		s = m.Styles.ArabicPagination.Render(m.Paginator.View())
 	}
 
 	style := m.Styles.PaginationStyle
 	if m.delegate.Spacing() == 0 && style.GetMarginTop() == 0 {
-		style = style.Copy().MarginTop(1)
+		style = style.MarginTop(1)
 	}
 
 	return style.Render(s)
@@ -1147,7 +1217,7 @@ func (m Model) populatedView() string {
 		if m.filterState == Filtering {
 			return ""
 		}
-		return m.Styles.NoItems.Render("No " + m.itemNamePlural + " found.")
+		return m.Styles.NoItems.Render("No " + m.itemNamePlural + ".")
 	}
 
 	if len(items) > 0 {
@@ -1191,16 +1261,17 @@ func filterItems(m Model) tea.Cmd {
 			return FilterMatchesMsg(m.itemsAsFilterItems()) // return nothing
 		}
 
-		targets := []string{}
 		items := m.items
+		targets := make([]string, len(items))
 
-		for _, t := range items {
-			targets = append(targets, t.FilterValue())
+		for i, t := range items {
+			targets[i] = t.FilterValue()
 		}
 
 		filterMatches := []filteredItem{}
 		for _, r := range m.Filter(m.FilterInput.Value(), targets) {
 			filterMatches = append(filterMatches, filteredItem{
+				index:   r.Index,
 				item:    items[r.Index],
 				matches: r.MatchedIndexes,
 			})
@@ -1254,11 +1325,4 @@ func countEnabledBindings(groups [][]key.Binding) (agg int) {
 		}
 	}
 	return agg
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
 }

@@ -5,7 +5,46 @@ import (
 	"fmt"
 	"hash/fnv"
 	"reflect"
+	"strconv"
 )
+
+// The return type of the XPath expression.
+type resultType int
+
+var xpathResultType = struct {
+	Boolean resultType
+	// A numeric value
+	Number resultType
+	String resultType
+	// A node collection.
+	NodeSet resultType
+	// Any of the XPath node types.
+	Any resultType
+}{
+	Boolean: 0,
+	Number:  1,
+	String:  2,
+	NodeSet: 3,
+	Any:     4,
+}
+
+type queryProp int
+
+var queryProps = struct {
+	None     queryProp
+	Position queryProp
+	Count    queryProp
+	Cached   queryProp
+	Reverse  queryProp
+	Merge    queryProp
+}{
+	None:     0,
+	Position: 1,
+	Count:    2,
+	Cached:   4,
+	Reverse:  8,
+	Merge:    16,
+}
 
 type iterator interface {
 	Current() NodeNavigator
@@ -19,35 +58,40 @@ type query interface {
 	// Evaluate evaluates query and returns values of the current query.
 	Evaluate(iterator) interface{}
 
-	Reset()
+	Clone() query
+
+	// ValueType returns the value type of the current query.
+	ValueType() resultType
+
+	Properties() queryProp
 }
 
 // nopQuery is an empty query that always return nil for any query.
-type nopQuery struct {
-	query
-}
+type nopQuery struct{}
 
 func (nopQuery) Select(iterator) NodeNavigator { return nil }
 
 func (nopQuery) Evaluate(iterator) interface{} { return nil }
 
-func (nopQuery) Reset() {}
+func (nopQuery) Clone() query { return nopQuery{} }
+
+func (nopQuery) ValueType() resultType { return xpathResultType.NodeSet }
+
+func (nopQuery) Properties() queryProp {
+	return queryProps.Merge | queryProps.Position | queryProps.Count | queryProps.Cached
+}
 
 // contextQuery is returns current node on the iterator object query.
 type contextQuery struct {
 	count int
-	Root  bool // Moving to root-level node in the current context iterator.
 }
 
-func (c *contextQuery) Select(t iterator) (n NodeNavigator) {
-	if c.count == 0 {
-		c.count++
-		n = t.Current().Copy()
-		if c.Root {
-			n.MoveToRoot()
-		}
+func (c *contextQuery) Select(t iterator) NodeNavigator {
+	if c.count > 0 {
+		return nil
 	}
-	return n
+	c.count++
+	return t.Current().Copy()
 }
 
 func (c *contextQuery) Evaluate(iterator) interface{} {
@@ -55,13 +99,54 @@ func (c *contextQuery) Evaluate(iterator) interface{} {
 	return c
 }
 
-func (c *contextQuery) Reset() {
-	c.count = 0
+func (c *contextQuery) Clone() query {
+	return &contextQuery{}
+}
+
+func (c *contextQuery) ValueType() resultType {
+	return xpathResultType.NodeSet
+}
+
+func (c *contextQuery) Properties() queryProp {
+	return queryProps.Merge | queryProps.Position | queryProps.Count | queryProps.Cached
+}
+
+type absoluteQuery struct {
+	count int
+}
+
+func (a *absoluteQuery) Select(t iterator) (n NodeNavigator) {
+	if a.count > 0 {
+		return
+	}
+	a.count++
+	n = t.Current().Copy()
+	n.MoveToRoot()
+	return
+}
+
+func (a *absoluteQuery) Evaluate(t iterator) interface{} {
+	a.count = 0
+	return a
+}
+
+func (a *absoluteQuery) Clone() query {
+	return &absoluteQuery{}
+}
+
+func (a *absoluteQuery) ValueType() resultType {
+	return xpathResultType.NodeSet
+}
+
+func (a *absoluteQuery) Properties() queryProp {
+	return queryProps.Merge | queryProps.Position | queryProps.Count | queryProps.Cached
 }
 
 // ancestorQuery is an XPath ancestor node query.(ancestor::*|ancestor-self::*)
 type ancestorQuery struct {
+	name     string
 	iterator func() NodeNavigator
+	table    map[uint64]bool
 
 	Self      bool
 	Input     query
@@ -69,6 +154,10 @@ type ancestorQuery struct {
 }
 
 func (a *ancestorQuery) Select(t iterator) NodeNavigator {
+	if a.table == nil {
+		a.table = make(map[uint64]bool)
+	}
+
 	for {
 		if a.iterator == nil {
 			node := a.Input.Select(t)
@@ -78,24 +167,27 @@ func (a *ancestorQuery) Select(t iterator) NodeNavigator {
 			first := true
 			node = node.Copy()
 			a.iterator = func() NodeNavigator {
-				if first && a.Self {
+				if first {
 					first = false
-					if a.Predicate(node) {
+					if a.Self && a.Predicate(node) {
 						return node
 					}
 				}
 				for node.MoveToParent() {
-					if !a.Predicate(node) {
-						continue
+					if a.Predicate(node) {
+						return node
 					}
-					return node
 				}
 				return nil
 			}
 		}
 
-		if node := a.iterator(); node != nil {
-			return node
+		for node := a.iterator(); node != nil; node = a.iterator() {
+			node_id := getHashCode(node.Copy())
+			if _, ok := a.table[node_id]; !ok {
+				a.table[node_id] = true
+				return node
+			}
 		}
 		a.iterator = nil
 	}
@@ -111,13 +203,21 @@ func (a *ancestorQuery) Test(n NodeNavigator) bool {
 	return a.Predicate(n)
 }
 
-func (a *ancestorQuery) Reset() {
-	a.iterator = nil
-	a.Input.Reset()
+func (a *ancestorQuery) Clone() query {
+	return &ancestorQuery{name: a.name, Self: a.Self, Input: a.Input.Clone(), Predicate: a.Predicate}
+}
+
+func (a *ancestorQuery) ValueType() resultType {
+	return xpathResultType.NodeSet
+}
+
+func (a *ancestorQuery) Properties() queryProp {
+	return queryProps.Position | queryProps.Count | queryProps.Cached | queryProps.Merge | queryProps.Reverse
 }
 
 // attributeQuery is an XPath attribute node query.(@*)
 type attributeQuery struct {
+	name     string
 	iterator func() NodeNavigator
 
 	Input     query
@@ -162,13 +262,21 @@ func (a *attributeQuery) Test(n NodeNavigator) bool {
 	return a.Predicate(n)
 }
 
-func (a *attributeQuery) Reset() {
-	a.Input.Reset()
-	a.iterator = nil
+func (a *attributeQuery) Clone() query {
+	return &attributeQuery{name: a.name, Input: a.Input.Clone(), Predicate: a.Predicate}
+}
+
+func (a *attributeQuery) ValueType() resultType {
+	return xpathResultType.NodeSet
+}
+
+func (a *attributeQuery) Properties() queryProp {
+	return queryProps.Merge
 }
 
 // childQuery is an XPath child node query.(child::*)
 type childQuery struct {
+	name     string
 	posit    int
 	iterator func() NodeNavigator
 
@@ -217,10 +325,16 @@ func (c *childQuery) Test(n NodeNavigator) bool {
 	return c.Predicate(n)
 }
 
-func (c *childQuery) Reset() {
-	c.posit = 0
-	c.iterator = nil
-	c.Input.Reset()
+func (c *childQuery) Clone() query {
+	return &childQuery{name: c.name, Input: c.Input.Clone(), Predicate: c.Predicate}
+}
+
+func (c *childQuery) ValueType() resultType {
+	return xpathResultType.NodeSet
+}
+
+func (c *childQuery) Properties() queryProp {
+	return queryProps.Merge
 }
 
 // position returns a position of current NodeNavigator.
@@ -228,8 +342,75 @@ func (c *childQuery) position() int {
 	return c.posit
 }
 
+type cachedChildQuery struct {
+	name     string
+	posit    int
+	iterator func() NodeNavigator
+
+	Input     query
+	Predicate func(NodeNavigator) bool
+}
+
+func (c *cachedChildQuery) Select(t iterator) NodeNavigator {
+	for {
+		if c.iterator == nil {
+			c.posit = 0
+			node := c.Input.Select(t)
+			if node == nil {
+				return nil
+			}
+			node = node.Copy()
+			first := true
+			c.iterator = func() NodeNavigator {
+				for {
+					if (first && !node.MoveToChild()) || (!first && !node.MoveToNext()) {
+						return nil
+					}
+					first = false
+					if c.Predicate(node) {
+						return node
+					}
+				}
+			}
+		}
+
+		if node := c.iterator(); node != nil {
+			c.posit++
+			return node
+		}
+		c.iterator = nil
+	}
+}
+
+func (c *cachedChildQuery) Evaluate(t iterator) interface{} {
+	c.Input.Evaluate(t)
+	c.iterator = nil
+	return c
+}
+
+func (c *cachedChildQuery) position() int {
+	return c.posit
+}
+
+func (c *cachedChildQuery) Test(n NodeNavigator) bool {
+	return c.Predicate(n)
+}
+
+func (c *cachedChildQuery) Clone() query {
+	return &childQuery{name: c.name, Input: c.Input.Clone(), Predicate: c.Predicate}
+}
+
+func (c *cachedChildQuery) ValueType() resultType {
+	return xpathResultType.NodeSet
+}
+
+func (c *cachedChildQuery) Properties() queryProp {
+	return queryProps.Merge
+}
+
 // descendantQuery is an XPath descendant node query.(descendant::* | descendant-or-self::*)
 type descendantQuery struct {
+	name     string
 	iterator func() NodeNavigator
 	posit    int
 	level    int
@@ -249,14 +430,11 @@ func (d *descendantQuery) Select(t iterator) NodeNavigator {
 			}
 			node = node.Copy()
 			d.level = 0
-			positmap := make(map[int]int)
 			first := true
 			d.iterator = func() NodeNavigator {
-				if first && d.Self {
+				if first {
 					first = false
-					if d.Predicate(node) {
-						d.posit = 1
-						positmap[d.level] = 1
+					if d.Self && d.Predicate(node) {
 						return node
 					}
 				}
@@ -264,7 +442,6 @@ func (d *descendantQuery) Select(t iterator) NodeNavigator {
 				for {
 					if node.MoveToChild() {
 						d.level = d.level + 1
-						positmap[d.level] = 0
 					} else {
 						for {
 							if d.level == 0 {
@@ -278,8 +455,6 @@ func (d *descendantQuery) Select(t iterator) NodeNavigator {
 						}
 					}
 					if d.Predicate(node) {
-						positmap[d.level]++
-						d.posit = positmap[d.level]
 						return node
 					}
 				}
@@ -287,6 +462,7 @@ func (d *descendantQuery) Select(t iterator) NodeNavigator {
 		}
 
 		if node := d.iterator(); node != nil {
+			d.posit++
 			return node
 		}
 		d.iterator = nil
@@ -312,11 +488,16 @@ func (d *descendantQuery) depth() int {
 	return d.level
 }
 
-func (d *descendantQuery) Reset() {
-	d.posit = 0
-	d.iterator = nil
-	d.level = 0
-	d.Input.Reset()
+func (d *descendantQuery) Clone() query {
+	return &descendantQuery{name: d.name, Self: d.Self, Input: d.Input.Clone(), Predicate: d.Predicate}
+}
+
+func (d *descendantQuery) ValueType() resultType {
+	return xpathResultType.NodeSet
+}
+
+func (d *descendantQuery) Properties() queryProp {
+	return queryProps.Merge
 }
 
 // followingQuery is an XPath following node query.(following::*|following-sibling::*)
@@ -393,10 +574,16 @@ func (f *followingQuery) Test(n NodeNavigator) bool {
 	return f.Predicate(n)
 }
 
-func (f *followingQuery) Reset() {
-	f.posit = 0
-	f.iterator = nil
-	f.Input.Reset()
+func (f *followingQuery) Clone() query {
+	return &followingQuery{Input: f.Input.Clone(), Sibling: f.Sibling, Predicate: f.Predicate}
+}
+
+func (f *followingQuery) ValueType() resultType {
+	return xpathResultType.NodeSet
+}
+
+func (f *followingQuery) Properties() queryProp {
+	return queryProps.Merge
 }
 
 func (f *followingQuery) position() int {
@@ -476,10 +663,16 @@ func (p *precedingQuery) Test(n NodeNavigator) bool {
 	return p.Predicate(n)
 }
 
-func (p *precedingQuery) Reset() {
-	p.posit = 0
-	p.iterator = nil
-	p.Input.Reset()
+func (p *precedingQuery) Clone() query {
+	return &precedingQuery{Input: p.Input.Clone(), Sibling: p.Sibling, Predicate: p.Predicate}
+}
+
+func (p *precedingQuery) ValueType() resultType {
+	return xpathResultType.NodeSet
+}
+
+func (p *precedingQuery) Properties() queryProp {
+	return queryProps.Merge | queryProps.Reverse
 }
 
 func (p *precedingQuery) position() int {
@@ -510,8 +703,16 @@ func (p *parentQuery) Evaluate(t iterator) interface{} {
 	return p
 }
 
-func (p *parentQuery) Reset() {
-	p.Input.Reset()
+func (p *parentQuery) Clone() query {
+	return &parentQuery{Input: p.Input.Clone(), Predicate: p.Predicate}
+}
+
+func (p *parentQuery) ValueType() resultType {
+	return xpathResultType.NodeSet
+}
+
+func (p *parentQuery) Properties() queryProp {
+	return queryProps.Position | queryProps.Count | queryProps.Cached | queryProps.Merge
 }
 
 func (p *parentQuery) Test(n NodeNavigator) bool {
@@ -546,16 +747,26 @@ func (s *selfQuery) Test(n NodeNavigator) bool {
 	return s.Predicate(n)
 }
 
-func (s *selfQuery) Reset() {
-	s.Input.Reset()
+func (s *selfQuery) Clone() query {
+	return &selfQuery{Input: s.Input.Clone(), Predicate: s.Predicate}
+}
+
+func (s *selfQuery) ValueType() resultType {
+	return xpathResultType.NodeSet
+}
+
+func (s *selfQuery) Properties() queryProp {
+	return queryProps.Merge
 }
 
 // filterQuery is an XPath query for predicate filter.
 type filterQuery struct {
-	Input     query
-	Predicate query
-	posit     int
-	positmap  map[int]int
+	Input      query
+	Predicate  query
+	NoPosition bool
+
+	posit    int
+	positmap map[int]int
 }
 
 func (f *filterQuery) do(t iterator) bool {
@@ -609,11 +820,16 @@ func (f *filterQuery) Evaluate(t iterator) interface{} {
 	return f
 }
 
-func (f *filterQuery) Reset() {
-	f.posit = 0
-	f.positmap = nil
-	f.Input.Reset()
-	f.Predicate.Reset()
+func (f *filterQuery) Clone() query {
+	return &filterQuery{Input: f.Input.Clone(), Predicate: f.Predicate.Clone()}
+}
+
+func (f *filterQuery) ValueType() resultType {
+	return xpathResultType.NodeSet
+}
+
+func (f *filterQuery) Properties() queryProp {
+	return (queryProps.Position | f.Input.Properties()) & (queryProps.Reverse | queryProps.Merge)
 }
 
 // functionQuery is an XPath function that returns a computed value for
@@ -634,8 +850,19 @@ func (f *functionQuery) Evaluate(t iterator) interface{} {
 	return f.Func(f.Input, t)
 }
 
-func (f *functionQuery) Reset() {
-	f.Input.Reset()
+func (f *functionQuery) Clone() query {
+	if f.Input == nil {
+		return &functionQuery{Func: f.Func}
+	}
+	return &functionQuery{Input: f.Input.Clone(), Func: f.Func}
+}
+
+func (f *functionQuery) ValueType() resultType {
+	return xpathResultType.Any
+}
+
+func (f *functionQuery) Properties() queryProp {
+	return queryProps.Merge
 }
 
 // transformFunctionQuery diffs from functionQuery where the latter computes a scalar
@@ -662,9 +889,16 @@ func (f *transformFunctionQuery) Evaluate(t iterator) interface{} {
 	return f
 }
 
-func (f *transformFunctionQuery) Reset() {
-	f.Input.Reset()
-	f.iterator = nil
+func (f *transformFunctionQuery) Clone() query {
+	return &transformFunctionQuery{Input: f.Input.Clone(), Func: f.Func}
+}
+
+func (f *transformFunctionQuery) ValueType() resultType {
+	return xpathResultType.Any
+}
+
+func (f *transformFunctionQuery) Properties() queryProp {
+	return queryProps.Merge
 }
 
 // constantQuery is an XPath constant operand.
@@ -680,7 +914,16 @@ func (c *constantQuery) Evaluate(t iterator) interface{} {
 	return c.Val
 }
 
-func (c *constantQuery) Reset() {
+func (c *constantQuery) Clone() query {
+	return c
+}
+
+func (c *constantQuery) ValueType() resultType {
+	return getXPathType(c.Val)
+}
+
+func (c *constantQuery) Properties() queryProp {
+	return queryProps.Position | queryProps.Count | queryProps.Cached | queryProps.Merge
 }
 
 type groupQuery struct {
@@ -702,9 +945,16 @@ func (g *groupQuery) Evaluate(t iterator) interface{} {
 	return g.Input.Evaluate(t)
 }
 
-func (g *groupQuery) Reset() {
-	g.posit = 0
-	g.Input.Reset()
+func (g *groupQuery) Clone() query {
+	return &groupQuery{Input: g.Input.Clone()}
+}
+
+func (g *groupQuery) ValueType() resultType {
+	return g.Input.ValueType()
+}
+
+func (g *groupQuery) Properties() queryProp {
+	return queryProps.Position
 }
 
 func (g *groupQuery) position() int {
@@ -737,16 +987,23 @@ func (l *logicalQuery) Evaluate(t iterator) interface{} {
 	return l.Do(t, m, n)
 }
 
-func (l *logicalQuery) Reset() {
-	l.Left.Reset()
-	l.Right.Reset()
+func (l *logicalQuery) Clone() query {
+	return &logicalQuery{Left: l.Left.Clone(), Right: l.Right.Clone(), Do: l.Do}
+}
+
+func (l *logicalQuery) ValueType() resultType {
+	return xpathResultType.Boolean
+}
+
+func (l *logicalQuery) Properties() queryProp {
+	return queryProps.Merge
 }
 
 // numericQuery is an XPath numeric operator expression.
 type numericQuery struct {
 	Left, Right query
 
-	Do func(interface{}, interface{}) interface{}
+	Do func(iterator, interface{}, interface{}) interface{}
 }
 
 func (n *numericQuery) Select(t iterator) NodeNavigator {
@@ -756,12 +1013,19 @@ func (n *numericQuery) Select(t iterator) NodeNavigator {
 func (n *numericQuery) Evaluate(t iterator) interface{} {
 	m := n.Left.Evaluate(t)
 	k := n.Right.Evaluate(t)
-	return n.Do(m, k)
+	return n.Do(t, m, k)
 }
 
-func (n *numericQuery) Reset() {
-	n.Left.Reset()
-	n.Right.Reset()
+func (n *numericQuery) Clone() query {
+	return &numericQuery{Left: n.Left.Clone(), Right: n.Right.Clone(), Do: n.Do}
+}
+
+func (n *numericQuery) ValueType() resultType {
+	return xpathResultType.Number
+}
+
+func (n *numericQuery) Properties() queryProp {
+	return queryProps.Merge
 }
 
 type booleanQuery struct {
@@ -850,10 +1114,16 @@ func (b *booleanQuery) Evaluate(t iterator) interface{} {
 	return asBool(t, m)
 }
 
-func (b *booleanQuery) Reset() {
-	b.iterator = nil
-	b.Left.Reset()
-	b.Right.Reset()
+func (b *booleanQuery) Clone() query {
+	return &booleanQuery{IsOr: b.IsOr, Left: b.Left.Clone(), Right: b.Right.Clone()}
+}
+
+func (b *booleanQuery) ValueType() resultType {
+	return xpathResultType.Boolean
+}
+
+func (b *booleanQuery) Properties() queryProp {
+	return queryProps.Merge
 }
 
 type unionQuery struct {
@@ -909,79 +1179,209 @@ func (u *unionQuery) Evaluate(t iterator) interface{} {
 	return u
 }
 
-func (u *unionQuery) Reset() {
-	u.Left.Reset()
-	u.Right.Reset()
-	u.iterator = nil
+func (u *unionQuery) Clone() query {
+	return &unionQuery{Left: u.Left.Clone(), Right: u.Right.Clone()}
 }
 
-type cacheQuery struct {
-	posit    int
-	buffer   []NodeNavigator
-	iterator func() NodeNavigator
+func (u *unionQuery) ValueType() resultType {
+	return xpathResultType.NodeSet
+}
+
+func (u *unionQuery) Properties() queryProp {
+	return queryProps.Merge
+}
+
+type lastFuncQuery struct {
+	buffer  []NodeNavigator
+	counted bool
 
 	Input query
 }
 
-func (c *cacheQuery) Select(t iterator) NodeNavigator {
-	if c.iterator == nil {
+func (q *lastFuncQuery) Select(t iterator) NodeNavigator {
+	return nil
+}
+
+func (q *lastFuncQuery) Evaluate(t iterator) interface{} {
+	if !q.counted {
 		for {
-			node := c.Input.Select(t)
+			node := q.Input.Select(t)
 			if node == nil {
 				break
 			}
-			c.buffer = append(c.buffer, node.Copy())
+			q.buffer = append(q.buffer, node.Copy())
 		}
-		c.iterator = func() NodeNavigator {
-			if c.posit >= len(c.buffer) {
+		q.counted = true
+	}
+	return float64(len(q.buffer))
+}
+
+func (q *lastFuncQuery) Clone() query {
+	return &lastFuncQuery{Input: q.Input.Clone()}
+}
+
+func (q *lastFuncQuery) ValueType() resultType {
+	return xpathResultType.Number
+}
+
+func (q *lastFuncQuery) Properties() queryProp {
+	return queryProps.Merge
+}
+
+type descendantOverDescendantQuery struct {
+	name        string
+	level       int
+	posit       int
+	currentNode NodeNavigator
+
+	Input     query
+	MatchSelf bool
+	Predicate func(NodeNavigator) bool
+}
+
+func (d *descendantOverDescendantQuery) moveToFirstChild() bool {
+	if d.currentNode.MoveToChild() {
+		d.level++
+		return true
+	}
+	return false
+}
+
+func (d *descendantOverDescendantQuery) moveUpUntilNext() bool {
+	for !d.currentNode.MoveToNext() {
+		d.level--
+		if d.level == 0 {
+			return false
+		}
+		d.currentNode.MoveToParent()
+	}
+	return true
+}
+
+func (d *descendantOverDescendantQuery) Select(t iterator) NodeNavigator {
+	for {
+		if d.level == 0 {
+			node := d.Input.Select(t)
+			if node == nil {
 				return nil
 			}
-			node := c.buffer[c.posit]
-			c.posit++
-			return node
+			d.currentNode = node.Copy()
+			d.posit = 0
+			if d.MatchSelf && d.Predicate(d.currentNode) {
+				d.posit = 1
+				return d.currentNode
+			}
+			d.moveToFirstChild()
+		} else if !d.moveUpUntilNext() {
+			continue
+		}
+		for ok := true; ok; ok = d.moveToFirstChild() {
+			if d.Predicate(d.currentNode) {
+				d.posit++
+				return d.currentNode
+			}
 		}
 	}
-	return c.iterator()
 }
 
-func (c *cacheQuery) Evaluate(t iterator) interface{} {
-	c.posit = 0
-	c.buffer = nil
-	return c.Input.Evaluate(t)
+func (d *descendantOverDescendantQuery) Evaluate(t iterator) interface{} {
+	d.Input.Evaluate(t)
+	return d
 }
 
-func (c *cacheQuery) Reset() {
-	c.buffer = nil
-	c.posit = 0
-	c.iterator = nil
-	c.Input.Reset()
+func (d *descendantOverDescendantQuery) Clone() query {
+	return &descendantOverDescendantQuery{Input: d.Input.Clone(), Predicate: d.Predicate, MatchSelf: d.MatchSelf}
 }
 
-func (c *cacheQuery) position() int {
-	return c.posit
+func (d *descendantOverDescendantQuery) ValueType() resultType {
+	return xpathResultType.NodeSet
 }
 
-func (c *cacheQuery) count() int {
-	return len(c.buffer)
+func (d *descendantOverDescendantQuery) Properties() queryProp {
+	return queryProps.Merge
+}
+
+func (d *descendantOverDescendantQuery) position() int {
+	return d.posit
+}
+
+type mergeQuery struct {
+	Input query
+	Child query
+
+	iterator func() NodeNavigator
+}
+
+func (m *mergeQuery) Select(t iterator) NodeNavigator {
+	for {
+		if m.iterator == nil {
+			root := m.Input.Select(t)
+			if root == nil {
+				return nil
+			}
+			m.Child.Evaluate(t)
+			root = root.Copy()
+			t.Current().MoveTo(root)
+			var list []NodeNavigator
+			for node := m.Child.Select(t); node != nil; node = m.Child.Select(t) {
+				list = append(list, node.Copy())
+			}
+			i := 0
+			m.iterator = func() NodeNavigator {
+				if i >= len(list) {
+					return nil
+				}
+				result := list[i]
+				i++
+				return result
+			}
+		}
+
+		if node := m.iterator(); node != nil {
+			return node
+		}
+		m.iterator = nil
+	}
+}
+
+func (m *mergeQuery) Evaluate(t iterator) interface{} {
+	m.Input.Evaluate(t)
+	return m
+}
+
+func (m *mergeQuery) Clone() query {
+	return &mergeQuery{Input: m.Input.Clone(), Child: m.Child.Clone()}
+}
+
+func (m *mergeQuery) ValueType() resultType {
+	return xpathResultType.NodeSet
+}
+
+func (m *mergeQuery) Properties() queryProp {
+	return queryProps.Position | queryProps.Count | queryProps.Cached | queryProps.Merge
 }
 
 func getHashCode(n NodeNavigator) uint64 {
 	var sb bytes.Buffer
 	switch n.NodeType() {
 	case AttributeNode, TextNode, CommentNode:
-		sb.WriteString(fmt.Sprintf("%s=%s", n.LocalName(), n.Value()))
+		sb.WriteString(n.LocalName())
+		sb.WriteByte('=')
+		sb.WriteString(n.Value())
 		// https://github.com/antchfx/htmlquery/issues/25
 		d := 1
 		for n.MoveToPrevious() {
 			d++
 		}
-		sb.WriteString(fmt.Sprintf("-%d", d))
+		sb.WriteByte('-')
+		sb.WriteString(strconv.Itoa(d))
 		for n.MoveToParent() {
 			d = 1
 			for n.MoveToPrevious() {
 				d++
 			}
-			sb.WriteString(fmt.Sprintf("-%d", d))
+			sb.WriteByte('-')
+			sb.WriteString(strconv.Itoa(d))
 		}
 	case ElementNode:
 		sb.WriteString(n.Prefix() + n.LocalName())
@@ -989,18 +1389,20 @@ func getHashCode(n NodeNavigator) uint64 {
 		for n.MoveToPrevious() {
 			d++
 		}
-		sb.WriteString(fmt.Sprintf("-%d", d))
+		sb.WriteByte('-')
+		sb.WriteString(strconv.Itoa(d))
 
 		for n.MoveToParent() {
 			d = 1
 			for n.MoveToPrevious() {
 				d++
 			}
-			sb.WriteString(fmt.Sprintf("-%d", d))
+			sb.WriteByte('-')
+			sb.WriteString(strconv.Itoa(d))
 		}
 	}
 	h := fnv.New64a()
-	h.Write([]byte(sb.String()))
+	h.Write(sb.Bytes())
 	return h.Sum64()
 }
 
@@ -1022,4 +1424,21 @@ func getNodeDepth(q query) int {
 		return count.depth()
 	}
 	return 0
+}
+
+func getXPathType(i interface{}) resultType {
+	v := reflect.ValueOf(i)
+	switch v.Kind() {
+	case reflect.Float64:
+		return xpathResultType.Number
+	case reflect.String:
+		return xpathResultType.String
+	case reflect.Bool:
+		return xpathResultType.Boolean
+	default:
+		if _, ok := i.(query); ok {
+			return xpathResultType.NodeSet
+		}
+	}
+	panic(fmt.Errorf("xpath unknown value type: %v", v.Kind()))
 }

@@ -10,6 +10,54 @@ const functions = {
     return s.querySelector(selector)
   },
 
+  triggerFavicon() {
+    return new Promise((resolve, reject) => {
+      const faviconElement = document.querySelector('link[rel~=icon]')
+      const href = (faviconElement && faviconElement.href) || '/favicon.ico'
+      const faviconUrl = new URL(href, window.location).toString()
+      const xhr = new XMLHttpRequest()
+      xhr.open('GET', faviconUrl)
+
+      xhr.ontimeout = function () {
+        reject({
+          errorType: 'timeout_error',
+          xhr: xhr
+        })
+      }
+
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304) {
+            resolve({
+              status: xhr.status,
+              statusText: xhr.statusText,
+              responseText: xhr.responseText
+            })
+          } else {
+            reject({
+              errorType: 'status_error',
+              xhr: xhr,
+              status: xhr.status,
+              statusText: xhr.statusText,
+              responseText: xhr.responseText
+            })
+          }
+        }
+      }
+
+      xhr.onerror = function () {
+        reject({
+          errorType: 'onerror',
+          xhr: xhr,
+          status: xhr.status,
+          statusText: xhr.statusText,
+          responseText: xhr.responseText
+        })
+      }
+      xhr.send()
+    })
+  },
+
   elements(selector) {
     return functions.selectable(this).querySelectorAll(selector)
   },
@@ -236,7 +284,7 @@ const functions = {
         this.value = `${y}-${mon}-${d}T${h}:${min}`
         break
       case 'month':
-        this.value = mon
+        this.value = `${y}-${mon}`
         break
       case 'time':
         this.value = `${h}:${min}`
@@ -246,6 +294,11 @@ const functions = {
     functions.inputEvent.call(this)
   },
 
+  inputColor(color) {
+    this.value = `${color}`
+
+    functions.inputEvent.call(this)
+  },
   selectText(pattern) {
     const m = this.value.match(new RegExp(pattern))
     if (m) {

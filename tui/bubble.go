@@ -1,6 +1,9 @@
 package tui
 
 import (
+	"strings"
+	"time"
+
 	"github.com/amonull/rengal/anilist"
 	"github.com/amonull/rengal/color"
 	"github.com/amonull/rengal/history"
@@ -22,8 +25,6 @@ import (
 	"github.com/samber/mo"
 	"github.com/spf13/viper"
 	"golang.org/x/exp/slices"
-	"strings"
-	"time"
 )
 
 type statefulBubble struct {
@@ -296,10 +297,10 @@ func (b *statefulBubble) loadProviders() tea.Cmd {
 			internal: p,
 		})
 	}
-	slices.SortFunc(items, func(a, b list.Item) bool {
+	slices.SortFunc(items, func(a, b list.Item) int {
 		// temporary workaround for placing mangadex second because it is not stable for now
 		// but, you know, there is nothing more permanent than a temporary solution
-		return strings.Compare(a.FilterValue(), b.FilterValue()) > 0
+		return strings.Compare(a.FilterValue(), b.FilterValue())
 	})
 
 	var customItems []list.Item
@@ -308,8 +309,8 @@ func (b *statefulBubble) loadProviders() tea.Cmd {
 			internal: p,
 		})
 	}
-	slices.SortFunc(customItems, func(a, b list.Item) bool {
-		return strings.Compare(a.FilterValue(), b.FilterValue()) < 0
+	slices.SortFunc(customItems, func(a, b list.Item) int {
+		return strings.Compare(a.FilterValue(), b.FilterValue())
 	})
 
 	// built-in providers should come first
@@ -323,11 +324,11 @@ func (b *statefulBubble) loadHistory() (tea.Cmd, error) {
 	}
 
 	chapters := lo.Values(saved)
-	slices.SortFunc(chapters, func(a, b *history.SavedChapter) bool {
+	slices.SortFunc(chapters, func(a, b *history.SavedChapter) int {
 		if a.MangaName == b.MangaName {
-			return a.Name < b.Name
+			return strings.Compare(a.Name, b.Name)
 		}
-		return a.MangaName < b.MangaName
+		return strings.Compare(a.MangaName, b.MangaName)
 	})
 
 	var items []list.Item

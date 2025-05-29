@@ -8,21 +8,22 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ysmood/gson"
-
 	"github.com/go-rod/rod/lib/cdp"
 	"github.com/go-rod/rod/lib/input"
 	"github.com/go-rod/rod/lib/js"
 	"github.com/go-rod/rod/lib/proto"
 	"github.com/go-rod/rod/lib/utils"
+	"github.com/ysmood/gson"
 )
 
-// Element implements these interfaces
-var _ proto.Client = &Element{}
-var _ proto.Contextable = &Element{}
-var _ proto.Sessionable = &Element{}
+// Element implements these interfaces.
+var (
+	_ proto.Client      = &Element{}
+	_ proto.Contextable = &Element{}
+	_ proto.Sessionable = &Element{}
+)
 
-// Element represents the DOM element
+// Element represents the DOM element.
 type Element struct {
 	Object *proto.RuntimeRemoteObject
 
@@ -35,17 +36,17 @@ type Element struct {
 	page *Page
 }
 
-// GetSessionID interface
+// GetSessionID interface.
 func (el *Element) GetSessionID() proto.TargetSessionID {
 	return el.page.SessionID
 }
 
-// String interface
+// String interface.
 func (el *Element) String() string {
 	return fmt.Sprintf("<%s>", el.Object.Description)
 }
 
-// Page of the element
+// Page of the element.
 func (el *Element) Page() *Page {
 	return el.page
 }
@@ -84,10 +85,10 @@ func (el *Element) Hover() error {
 		return err
 	}
 
-	return el.page.Mouse.MoveTo(*pt)
+	return el.page.Context(el.ctx).Mouse.MoveTo(*pt)
 }
 
-// MoveMouseOut of the current element
+// MoveMouseOut of the current element.
 func (el *Element) MoveMouseOut() error {
 	shape, err := el.Shape()
 	if err != nil {
@@ -113,7 +114,7 @@ func (el *Element) Click(button proto.InputMouseButton, clickCount int) error {
 
 	defer el.tryTrace(TraceTypeInput, string(button)+" click")()
 
-	return el.page.Mouse.Click(button, clickCount)
+	return el.page.Context(el.ctx).Mouse.Click(button, clickCount)
 }
 
 // Tap will scroll to the button and tap it just like a human.
@@ -136,12 +137,12 @@ func (el *Element) Tap() error {
 
 	defer el.tryTrace(TraceTypeInput, "tap")()
 
-	return el.page.Touch.Tap(pt.X, pt.Y)
+	return el.page.Context(el.ctx).Touch.Tap(pt.X, pt.Y)
 }
 
 // Interactable checks if the element is interactable with cursor.
 // The cursor can be mouse, finger, stylus, etc.
-// If not interactable err will be ErrNotInteractable, such as when covered by a modal,
+// If not interactable err will be ErrNotInteractable, such as when covered by a modal,.
 func (el *Element) Interactable() (pt *proto.Point, err error) {
 	noPointerEvents, err := el.Eval(`() => getComputedStyle(this).pointerEvents === 'none'`)
 	if err != nil {
@@ -149,7 +150,7 @@ func (el *Element) Interactable() (pt *proto.Point, err error) {
 	}
 
 	if noPointerEvents.Value.Bool() {
-		return nil, &ErrNoPointerEvents{el}
+		return nil, &NoPointerEventsError{el}
 	}
 
 	shape, err := el.Shape()
@@ -159,22 +160,22 @@ func (el *Element) Interactable() (pt *proto.Point, err error) {
 
 	pt = shape.OnePointInside()
 	if pt == nil {
-		err = &ErrInvisibleShape{el}
+		err = &InvisibleShapeError{el}
 		return
 	}
 
-	scroll, err := el.page.root.Eval(`() => ({ x: window.scrollX, y: window.scrollY })`)
+	scroll, err := el.page.root.Context(el.ctx).Eval(`() => ({ x: window.scrollX, y: window.scrollY })`)
 	if err != nil {
 		return
 	}
 
-	elAtPoint, err := el.page.ElementFromPoint(
+	elAtPoint, err := el.page.Context(el.ctx).ElementFromPoint(
 		int(pt.X)+scroll.Value.Get("x").Int(),
 		int(pt.Y)+scroll.Value.Get("y").Int(),
 	)
 	if err != nil {
 		if errors.Is(err, cdp.ErrNodeNotFoundAtPos) {
-			err = &ErrInvisibleShape{el}
+			err = &InvisibleShapeError{el}
 		}
 		return
 	}
@@ -185,7 +186,7 @@ func (el *Element) Interactable() (pt *proto.Point, err error) {
 	}
 
 	if !isParent {
-		err = &ErrCovered{elAtPoint}
+		err = &CoveredError{elAtPoint}
 	}
 	return
 }
@@ -208,7 +209,7 @@ func (el *Element) Type(keys ...input.Key) error {
 	if err != nil {
 		return err
 	}
-	return el.page.Keyboard.Type(keys...)
+	return el.page.Context(el.ctx).Keyboard.Type(keys...)
 }
 
 // KeyActions is similar with Page.KeyActions.
@@ -219,7 +220,7 @@ func (el *Element) KeyActions() (*KeyActions, error) {
 		return nil, err
 	}
 
-	return el.page.KeyActions(), nil
+	return el.page.Context(el.ctx).KeyActions(), nil
 }
 
 // SelectText selects the text that matches the regular expression.
@@ -254,7 +255,9 @@ func (el *Element) SelectAllText() error {
 
 // Input focuses on the element and input text to it.
 // Before the action, it will scroll to the element, wait until it's visible, enabled and writable.
-// To empty the input you can use something like el.SelectAllText().MustInput("")
+// To empty the input you can use something like
+//
+//	el.SelectAllText().MustInput("")
 func (el *Element) Input(text string) error {
 	err := el.Focus()
 	if err != nil {
@@ -271,7 +274,7 @@ func (el *Element) Input(text string) error {
 		return err
 	}
 
-	err = el.page.InsertText(text)
+	err = el.page.Context(el.ctx).InsertText(text)
 	_, _ = el.Evaluate(evalHelper(js.InputEvent).ByUser())
 	return err
 }
@@ -301,7 +304,31 @@ func (el *Element) InputTime(t time.Time) error {
 	return err
 }
 
-// Blur is similar to the method Blur
+// InputColor focuses on the element and inputs a color string to it.
+// Before the action, it will scroll to the element, wait until it's visible, enabled and writable.
+func (el *Element) InputColor(color string) error {
+	err := el.Focus()
+	if err != nil {
+		return err
+	}
+
+	err = el.WaitEnabled()
+	if err != nil {
+		return err
+	}
+
+	err = el.WaitWritable()
+	if err != nil {
+		return err
+	}
+
+	defer el.tryTrace(TraceTypeInput, "input "+color)()
+
+	_, err = el.Evaluate(evalHelper(js.InputColor, color))
+	return err
+}
+
+// Blur removes focus from the element.
 func (el *Element) Blur() error {
 	_, err := el.Evaluate(Eval("() => this.blur()").ByUser())
 	return err
@@ -309,7 +336,7 @@ func (el *Element) Blur() error {
 
 // Select the children option elements that match the selectors.
 // Before the action, it will scroll to the element, wait until it's visible.
-// If no option matches the selectors, it will return ErrElementNotFound.
+// If no option matches the selectors, it will return [ErrElementNotFound].
 func (el *Element) Select(selectors []string, selected bool, t SelectorType) error {
 	err := el.Focus()
 	if err != nil {
@@ -324,12 +351,12 @@ func (el *Element) Select(selectors []string, selected bool, t SelectorType) err
 		return err
 	}
 	if !res.Value.Bool() {
-		return &ErrElementNotFound{}
+		return &ElementNotFoundError{}
 	}
 	return nil
 }
 
-// Matches checks if the element can be selected by the css selector
+// Matches checks if the element can be selected by the css selector.
 func (el *Element) Matches(selector string) (bool, error) {
 	res, err := el.Eval(`s => this.matches(s)`, selector)
 	if err != nil {
@@ -339,7 +366,8 @@ func (el *Element) Matches(selector string) (bool, error) {
 }
 
 // Attribute of the DOM object.
-// Attribute vs Property: https://stackoverflow.com/questions/6003819/what-is-the-difference-between-properties-and-attributes-in-html
+// Attribute vs Property:
+// https://stackoverflow.com/questions/6003819/what-is-the-difference-between-properties-and-attributes-in-html
 func (el *Element) Attribute(name string) (*string, error) {
 	attr, err := el.Eval("(n) => this.getAttribute(n)", name)
 	if err != nil {
@@ -347,7 +375,7 @@ func (el *Element) Attribute(name string) (*string, error) {
 	}
 
 	if attr.Value.Nil() {
-		return nil, nil
+		return nil, nil //nolint: nilnil
 	}
 
 	s := attr.Value.Str()
@@ -355,7 +383,8 @@ func (el *Element) Attribute(name string) (*string, error) {
 }
 
 // Property of the DOM object.
-// Property vs Attribute: https://stackoverflow.com/questions/6003819/what-is-the-difference-between-properties-and-attributes-in-html
+// Property vs Attribute:
+// https://stackoverflow.com/questions/6003819/what-is-the-difference-between-properties-and-attributes-in-html
 func (el *Element) Property(name string) (gson.JSON, error) {
 	prop, err := el.Eval("(n) => this[n]", name)
 	if err != nil {
@@ -365,7 +394,16 @@ func (el *Element) Property(name string) (gson.JSON, error) {
 	return prop.Value, nil
 }
 
-// SetFiles of the current file input element
+// Disabled checks if the element is disabled.
+func (el *Element) Disabled() (bool, error) {
+	prop, err := el.Property("disabled")
+	if err != nil {
+		return false, err
+	}
+	return prop.Bool(), nil
+}
+
+// SetFiles of the current file input element.
 func (el *Element) SetFiles(paths []string) error {
 	absPaths := utils.AbsolutePaths(paths)
 
@@ -383,9 +421,10 @@ func (el *Element) SetFiles(paths []string) error {
 // Describe the current element. The depth is the maximum depth at which children should be retrieved, defaults to 1,
 // use -1 for the entire subtree or provide an integer larger than 0.
 // The pierce decides whether or not iframes and shadow roots should be traversed when returning the subtree.
-// The returned proto.DOMNode.NodeID will always be empty, because NodeID is not stable (when proto.DOMDocumentUpdated
+// The returned [proto.DOMNode.NodeID] will always be empty,
+// because NodeID is not stable (when [proto.DOMDocumentUpdated]
 // is fired all NodeID on the page will be reassigned to another value)
-// we don't recommend using the NodeID, instead, use the BackendNodeID to identify the element.
+// we don't recommend using the NodeID, instead, use the [proto.DOMBackendNodeID] to identify the element.
 func (el *Element) Describe(depth int, pierce bool) (*proto.DOMNode, error) {
 	val, err := proto.DOMDescribeNode{ObjectID: el.id(), Depth: gson.Int(depth), Pierce: pierce}.Call(el)
 	if err != nil {
@@ -394,7 +433,7 @@ func (el *Element) Describe(depth int, pierce bool) (*proto.DOMNode, error) {
 	return val.Node, nil
 }
 
-// ShadowRoot returns the shadow root of this element
+// ShadowRoot returns the shadow root of this element.
 func (el *Element) ShadowRoot() (*Element, error) {
 	node, err := el.Describe(1, false)
 	if err != nil {
@@ -402,6 +441,9 @@ func (el *Element) ShadowRoot() (*Element, error) {
 	}
 
 	// though now it's an array, w3c changed the spec of it to be a single.
+	if len(node.ShadowRoots) == 0 {
+		return nil, &NoShadowRootError{el}
+	}
 	id := node.ShadowRoots[0].BackendNodeID
 
 	shadowNode, err := proto.DOMResolveNode{BackendNodeID: id}.Call(el)
@@ -409,10 +451,10 @@ func (el *Element) ShadowRoot() (*Element, error) {
 		return nil, err
 	}
 
-	return el.page.ElementFromObject(shadowNode.Object)
+	return el.page.Context(el.ctx).ElementFromObject(shadowNode.Object)
 }
 
-// Frame creates a page instance that represents the iframe
+// Frame creates a page instance that represents the iframe.
 func (el *Element) Frame() (*Page, error) {
 	node, err := el.Describe(1, false)
 	if err != nil {
@@ -437,7 +479,7 @@ func (el *Element) ContainsElement(target *Element) (bool, error) {
 	return res.Value.Bool(), nil
 }
 
-// Text that the element displays
+// Text that the element displays.
 func (el *Element) Text() (string, error) {
 	str, err := el.Evaluate(evalHelper(js.Text))
 	if err != nil {
@@ -446,7 +488,7 @@ func (el *Element) Text() (string, error) {
 	return str.Value.String(), nil
 }
 
-// HTML of the element
+// HTML of the element.
 func (el *Element) HTML() (string, error) {
 	res, err := proto.DOMGetOuterHTML{ObjectID: el.Object.ObjectID}.Call(el)
 	if err != nil {
@@ -455,7 +497,7 @@ func (el *Element) HTML() (string, error) {
 	return res.OuterHTML, nil
 }
 
-// Visible returns true if the element is visible on the page
+// Visible returns true if the element is visible on the page.
 func (el *Element) Visible() (bool, error) {
 	res, err := el.Evaluate(evalHelper(js.Visible))
 	if err != nil {
@@ -464,7 +506,7 @@ func (el *Element) Visible() (bool, error) {
 	return res.Value.Bool(), nil
 }
 
-// WaitLoad for element like <img>
+// WaitLoad for element like <img>.
 func (el *Element) WaitLoad() error {
 	defer el.tryTrace(TraceTypeWait, "load")()
 	_, err := el.Evaluate(evalHelper(js.WaitLoad).ByPromise())
@@ -473,7 +515,7 @@ func (el *Element) WaitLoad() error {
 
 // WaitStable waits until no shape or position change for d duration.
 // Be careful, d is not the max wait timeout, it's the least stable time.
-// If you want to set a timeout you can use the "Element.Timeout" function.
+// If you want to set a timeout you can use the [Element.Timeout] function.
 func (el *Element) WaitStable(d time.Duration) error {
 	err := el.WaitVisible()
 	if err != nil {
@@ -509,7 +551,7 @@ func (el *Element) WaitStable(d time.Duration) error {
 }
 
 // WaitStableRAF waits until no shape or position change for 2 consecutive animation frames.
-// If you want to wait animation that is triggered by JS not CSS, you'd better use Element.WaitStable.
+// If you want to wait animation that is triggered by JS not CSS, you'd better use [Element.WaitStable].
 // About animation frame: https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
 func (el *Element) WaitStableRAF() error {
 	err := el.WaitVisible()
@@ -520,9 +562,10 @@ func (el *Element) WaitStableRAF() error {
 	defer el.tryTrace(TraceTypeWait, "stable RAF")()
 
 	var shape *proto.DOMGetContentQuadsResult
+	page := el.page.Context(el.ctx)
 
 	for {
-		err = el.page.WaitRepaint()
+		err = page.WaitRepaint()
 		if err != nil {
 			return err
 		}
@@ -553,7 +596,7 @@ func (el *Element) WaitInteractable() (pt *proto.Point, err error) {
 		}
 
 		pt, err = el.Interactable()
-		if errors.Is(err, &ErrCovered{}) {
+		if errors.Is(err, &CoveredError{}) {
 			return false, nil
 		}
 		return true, err
@@ -561,12 +604,12 @@ func (el *Element) WaitInteractable() (pt *proto.Point, err error) {
 	return
 }
 
-// Wait until the js returns true
+// Wait until the js returns true.
 func (el *Element) Wait(opts *EvalOptions) error {
 	return el.page.Context(el.ctx).Sleeper(el.sleeper).Wait(opts.This(el.Object))
 }
 
-// WaitVisible until the element is visible
+// WaitVisible until the element is visible.
 func (el *Element) WaitVisible() error {
 	defer el.tryTrace(TraceTypeWait, "visible")()
 	return el.Wait(evalHelper(js.Visible))
@@ -586,7 +629,7 @@ func (el *Element) WaitWritable() error {
 	return el.Wait(Eval(`() => !this.readonly`))
 }
 
-// WaitInvisible until the element invisible
+// WaitInvisible until the element invisible.
 func (el *Element) WaitInvisible() error {
 	defer el.tryTrace(TraceTypeWait, "invisible")()
 	return el.Wait(evalHelper(js.Invisible))
@@ -606,17 +649,17 @@ func (el *Element) CanvasToImage(format string, quality float64) ([]byte, error)
 	return bin, nil
 }
 
-// Resource returns the "src" content of current element. Such as the jpg of <img src="a.jpg">
+// Resource returns the "src" content of current element. Such as the jpg of <img src="a.jpg">.
 func (el *Element) Resource() ([]byte, error) {
 	src, err := el.Evaluate(evalHelper(js.Resource).ByPromise())
 	if err != nil {
 		return nil, err
 	}
 
-	return el.page.GetResource(src.Value.String())
+	return el.page.Context(el.ctx).GetResource(src.Value.String())
 }
 
-// BackgroundImage returns the css background-image of the element
+// BackgroundImage returns the css background-image of the element.
 func (el *Element) BackgroundImage() ([]byte, error) {
 	res, err := el.Eval(`() => window.getComputedStyle(this).backgroundImage.replace(/^url\("/, '').replace(/"\)$/, '')`)
 	if err != nil {
@@ -625,10 +668,10 @@ func (el *Element) BackgroundImage() ([]byte, error) {
 
 	u := res.Value.Str()
 
-	return el.page.GetResource(u)
+	return el.page.Context(el.ctx).GetResource(u)
 }
 
-// Screenshot of the area of the element
+// Screenshot of the area of the element.
 func (el *Element) Screenshot(format proto.PageCaptureScreenshotFormat, quality int) ([]byte, error) {
 	err := el.ScrollIntoView()
 	if err != nil {
@@ -640,7 +683,7 @@ func (el *Element) Screenshot(format proto.PageCaptureScreenshotFormat, quality 
 		Format:  format,
 	}
 
-	bin, err := el.page.Screenshot(false, opts)
+	bin, err := el.page.Context(el.ctx).Screenshot(false, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -662,12 +705,12 @@ func (el *Element) Screenshot(format proto.PageCaptureScreenshotFormat, quality 
 	)
 }
 
-// Release is a shortcut for Page.Release(el.Object)
+// Release is a shortcut for [Page.Release] current element.
 func (el *Element) Release() error {
 	return el.page.Context(el.ctx).Release(el.Object)
 }
 
-// Remove the element from the page
+// Remove the element from the page.
 func (el *Element) Remove() error {
 	_, err := el.Eval(`() => this.remove()`)
 	if err != nil {
@@ -676,17 +719,17 @@ func (el *Element) Remove() error {
 	return el.Release()
 }
 
-// Call implements the proto.Client
+// Call implements the [proto.Client].
 func (el *Element) Call(ctx context.Context, sessionID, methodName string, params interface{}) (res []byte, err error) {
 	return el.page.Call(ctx, sessionID, methodName, params)
 }
 
-// Eval is a shortcut for Element.Evaluate with AwaitPromise, ByValue and AutoExp set to true.
+// Eval is a shortcut for [Element.Evaluate] with AwaitPromise, ByValue and AutoExp set to true.
 func (el *Element) Eval(js string, params ...interface{}) (*proto.RuntimeRemoteObject, error) {
 	return el.Evaluate(Eval(js, params...).ByPromise())
 }
 
-// Evaluate is just a shortcut of Page.Evaluate with This set to current element.
+// Evaluate is just a shortcut of [Page.Evaluate] with This set to current element.
 func (el *Element) Evaluate(opts *EvalOptions) (*proto.RuntimeRemoteObject, error) {
 	return el.page.Context(el.ctx).Evaluate(opts.This(el.Object))
 }
@@ -701,7 +744,7 @@ func (el *Element) id() proto.RuntimeRemoteObjectID {
 	return el.Object.ObjectID
 }
 
-// GetXPath returns the xpath of the element
+// GetXPath returns the xpath of the element.
 func (el *Element) GetXPath(optimized bool) (string, error) {
 	str, err := el.Evaluate(evalHelper(js.GetXPath, optimized))
 	if err != nil {

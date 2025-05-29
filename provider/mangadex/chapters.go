@@ -2,13 +2,14 @@ package mangadex
 
 import (
 	"fmt"
+	"net/url"
+	"strconv"
+
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/source"
 	"github.com/darylhjd/mangodex"
 	"github.com/spf13/viper"
 	"golang.org/x/exp/slices"
-	"net/url"
-	"strconv"
 )
 
 func (m *Mangadex) ChaptersOf(manga *source.Manga) ([]*source.Chapter, error) {
@@ -92,8 +93,16 @@ func (m *Mangadex) ChaptersOf(manga *source.Manga) ([]*source.Chapter, error) {
 		}
 	}
 
-	slices.SortFunc(chapters, func(a, b *source.Chapter) bool {
-		return a.Index < b.Index
+	slices.SortFunc(chapters, func(a, b *source.Chapter) int {
+		if a.Index < b.Index {
+			return 1
+		}
+
+		if a.Index > b.Index {
+			return -1
+		}
+
+		return 0
 	})
 
 	manga.Chapters = chapters

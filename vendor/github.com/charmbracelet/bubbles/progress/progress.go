@@ -1,33 +1,27 @@
+// Package progress provides a simple progress bar for Bubble Tea applications.
 package progress
 
 import (
 	"fmt"
 	"math"
 	"strings"
-	"sync"
+	"sync/atomic"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/harmonica"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/ansi"
 	"github.com/lucasb-eyer/go-colorful"
-	"github.com/muesli/reflow/ansi"
 	"github.com/muesli/termenv"
 )
 
 // Internal ID management. Used during animating to assure that frame messages
 // can only be received by progress components that sent them.
-var (
-	lastID int
-	idMtx  sync.Mutex
-)
+var lastID int64
 
-// Return the next ID we should use on the model.
 func nextID() int {
-	idMtx.Lock()
-	defer idMtx.Unlock()
-	lastID++
-	return lastID
+	return int(atomic.AddInt64(&lastID, 1))
 }
 
 const (
@@ -37,13 +31,12 @@ const (
 	defaultDamping   = 1.0
 )
 
-// Option is used to set options in NewModel. For example:
+// Option is used to set options in New. For example:
 //
-//     progress := NewModel(
-//	       WithRamp("#ff0000", "#0000ff"),
-//	       WithoutPercentage(),
-//     )
-//
+//	    progress := New(
+//		       WithRamp("#ff0000", "#0000ff"),
+//		       WithoutPercentage(),
+//	    )
 type Option func(*Model)
 
 // WithDefaultGradient sets a gradient fill with default colors.
@@ -80,6 +73,14 @@ func WithSolidFill(color string) Option {
 	}
 }
 
+// WithFillCharacters sets the characters used to construct the full and empty components of the progress bar.
+func WithFillCharacters(full rune, empty rune) Option {
+	return func(m *Model) {
+		m.Full = full
+		m.Empty = empty
+	}
+}
+
 // WithoutPercentage hides the numeric percentage.
 func WithoutPercentage() Option {
 	return func(m *Model) {
@@ -97,7 +98,7 @@ func WithWidth(w int) Option {
 }
 
 // WithSpringOptions sets the initial frequency and damping options for the
-// progressbar's built-in spring-based animation. Frequency corresponds to
+// progress bar's built-in spring-based animation. Frequency corresponds to
 // speed, and damping to bounciness. For details see:
 //
 // https://github.com/charmbracelet/harmonica
@@ -137,7 +138,7 @@ type Model struct {
 	Full      rune
 	FullColor string
 
-	// "Empty" sections of progress bar.
+	// "Empty" sections of the progress bar.
 	Empty      rune
 	EmptyColor string
 
@@ -180,27 +181,29 @@ func New(opts ...Option) Model {
 		PercentFormat:  " %3.0f%%",
 		colorProfile:   termenv.ColorProfile(),
 	}
-	if !m.springCustomized {
-		m.SetSpringOptions(defaultFrequency, defaultDamping)
-	}
 
 	for _, opt := range opts {
 		opt(&m)
 	}
+
+	if !m.springCustomized {
+		m.SetSpringOptions(defaultFrequency, defaultDamping)
+	}
+
 	return m
 }
 
 // NewModel returns a model with default values.
 //
-// Deprecated. Use New instead.
+// Deprecated: use [New] instead.
 var NewModel = New
 
-// Init exists satisfy the tea.Model interface.
+// Init exists to satisfy the tea.Model interface.
 func (m Model) Init() tea.Cmd {
 	return nil
 }
 
-// Update is used to animation the progress bar during transitions. Use
+// Update is used to animate the progress bar during transitions. Use
 // SetPercent to create the command you'll need to trigger the animation.
 //
 // If you're rendering with ViewAs you won't need this.
@@ -212,8 +215,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		// If we've more or less reached equilibrium, stop updating.
-		dist := math.Abs(m.percentShown - m.targetPercent)
-		if dist < 0.001 && m.velocity < 0.01 {
+		if !m.IsAnimating() {
 			return m, nil
 		}
 
@@ -267,7 +269,7 @@ func (m *Model) DecrPercent(v float64) tea.Cmd {
 	return m.SetPercent(m.Percent() - v)
 }
 
-// View renders the an animated progress bar in its current state. To render
+// View renders an animated progress bar in its current state. To render
 // a static progress bar based on your own calculations use ViewAs instead.
 func (m Model) View() string {
 	return m.ViewAs(m.percentShown)
@@ -277,7 +279,7 @@ func (m Model) View() string {
 func (m Model) ViewAs(percent float64) string {
 	b := strings.Builder{}
 	percentView := m.percentageView(percent)
-	m.barView(&b, percent, ansi.PrintableRuneWidth(percentView))
+	m.barView(&b, percent, ansi.StringWidth(percentView))
 	b.WriteString(percentView)
 	return b.String()
 }
@@ -300,10 +302,15 @@ func (m Model) barView(b *strings.Builder, percent float64, textWidth int) {
 	if m.useRamp {
 		// Gradient fill
 		for i := 0; i < fw; i++ {
-			if m.scaleRamp {
-				p = float64(i) / float64(fw)
+			if fw == 1 {
+				// this is up for debate: in a gradient of width=1, should the
+				// single character rendered be the first color, the last color
+				// or exactly 50% in between? I opted for 50%
+				p = 0.5
+			} else if m.scaleRamp {
+				p = float64(i) / float64(fw-1)
 			} else {
-				p = float64(i) / float64(tw)
+				p = float64(i) / float64(tw-1)
 			}
 			c := m.rampColorA.BlendLuv(m.rampColorB, p).Hex()
 			b.WriteString(termenv.
@@ -329,7 +336,7 @@ func (m Model) percentageView(percent float64) string {
 		return ""
 	}
 	percent = math.Max(0, math.Min(1, percent))
-	percentage := fmt.Sprintf(m.PercentFormat, percent*100) //nolint:gomnd
+	percentage := fmt.Sprintf(m.PercentFormat, percent*100) //nolint:mnd
 	percentage = m.PercentageStyle.Inline(true).Render(percentage)
 	return percentage
 }
@@ -337,7 +344,7 @@ func (m Model) percentageView(percent float64) string {
 func (m *Model) setRamp(colorA, colorB string, scaled bool) {
 	// In the event of an error colors here will default to black. For
 	// usability's sake, and because such an error is only cosmetic, we're
-	// ignoring the error for sake of usability.
+	// ignoring the error.
 	a, _ := colorful.Hex(colorA)
 	b, _ := colorful.Hex(colorB)
 
@@ -351,16 +358,8 @@ func (m Model) color(c string) termenv.Color {
 	return m.colorProfile.Color(c)
 }
 
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
+// IsAnimating returns false if the progress bar reached equilibrium and is no longer animating.
+func (m *Model) IsAnimating() bool {
+	dist := math.Abs(m.percentShown - m.targetPercent)
+	return !(dist < 0.001 && m.velocity < 0.01)
 }

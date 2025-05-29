@@ -17,11 +17,14 @@ limitations under the License.
 package validate
 
 import (
-	pdf "github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
+	"strconv"
+
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
 	"github.com/pkg/errors"
 )
 
-func validateMarkedContentReferenceDict(xRefTable *pdf.XRefTable, d pdf.Dict) error {
+func validateMarkedContentReferenceDict(xRefTable *model.XRefTable, d types.Dict) error {
 
 	var err error
 
@@ -59,23 +62,10 @@ func validateMarkedContentReferenceDict(xRefTable *pdf.XRefTable, d pdf.Dict) er
 		err = errors.Errorf("pdfcpu: validateMarkedContentReferenceDict: missing entry \"MCID\".")
 	}
 
-	// if o, found := d.Find("MCID"); !found {
-	// 	// TODO FIX!
-	// } else {
-	// 	o, err := xRefTable.Dereference(o)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-
-	// 	if o == nil {
-	// 		return errors.Errorf("validateMarkedContentReferenceDict: missing entry \"MCID\".")
-	// 	}
-	// }
-
 	return err
 }
 
-func validateObjectReferenceDict(xRefTable *pdf.XRefTable, d pdf.Dict) error {
+func validateObjectReferenceDict(xRefTable *model.XRefTable, d types.Dict) error {
 
 	// Pg: optional, indirect reference
 	// Page object representing a page on which some or all of the content items designated by the K entry shall be rendered.
@@ -88,7 +78,7 @@ func validateObjectReferenceDict(xRefTable *pdf.XRefTable, d pdf.Dict) error {
 
 	// Obj: required, indirect reference
 	ir := d.IndirectRefEntry("Obj")
-	if xRefTable.ValidationMode == pdf.ValidationStrict && ir == nil {
+	if xRefTable.ValidationMode == model.ValidationStrict && ir == nil {
 		return errors.New("pdfcpu: validateObjectReferenceDict: missing required entry \"Obj\"")
 	}
 
@@ -102,19 +92,19 @@ func validateObjectReferenceDict(xRefTable *pdf.XRefTable, d pdf.Dict) error {
 	}
 
 	if obj == nil {
-		return errors.New("pdfcpu: validateObjectReferenceDict: missing required entry \"Obj\"")
+		return errors.Errorf("pdfcpu: validateObjectReferenceDict: missing obj#%s", ir.ObjectNumber)
 	}
 
 	return nil
 }
 
-func validateStructElementKArrayElement(xRefTable *pdf.XRefTable, o pdf.Object) error {
+func validateStructElementKArrayElement(xRefTable *model.XRefTable, o types.Object) error {
 	switch o := o.(type) {
 
-	case pdf.Integer:
+	case types.Integer:
 		return nil
 
-	case pdf.Dict:
+	case types.Dict:
 
 		dictType := o.Type()
 
@@ -137,11 +127,11 @@ func validateStructElementKArrayElement(xRefTable *pdf.XRefTable, o pdf.Object) 
 	return errors.New("validateStructElementKArrayElement: unsupported PDF object")
 }
 
-func validateStructElementDictEntryKArray(xRefTable *pdf.XRefTable, a pdf.Array) error {
+func validateStructElementDictEntryKArray(xRefTable *model.XRefTable, a types.Array) error {
 	for _, o := range a {
 
 		// Avoid recursion.
-		ir, ok := o.(pdf.IndirectRef)
+		ir, ok := o.(types.IndirectRef)
 		if ok {
 			valid, err := xRefTable.IsValid(ir)
 			if err != nil {
@@ -173,7 +163,7 @@ func validateStructElementDictEntryKArray(xRefTable *pdf.XRefTable, a pdf.Array)
 	return nil
 }
 
-func validateStructElementDictEntryK(xRefTable *pdf.XRefTable, o pdf.Object) error {
+func validateStructElementDictEntryK(xRefTable *model.XRefTable, o types.Object) error {
 
 	// K: optional, the children of this structure element
 	//
@@ -190,9 +180,9 @@ func validateStructElementDictEntryK(xRefTable *pdf.XRefTable, o pdf.Object) err
 
 	switch o := o.(type) {
 
-	case pdf.Integer:
+	case types.Integer:
 
-	case pdf.Dict:
+	case types.Dict:
 		dictType := o.Type()
 
 		if dictType == nil || *dictType == "StructElem" {
@@ -221,7 +211,7 @@ func validateStructElementDictEntryK(xRefTable *pdf.XRefTable, o pdf.Object) err
 
 		return errors.Errorf("pdfcpu: validateStructElementDictEntryK: invalid dictType %s (should be \"StructElem\" or \"OBJR\" or \"MCR\")\n", *dictType)
 
-	case pdf.Array:
+	case types.Array:
 
 		err = validateStructElementDictEntryKArray(xRefTable, o)
 		if err != nil {
@@ -236,7 +226,7 @@ func validateStructElementDictEntryK(xRefTable *pdf.XRefTable, o pdf.Object) err
 	return nil
 }
 
-func processStructElementDictPgEntry(xRefTable *pdf.XRefTable, ir pdf.IndirectRef) error {
+func processStructElementDictPgEntry(xRefTable *model.XRefTable, ir types.IndirectRef) error {
 
 	// is this object a known page object?
 
@@ -247,11 +237,11 @@ func processStructElementDictPgEntry(xRefTable *pdf.XRefTable, ir pdf.IndirectRe
 
 	//logInfoWriter.Printf("known object for Pg: %v %s\n", obj, obj)
 
-	if xRefTable.ValidationMode == pdf.ValidationRelaxed && o == nil {
+	if xRefTable.ValidationMode == model.ValidationRelaxed && o == nil {
 		return nil
 	}
 
-	pageDict, ok := o.(pdf.Dict)
+	pageDict, ok := o.(types.Dict)
 	if !ok {
 		return errors.Errorf("pdfcpu: processStructElementDictPgEntry: Pg object corrupt dict: %s\n", o)
 	}
@@ -263,7 +253,7 @@ func processStructElementDictPgEntry(xRefTable *pdf.XRefTable, ir pdf.IndirectRe
 	return nil
 }
 
-func validateStructElementDictEntryA(xRefTable *pdf.XRefTable, o pdf.Object) error {
+func validateStructElementDictEntryA(xRefTable *model.XRefTable, o types.Object) error {
 
 	o, err := xRefTable.Dereference(o)
 	if err != nil || o == nil {
@@ -272,11 +262,11 @@ func validateStructElementDictEntryA(xRefTable *pdf.XRefTable, o pdf.Object) err
 
 	switch o := o.(type) {
 
-	case pdf.Dict: // No further processing.
+	case types.Dict: // No further processing.
 
-	case pdf.StreamDict: // No further processing.
+	case types.StreamDict: // No further processing.
 
-	case pdf.Array:
+	case types.Array:
 
 		for _, o := range o {
 
@@ -291,13 +281,13 @@ func validateStructElementDictEntryA(xRefTable *pdf.XRefTable, o pdf.Object) err
 
 			switch o.(type) {
 
-			case pdf.Integer:
+			case types.Integer:
 				// Each array element may be followed by a revision number (int).sort
 
-			case pdf.Dict:
+			case types.Dict:
 				// No further processing.
 
-			case pdf.StreamDict:
+			case types.StreamDict:
 				// No further processing.
 
 			default:
@@ -313,7 +303,7 @@ func validateStructElementDictEntryA(xRefTable *pdf.XRefTable, o pdf.Object) err
 	return nil
 }
 
-func validateStructElementDictEntryC(xRefTable *pdf.XRefTable, o pdf.Object) error {
+func validateStructElementDictEntryC(xRefTable *model.XRefTable, o types.Object) error {
 
 	o, err := xRefTable.Dereference(o)
 	if err != nil || o == nil {
@@ -322,10 +312,10 @@ func validateStructElementDictEntryC(xRefTable *pdf.XRefTable, o pdf.Object) err
 
 	switch o := o.(type) {
 
-	case pdf.Name:
+	case types.Name:
 		// No further processing.
 
-	case pdf.Array:
+	case types.Array:
 
 		for _, o := range o {
 
@@ -340,10 +330,10 @@ func validateStructElementDictEntryC(xRefTable *pdf.XRefTable, o pdf.Object) err
 
 			switch o.(type) {
 
-			case pdf.Name:
+			case types.Name:
 				// No further processing.
 
-			case pdf.Integer:
+			case types.Integer:
 				// Each array element may be followed by a revision number.
 
 			default:
@@ -360,17 +350,27 @@ func validateStructElementDictEntryC(xRefTable *pdf.XRefTable, o pdf.Object) err
 	return nil
 }
 
-func validateStructElementDictPart1(xRefTable *pdf.XRefTable, d pdf.Dict, dictName string) error {
+func validateStructElementDictPart1(xRefTable *model.XRefTable, d types.Dict, dictName string) error {
 
 	// S: structure type, required, name, see 14.7.3 and Annex E.
-	_, err := validateNameEntry(xRefTable, d, dictName, "S", OPTIONAL, pdf.V10, nil)
+	_, err := validateNameEntry(xRefTable, d, dictName, "S", OPTIONAL, model.V10, nil)
 	if err != nil {
-		return err
+		if xRefTable.ValidationMode == model.ValidationStrict {
+			return err
+		}
+		i, err := validateIntegerEntry(xRefTable, d, dictName, "S", OPTIONAL, model.V10, nil)
+		if err != nil {
+			return err
+		}
+		if i != nil {
+			// "Repair"
+			d["S"] = types.Name(strconv.Itoa((*i).Value()))
+		}
 	}
 
 	// P: immediate parent, required, indirect reference
 	ir := d.IndirectRefEntry("P")
-	if xRefTable.ValidationMode != pdf.ValidationRelaxed {
+	if xRefTable.ValidationMode != model.ValidationRelaxed {
 		if ir == nil {
 			return errors.Errorf("pdfcpu: validateStructElementDict: missing entry P: %s\n", d)
 		}
@@ -382,7 +382,7 @@ func validateStructElementDictPart1(xRefTable *pdf.XRefTable, d pdf.Dict, dictNa
 	}
 
 	// ID: optional, byte string
-	_, err = validateStringEntry(xRefTable, d, dictName, "ID", OPTIONAL, pdf.V10, nil)
+	_, err = validateStringEntry(xRefTable, d, dictName, "ID", OPTIONAL, model.V10, nil)
 	if err != nil {
 		return err
 	}
@@ -412,7 +412,7 @@ func validateStructElementDictPart1(xRefTable *pdf.XRefTable, d pdf.Dict, dictNa
 	return err
 }
 
-func validateStructElementDictPart2(xRefTable *pdf.XRefTable, d pdf.Dict, dictName string) error {
+func validateStructElementDictPart2(xRefTable *model.XRefTable, d types.Dict, dictName string) error {
 
 	// C: optional, name or array
 	if o, ok := d.Find("C"); ok {
@@ -423,21 +423,21 @@ func validateStructElementDictPart2(xRefTable *pdf.XRefTable, d pdf.Dict, dictNa
 	}
 
 	// R: optional, integer >= 0
-	_, err := validateIntegerEntry(xRefTable, d, dictName, "R", OPTIONAL, pdf.V10, func(i int) bool { return i >= 0 })
+	_, err := validateIntegerEntry(xRefTable, d, dictName, "R", OPTIONAL, model.V10, func(i int) bool { return i >= 0 })
 	if err != nil {
 		return err
 	}
 
 	// T: optional, text string
-	_, err = validateStringEntry(xRefTable, d, dictName, "T", OPTIONAL, pdf.V10, nil)
+	_, err = validateStringEntry(xRefTable, d, dictName, "T", OPTIONAL, model.V10, nil)
 	if err != nil {
 		return err
 	}
 
 	// Lang: optional, text string, since 1.4
-	sinceVersion := pdf.V14
-	if xRefTable.ValidationMode == pdf.ValidationRelaxed {
-		sinceVersion = pdf.V13
+	sinceVersion := model.V14
+	if xRefTable.ValidationMode == model.ValidationRelaxed {
+		sinceVersion = model.V13
 	}
 	_, err = validateStringEntry(xRefTable, d, dictName, "Lang", OPTIONAL, sinceVersion, nil)
 	if err != nil {
@@ -445,24 +445,32 @@ func validateStructElementDictPart2(xRefTable *pdf.XRefTable, d pdf.Dict, dictNa
 	}
 
 	// Alt: optional, text string
-	_, err = validateStringEntry(xRefTable, d, dictName, "Alt", OPTIONAL, pdf.V10, nil)
+	_, err = validateStringEntry(xRefTable, d, dictName, "Alt", OPTIONAL, model.V10, nil)
 	if err != nil {
 		return err
 	}
 
-	// E: optional, text sttring, since 1.5
-	_, err = validateStringEntry(xRefTable, d, dictName, "E", OPTIONAL, pdf.V15, nil)
+	// E: optional, text string, since 1.5
+	sinceVersion = model.V15
+	if xRefTable.ValidationMode == model.ValidationRelaxed {
+		sinceVersion = model.V14
+	}
+	_, err = validateStringEntry(xRefTable, d, dictName, "E", OPTIONAL, sinceVersion, nil)
 	if err != nil {
 		return err
 	}
 
 	// ActualText: optional, text string, since 1.4
-	_, err = validateStringEntry(xRefTable, d, dictName, "ActualText", OPTIONAL, pdf.V14, nil)
+	sinceVersion = model.V14
+	if xRefTable.ValidationMode == model.ValidationRelaxed {
+		sinceVersion = model.V13
+	}
+	_, err = validateStringEntry(xRefTable, d, dictName, "ActualText", OPTIONAL, sinceVersion, nil)
 
 	return err
 }
 
-func validateStructElementDict(xRefTable *pdf.XRefTable, d pdf.Dict) error {
+func validateStructElementDict(xRefTable *model.XRefTable, d types.Dict) error {
 
 	// See table 323
 
@@ -476,7 +484,7 @@ func validateStructElementDict(xRefTable *pdf.XRefTable, d pdf.Dict) error {
 	return validateStructElementDictPart2(xRefTable, d, dictName)
 }
 
-func validateStructTreeRootDictEntryKArray(xRefTable *pdf.XRefTable, a pdf.Array) error {
+func validateStructTreeRootDictEntryKArray(xRefTable *model.XRefTable, a types.Array) error {
 
 	for _, o := range a {
 
@@ -491,7 +499,7 @@ func validateStructTreeRootDictEntryKArray(xRefTable *pdf.XRefTable, a pdf.Array
 
 		switch o := o.(type) {
 
-		case pdf.Dict:
+		case types.Dict:
 
 			dictType := o.Type()
 
@@ -514,7 +522,7 @@ func validateStructTreeRootDictEntryKArray(xRefTable *pdf.XRefTable, a pdf.Array
 	return nil
 }
 
-func validateStructTreeRootDictEntryK(xRefTable *pdf.XRefTable, o pdf.Object) error {
+func validateStructTreeRootDictEntryK(xRefTable *model.XRefTable, o types.Object) error {
 
 	// The immediate child or children of the structure tree root in the structure hierarchy.
 	// The value may be either a dictionary representing a single structure element or an array of such dictionaries.
@@ -526,7 +534,7 @@ func validateStructTreeRootDictEntryK(xRefTable *pdf.XRefTable, o pdf.Object) er
 
 	switch o := o.(type) {
 
-	case pdf.Dict:
+	case types.Dict:
 
 		dictType := o.Type()
 
@@ -540,7 +548,7 @@ func validateStructTreeRootDictEntryK(xRefTable *pdf.XRefTable, o pdf.Object) er
 
 		return errors.Errorf("validateStructTreeRootDictEntryK: invalid dictType %s (should be \"StructElem\")\n", *dictType)
 
-	case pdf.Array:
+	case types.Array:
 
 		err = validateStructTreeRootDictEntryKArray(xRefTable, o)
 		if err != nil {
@@ -555,7 +563,7 @@ func validateStructTreeRootDictEntryK(xRefTable *pdf.XRefTable, o pdf.Object) er
 	return nil
 }
 
-func processStructTreeClassMapDict(xRefTable *pdf.XRefTable, d pdf.Dict) error {
+func processStructTreeClassMapDict(xRefTable *model.XRefTable, d types.Dict) error {
 
 	for _, o := range d {
 
@@ -572,10 +580,10 @@ func processStructTreeClassMapDict(xRefTable *pdf.XRefTable, d pdf.Dict) error {
 
 		switch o := o.(type) {
 
-		case pdf.Dict:
+		case types.Dict:
 			// no further processing.
 
-		case pdf.Array:
+		case types.Array:
 
 			for _, o := range o {
 
@@ -596,9 +604,9 @@ func processStructTreeClassMapDict(xRefTable *pdf.XRefTable, d pdf.Dict) error {
 	return nil
 }
 
-func validateStructTreeRootDictEntryParentTree(xRefTable *pdf.XRefTable, ir *pdf.IndirectRef) error {
+func validateStructTreeRootDictEntryParentTree(xRefTable *model.XRefTable, ir *types.IndirectRef) error {
 
-	if xRefTable.ValidationMode == pdf.ValidationRelaxed {
+	if xRefTable.ValidationMode == model.ValidationRelaxed {
 
 		// Accept empty dict
 		d, err := xRefTable.DereferenceDict(*ir)
@@ -619,7 +627,7 @@ func validateStructTreeRootDictEntryParentTree(xRefTable *pdf.XRefTable, ir *pdf
 	return err
 }
 
-func validateStructTreeRootDict(xRefTable *pdf.XRefTable, d pdf.Dict) error {
+func validateStructTreeRootDict(xRefTable *model.XRefTable, d types.Dict) error {
 
 	dictName := "StructTreeRootDict"
 
@@ -644,9 +652,11 @@ func validateStructTreeRootDict(xRefTable *pdf.XRefTable, d pdf.Dict) error {
 		if err != nil {
 			return err
 		}
-		_, _, _, err = validateNameTree(xRefTable, "IDTree", d, true)
-		if err != nil {
-			return err
+		if len(d) > 0 {
+			_, _, _, err = validateNameTree(xRefTable, "IDTree", d, true)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -660,7 +670,7 @@ func validateStructTreeRootDict(xRefTable *pdf.XRefTable, d pdf.Dict) error {
 	}
 
 	// Optional entry ParentTreeNextKey: integer
-	_, err := validateIntegerEntry(xRefTable, d, dictName, "ParentTreeNextKey", OPTIONAL, pdf.V10, nil)
+	_, err := validateIntegerEntry(xRefTable, d, dictName, "ParentTreeNextKey", OPTIONAL, model.V10, nil)
 	if err != nil {
 		return err
 	}
@@ -668,7 +678,7 @@ func validateStructTreeRootDict(xRefTable *pdf.XRefTable, d pdf.Dict) error {
 	// Optional entry RoleMap: dict
 	// A dictionary that shall map the names of structure used in the document
 	// to their approximate equivalents in the set of standard structure
-	_, err = validateDictEntry(xRefTable, d, dictName, "RoleMap", OPTIONAL, pdf.V10, nil)
+	_, err = validateDictEntry(xRefTable, d, dictName, "RoleMap", OPTIONAL, model.V10, nil)
 	if err != nil {
 		return err
 	}
@@ -676,7 +686,7 @@ func validateStructTreeRootDict(xRefTable *pdf.XRefTable, d pdf.Dict) error {
 	// Optional entry ClassMap: dict
 	// A dictionary that shall map name objects designating attribute classes
 	// to the corresponding attribute objects or arrays of attribute objects.
-	d1, err := validateDictEntry(xRefTable, d, dictName, "ClassMap", OPTIONAL, pdf.V10, nil)
+	d1, err := validateDictEntry(xRefTable, d, dictName, "ClassMap", OPTIONAL, model.V10, nil)
 	if err != nil {
 		return err
 	}
@@ -688,7 +698,7 @@ func validateStructTreeRootDict(xRefTable *pdf.XRefTable, d pdf.Dict) error {
 	return err
 }
 
-func validateStructTree(xRefTable *pdf.XRefTable, rootDict pdf.Dict, required bool, sinceVersion pdf.Version) error {
+func validateStructTree(xRefTable *model.XRefTable, rootDict types.Dict, required bool, sinceVersion model.Version) error {
 
 	// 14.7.2 Structure Hierarchy
 

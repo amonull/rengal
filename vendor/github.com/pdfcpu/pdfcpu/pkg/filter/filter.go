@@ -18,6 +18,7 @@ limitations under the License.
 package filter
 
 import (
+	"bytes"
 	"io"
 
 	"github.com/pdfcpu/pdfcpu/pkg/log"
@@ -44,6 +45,10 @@ var ErrUnsupportedFilter = errors.New("pdfcpu: filter not supported")
 type Filter interface {
 	Encode(r io.Reader) (io.Reader, error)
 	Decode(r io.Reader) (io.Reader, error)
+	// DecodeLength will decode at least maxLen bytes. For filters where decoding
+	// parts doesn't make sense (e.g. DCT), the whole stream is decoded.
+	// If maxLen < 0 is passed, the whole stream is decoded.
+	DecodeLength(r io.Reader, maxLen int64) (io.Reader, error)
 }
 
 // NewFilter returns a filter for given filterName and an optional parameter dictionary.
@@ -77,7 +82,9 @@ func NewFilter(filterName string, parms map[string]int) (filter Filter, err erro
 
 	case JPX:
 		// Unsupported
-		log.Info.Printf("Filter not supported: <%s>", filterName)
+		if log.InfoEnabled() {
+			log.Info.Printf("Filter not supported: <%s>", filterName)
+		}
 		err = ErrUnsupportedFilter
 
 	default:
@@ -95,4 +102,24 @@ func List() []string {
 
 type baseFilter struct {
 	parms map[string]int
+}
+
+func SupportsDecodeParms(f string) bool {
+	return f == CCITTFax || f == LZW || f == Flate
+}
+
+func getReaderBytes(r io.Reader) ([]byte, error) {
+	var bb []byte
+	if buf, ok := r.(*bytes.Buffer); ok {
+		bb = buf.Bytes()
+	} else {
+		var buf bytes.Buffer
+		if _, err := io.Copy(&buf, r); err != nil {
+			return nil, err
+		}
+
+		bb = buf.Bytes()
+	}
+
+	return bb, nil
 }

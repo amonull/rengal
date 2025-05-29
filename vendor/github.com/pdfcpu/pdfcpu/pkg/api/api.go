@@ -17,84 +17,127 @@
 // Package api lets you integrate pdfcpu's operations into your Go backend.
 //
 // There are two api layers supporting all pdfcpu operations:
-//  1) The file based layer (used by pdfcpu's cli)
-//  2) The io.ReadSeeker/io.Writer based layer for backend integration.
+//  1. The file based layer (used by pdfcpu's cli)
+//  2. The io.ReadSeeker/io.Writer based layer for backend integration.
 //
 // For any pdfcpu command there are two functions.
 //
 // The file based function always calls the io.ReadSeeker/io.Writer based function:
-//  func CommandFile(inFile, outFile string, conf *pdf.Configuration) error
-//  func Command(rs io.ReadSeeker, w io.Writer, conf *pdf.Configuration) error
+//
+//	func CommandFile(inFile, outFile string, conf *pdf.Configuration) error
+//	func Command(rs io.ReadSeeker, w io.Writer, conf *pdf.Configuration) error
 //
 // eg. for optimization:
-//  func OptimizeFile(inFile, outFile string, conf *pdf.Configuration) error
-//  func Optimize(rs io.ReadSeeker, w io.Writer, conf *pdf.Configuration) error
+//
+//	func OptimizeFile(inFile, outFile string, conf *pdf.Configuration) error
+//	func Optimize(rs io.ReadSeeker, w io.Writer, conf *pdf.Configuration) error
 package api
 
 import (
 	"bufio"
 	"io"
 	"os"
-	"time"
+	"sync"
 
 	"github.com/pdfcpu/pdfcpu/pkg/log"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
-
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/validate"
+	"github.com/pkg/errors"
 )
 
+func logDisclaimerPDF20() {
+	disclaimer := `
+***************************** Disclaimer ****************************
+* PDF 2.0 features are supported on a need basis.                   *
+* (See ISO 32000:2 6.3.2 Conformance of PDF processors)             *
+* At the moment pdfcpu ships with basic PDF 2.0 support.            *
+* Please let us know which feature you would like to see supported, *
+* provide a sample PDF file and create an issue:                    *
+* https://github.com/pdfcpu/pdfcpu/issues/new/choose                *
+* Thank you for using pdfcpu <3                                     *
+*********************************************************************`
+
+	if log.ValidateEnabled() {
+		log.Validate.Println(disclaimer)
+	}
+	if log.CLIEnabled() {
+		log.CLI.Println(disclaimer)
+	}
+}
+
 // ReadContext uses an io.ReadSeeker to build an internal structure holding its cross reference table aka the Context.
-func ReadContext(rs io.ReadSeeker, conf *pdfcpu.Configuration) (*pdfcpu.Context, error) {
+func ReadContext(rs io.ReadSeeker, conf *model.Configuration) (*model.Context, error) {
+	if rs == nil {
+		return nil, errors.New("pdfcpu: ReadContext: missing rs")
+	}
 	return pdfcpu.Read(rs, conf)
 }
 
 // ReadContextFile returns inFile's validated context.
-func ReadContextFile(inFile string) (*pdfcpu.Context, error) {
+func ReadContextFile(inFile string) (*model.Context, error) {
 	f, err := os.Open(inFile)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
-	ctx, err := ReadContext(f, pdfcpu.NewDefaultConfiguration())
+
+	ctx, err := ReadContext(f, model.NewDefaultConfiguration())
 	if err != nil {
 		return nil, err
 	}
-	if err = validate.XRefTable(ctx.XRefTable); err != nil {
+
+	if ctx.Conf.Version != model.VersionStr {
+		model.CheckConfigVersion(ctx.Conf.Version)
+	}
+
+	if ctx.XRefTable.Version() == model.V20 {
+		logDisclaimerPDF20()
+	}
+
+	if err = validate.XRefTable(ctx); err != nil {
 		return nil, err
 	}
+
 	return ctx, err
 }
 
 // ValidateContext validates ctx.
-func ValidateContext(ctx *pdfcpu.Context) error {
-	return validate.XRefTable(ctx.XRefTable)
+func ValidateContext(ctx *model.Context) error {
+	if ctx.XRefTable.Version() == model.V20 {
+		logDisclaimerPDF20()
+	}
+	return validate.XRefTable(ctx)
 }
 
 // OptimizeContext optimizes ctx.
-func OptimizeContext(ctx *pdfcpu.Context) error {
+func OptimizeContext(ctx *model.Context) error {
+	if log.CLIEnabled() {
+		log.CLI.Println("optimizing...")
+	}
 	return pdfcpu.OptimizeXRefTable(ctx)
 }
 
 // WriteContext writes ctx to w.
-func WriteContext(ctx *pdfcpu.Context, w io.Writer) error {
+func WriteContext(ctx *model.Context, w io.Writer) error {
 	if f, ok := w.(*os.File); ok {
 		// In order to retrieve the written file size.
 		ctx.Write.Fp = f
 	}
 	ctx.Write.Writer = bufio.NewWriter(w)
 	defer ctx.Write.Flush()
-	return pdfcpu.Write(ctx)
+	return pdfcpu.WriteContext(ctx)
 }
 
 // WriteIncrement writes a PDF increment for ctx to w.
-func WriteIncrement(ctx *pdfcpu.Context, w io.Writer) error {
+func WriteIncrement(ctx *model.Context, w io.Writer) error {
 	ctx.Write.Writer = bufio.NewWriter(w)
 	defer ctx.Write.Flush()
 	return pdfcpu.WriteIncrement(ctx)
 }
 
 // WriteContextFile writes ctx to outFile.
-func WriteContextFile(ctx *pdfcpu.Context, outFile string) error {
+func WriteContextFile(ctx *model.Context, outFile string) error {
 	f, err := os.Create(outFile)
 	if err != nil {
 		return err
@@ -103,75 +146,126 @@ func WriteContextFile(ctx *pdfcpu.Context, outFile string) error {
 	return WriteContext(ctx, f)
 }
 
-func readAndValidate(rs io.ReadSeeker, conf *pdfcpu.Configuration, from1 time.Time) (ctx *pdfcpu.Context, dur1, dur2 float64, err error) {
+// ReadAndValidate returns a model.Context of rs ready for processing.
+func ReadAndValidate(rs io.ReadSeeker, conf *model.Configuration) (ctx *model.Context, err error) {
 	if ctx, err = ReadContext(rs, conf); err != nil {
-		return nil, 0, 0, err
+		return nil, err
 	}
 
-	dur1 = time.Since(from1).Seconds()
-
-	if conf.ValidationMode == pdfcpu.ValidationNone {
-		// Bypass validation
-		return ctx, 0, 0, nil
+	if err := ValidateContext(ctx); err != nil {
+		return nil, err
 	}
 
-	from2 := time.Now()
-
-	if err = validate.XRefTable(ctx.XRefTable); err != nil {
-		return nil, 0, 0, err
-	}
-
-	dur2 = time.Since(from2).Seconds()
-
-	return ctx, dur1, dur2, nil
+	return ctx, nil
 }
 
-func readValidateAndOptimize(rs io.ReadSeeker, conf *pdfcpu.Configuration, from1 time.Time) (ctx *pdfcpu.Context, dur1, dur2, dur3 float64, err error) {
-	ctx, dur1, dur2, err = readAndValidate(rs, conf, from1)
+func cmdAssumingOptimization(cmd model.CommandMode) bool {
+	return cmd == model.OPTIMIZE ||
+		cmd == model.FILLFORMFIELDS ||
+		cmd == model.RESETFORMFIELDS ||
+		cmd == model.LISTIMAGES ||
+		cmd == model.UPDATEIMAGES ||
+		cmd == model.EXTRACTIMAGES ||
+		cmd == model.EXTRACTFONTS
+}
+
+// ReadValidateAndOptimize returns an optimized model.Context of rs ready for processing a specific command.
+// conf.Cmd is expected to be configured properly.
+func ReadValidateAndOptimize(rs io.ReadSeeker, conf *model.Configuration) (ctx *model.Context, err error) {
+	if conf == nil {
+		return nil, errors.New("pdfcpu: ReadValidateAndOptimize: missing conf")
+	}
+
+	ctx, err = ReadAndValidate(rs, conf)
 	if err != nil {
-		return nil, 0, 0, 0, err
+		return nil, err
 	}
 
-	from3 := time.Now()
-	if err = OptimizeContext(ctx); err != nil {
-		return nil, 0, 0, 0, err
+	// With the exception of commands utilizing structs provided the Optimize step
+	// command optimization of the cross reference table is optional but usually recommended.
+	// For large or complex files it may make sense to skip optimization and set conf.Optimize = false.
+	if cmdAssumingOptimization(conf.Cmd) || conf.Optimize {
+		if err = OptimizeContext(ctx); err != nil {
+			return nil, err
+		}
 	}
 
-	dur3 = time.Since(from3).Seconds()
+	// TODO move to form related commands.
+	if err := pdfcpu.CacheFormFonts(ctx); err != nil {
+		return nil, err
+	}
 
-	return ctx, dur1, dur2, dur3, nil
+	return ctx, nil
 }
 
-func logOperationStats(ctx *pdfcpu.Context, op string, durRead, durVal, durOpt, durWrite, durTotal float64) {
-	log.Stats.Printf("XRefTable:\n%s\n", ctx)
-	pdfcpu.TimingStats(op, durRead, durVal, durOpt, durWrite, durTotal)
-	if ctx.Read.FileSize > 0 {
-		ctx.Read.LogStats(ctx.Optimized)
-		ctx.Write.LogStats()
+func logWritingTo(s string) {
+	if log.CLIEnabled() {
+		log.CLI.Printf("writing %s...\n", s)
 	}
+}
+
+func Write(ctx *model.Context, w io.Writer, conf *model.Configuration) error {
+	if log.StatsEnabled() {
+		log.Stats.Printf("XRefTable:\n%s\n", ctx)
+	}
+
+	// Note side effects of validation before writing!
+	// if conf.PostProcessValidate {
+	// 	if err := ValidateContext(ctx); err != nil {
+	// 		return err
+	// 	}
+	// }
+
+	return WriteContext(ctx, w)
+}
+
+func WriteIncr(ctx *model.Context, rws io.ReadWriteSeeker, conf *model.Configuration) error {
+	if log.StatsEnabled() {
+		log.Stats.Printf("XRefTable:\n%s\n", ctx)
+	}
+
+	if conf.PostProcessValidate {
+		if err := ValidateContext(ctx); err != nil {
+			return err
+		}
+	}
+
+	if _, err := rws.Seek(0, io.SeekEnd); err != nil {
+		return err
+	}
+
+	return WriteIncrement(ctx, rws)
 }
 
 // EnsureDefaultConfigAt switches to the pdfcpu config dir located at path.
 // If path/pdfcpu is not existent, it will be created including config.yml
 func EnsureDefaultConfigAt(path string) error {
 	// Call if you have specific requirements regarding the location of the pdfcpu config dir.
-	return pdfcpu.EnsureDefaultConfigAt(path)
+	return model.EnsureDefaultConfigAt(path, false)
 }
+
+var (
+	// mutexDisableConfigDir protects DisableConfigDir from concurrent access.
+	// NOTE Not a guard for model.ConfigPath!
+	mutexDisableConfigDir sync.Mutex
+)
 
 // DisableConfigDir disables the configuration directory.
 // Any needed default configuration will be loaded from configuration.go
 // Since the config dir also contains the user font dir, this also limits font usage to the default core font set
 // No user fonts will be available.
 func DisableConfigDir() {
+	mutexDisableConfigDir.Lock()
+	defer mutexDisableConfigDir.Unlock()
 	// Call if you don't want to use a specific configuration
 	// and also do not need to use user fonts.
-	pdfcpu.ConfigPath = "disable"
+	model.ConfigPath = "disable"
 }
 
 // LoadConfiguration locates and loads the default configuration
 // and also loads installed user fonts.
-func LoadConfiguration() *pdfcpu.Configuration {
+func LoadConfiguration() *model.Configuration {
 	// Call if you don't have a specific config dir location
 	// and need to use user fonts for stamping or watermarking.
-	return pdfcpu.NewDefaultConfiguration()
+	return model.NewDefaultConfiguration()
 }
