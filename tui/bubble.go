@@ -300,7 +300,7 @@ func (b *statefulBubble) loadProviders() tea.Cmd {
 	slices.SortFunc(items, func(a, b list.Item) int {
 		// temporary workaround for placing mangadex second because it is not stable for now
 		// but, you know, there is nothing more permanent than a temporary solution
-		return strings.Compare(a.FilterValue(), b.FilterValue())
+		return strings.Compare(b.FilterValue(), a.FilterValue())
 	})
 
 	var customItems []list.Item
