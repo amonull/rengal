@@ -22,7 +22,7 @@ help:
 	@echo "  install      Install the mangal binary"
 	@echo "  uninstall    Uninstall the mangal binary"
 	@echo "  test         Run the tests"
-	@echo "  clean-code   runs goimport on all go files not in ./vendor"
+	@echo "  format 	  formats code using golangci-lint fmt"
 	@echo "  gif          Generate usage gifs"
 	@echo "  help         Show this help message"
 	@echo ""
@@ -40,8 +40,10 @@ test:
 uninstall:
 	@rm -f $(shell which mangal)
 
-clean-code:
-	@find . -not -path "./vendor/*" -type f -name "*.go" -exec goimports -w -d {} \; > $(OUTDIR)/goimport.diff
+# stores diff first and then runs cmd (could not figure out how to do both at the same time)
+format:
+	@golangci-lint fmt -d > out/golangci-lint-fmt.diff
+	@golangci-lint fmt
 
 gif:
 	@vhs assets/tui.tape
