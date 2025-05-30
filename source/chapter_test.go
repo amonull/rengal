@@ -2,13 +2,14 @@ package source
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/util"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/viper"
-	"testing"
 )
 
 func init() {

@@ -2,15 +2,16 @@ package plain
 
 import (
 	"bytes"
+	"io/fs"
+	"os"
+	"path/filepath"
+	"testing"
+
 	"github.com/amonull/rengal/config"
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/source"
 	"github.com/samber/lo"
 	. "github.com/smartystreets/goconvey/convey"
-	"io/fs"
-	"os"
-	"path/filepath"
-	"testing"
 )
 
 func init() {

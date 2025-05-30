@@ -2,6 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/amonull/rengal/color"
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/converter"
@@ -18,8 +21,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"os"
-	"strings"
 )
 
 func init() {

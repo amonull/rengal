@@ -1,11 +1,12 @@
 package version
 
 import (
-	"github.com/amonull/rengal/constant"
-	. "github.com/smartystreets/goconvey/convey"
 	"regexp"
 	"runtime"
 	"testing"
+
+	"github.com/amonull/rengal/constant"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestLatestVersion(t *testing.T) {

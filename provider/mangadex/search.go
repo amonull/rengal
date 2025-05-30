@@ -2,13 +2,14 @@ package mangadex
 
 import (
 	"fmt"
+	"log"
+	"net/url"
+	"strconv"
+
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/source"
 	"github.com/darylhjd/mangodex"
 	"github.com/spf13/viper"
-	"log"
-	"net/url"
-	"strconv"
 )
 
 func (m *Mangadex) Search(query string) ([]*source.Manga, error) {

@@ -3,16 +3,17 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
+	"strconv"
+	"strings"
+	"text/template"
+
 	"github.com/amonull/rengal/color"
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/style"
 	"github.com/samber/lo"
 	"github.com/spf13/viper"
-	"reflect"
-	"strconv"
-	"strings"
-	"text/template"
 )
 
 // Field represents a single config field

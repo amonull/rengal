@@ -1,8 +1,9 @@
 package anilist
 
 import (
-	. "github.com/smartystreets/goconvey/convey"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestFindClosest(t *testing.T) {

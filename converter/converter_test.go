@@ -1,9 +1,10 @@
 package converter
 
 import (
+	"testing"
+
 	"github.com/amonull/rengal/constant"
 	. "github.com/smartystreets/goconvey/convey"
-	"testing"
 )
 
 func TestGet(t *testing.T) {

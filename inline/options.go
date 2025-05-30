@@ -2,14 +2,15 @@ package inline
 
 import (
 	"fmt"
-	"github.com/amonull/rengal/source"
-	"github.com/amonull/rengal/util"
-	"github.com/samber/lo"
-	"github.com/samber/mo"
 	"io"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/amonull/rengal/source"
+	"github.com/amonull/rengal/util"
+	"github.com/samber/lo"
+	"github.com/samber/mo"
 )
 
 type (

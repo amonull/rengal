@@ -1,10 +1,11 @@
 package custom
 
 import (
+	"strconv"
+
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/source"
 	lua "github.com/yuin/gopher-lua"
-	"strconv"
 )
 
 func (s *luaSource) Search(query string) ([]*source.Manga, error) {

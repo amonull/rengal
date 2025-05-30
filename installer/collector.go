@@ -1,11 +1,12 @@
 package installer
 
 import (
+	"path/filepath"
+
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/util"
 	"github.com/samber/lo"
 	"github.com/spf13/viper"
-	"path/filepath"
 )
 
 var collector *githubFilesCollector

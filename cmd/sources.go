@@ -2,17 +2,18 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"os/user"
+	"path/filepath"
+	"strings"
+	"text/template"
+
 	"github.com/amonull/rengal/color"
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/tui"
 	"github.com/amonull/rengal/util"
 	"github.com/spf13/viper"
-	"os"
-	"os/user"
-	"path/filepath"
-	"strings"
-	"text/template"
 
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/icon"

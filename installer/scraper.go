@@ -4,12 +4,13 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/amonull/rengal/filesystem"
-	"github.com/amonull/rengal/where"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/amonull/rengal/filesystem"
+	"github.com/amonull/rengal/where"
 )
 
 type Scraper struct {

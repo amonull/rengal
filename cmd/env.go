@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"os"
+	"strings"
+
 	"github.com/amonull/rengal/color"
 	"github.com/amonull/rengal/config"
 	"github.com/amonull/rengal/constant"
@@ -9,8 +12,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
 	"golang.org/x/exp/slices"
-	"os"
-	"strings"
 )
 
 func init() {

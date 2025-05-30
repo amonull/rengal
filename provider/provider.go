@@ -1,14 +1,15 @@
 package provider
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/provider/custom"
 	"github.com/amonull/rengal/source"
 	"github.com/amonull/rengal/util"
 	"github.com/amonull/rengal/where"
 	"github.com/samber/lo"
-	"os"
-	"path/filepath"
 )
 
 type Provider struct {

@@ -3,11 +3,12 @@ package mini
 import (
 	"bufio"
 	"fmt"
-	"github.com/amonull/rengal/color"
-	"github.com/amonull/rengal/style"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/amonull/rengal/color"
+	"github.com/amonull/rengal/style"
 )
 
 type input struct {

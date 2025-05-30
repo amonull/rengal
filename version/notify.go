@@ -2,6 +2,7 @@ package version
 
 import (
 	"fmt"
+
 	"github.com/amonull/rengal/color"
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/icon"

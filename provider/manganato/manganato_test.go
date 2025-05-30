@@ -1,9 +1,10 @@
 package manganato
 
 import (
+	"testing"
+
 	"github.com/amonull/rengal/provider/generic"
 	. "github.com/smartystreets/goconvey/convey"
-	"testing"
 )
 
 func TestManganelo(t *testing.T) {

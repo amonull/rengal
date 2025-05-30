@@ -3,6 +3,9 @@ package downloader
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
+
 	"github.com/amonull/rengal/color"
 	"github.com/amonull/rengal/converter"
 	"github.com/amonull/rengal/filesystem"
@@ -12,8 +15,6 @@ import (
 	"github.com/amonull/rengal/source"
 	"github.com/amonull/rengal/style"
 	"github.com/spf13/viper"
-	"os"
-	"path/filepath"
 )
 
 // Download the chapter using given source.

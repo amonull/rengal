@@ -1,11 +1,12 @@
 package update
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/log"
-	"os"
-	"path/filepath"
 )
 
 type downloadedChapter struct {

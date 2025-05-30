@@ -2,6 +2,8 @@ package tui
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/amonull/rengal/anilist"
 	"github.com/amonull/rengal/history"
 	"github.com/amonull/rengal/icon"
@@ -9,7 +11,6 @@ import (
 	"github.com/amonull/rengal/provider"
 	"github.com/amonull/rengal/source"
 	"github.com/amonull/rengal/style"
-	"strings"
 )
 
 type listItem struct {

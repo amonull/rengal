@@ -2,11 +2,12 @@ package zip
 
 import (
 	"archive/zip"
+	"io"
+	"time"
+
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/source"
 	"github.com/amonull/rengal/util"
-	"io"
-	"time"
 )
 
 type ZIP struct{}

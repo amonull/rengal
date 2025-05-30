@@ -1,12 +1,13 @@
 package inline
 
 import (
+	"os"
+
 	"github.com/amonull/rengal/downloader"
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/log"
 	"github.com/amonull/rengal/source"
 	"github.com/spf13/viper"
-	"os"
 )
 
 func Run(options *Options) (err error) {

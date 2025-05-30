@@ -1,9 +1,10 @@
 package generic
 
 import (
+	"net/http"
+
 	"github.com/amonull/rengal/source"
 	"github.com/gocolly/colly/v2"
-	"net/http"
 )
 
 // ChaptersOf given source.Manga

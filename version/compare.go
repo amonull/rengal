@@ -2,8 +2,9 @@ package version
 
 import (
 	"fmt"
-	"github.com/samber/lo"
 	"strings"
+
+	"github.com/samber/lo"
 )
 
 func Compare(a, b string) (int, error) {

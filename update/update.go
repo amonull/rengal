@@ -3,15 +3,16 @@ package update
 import (
 	"bytes"
 	"encoding/json"
+	"os"
+	"path/filepath"
+	"strings"
+
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/converter/cbz"
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/log"
 	"github.com/amonull/rengal/source"
 	"github.com/amonull/rengal/util"
-	"os"
-	"path/filepath"
-	"strings"
 )
 
 func Metadata(mangaPath string) error {
