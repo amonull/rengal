@@ -3,13 +3,14 @@ package version
 import (
 	"encoding/json"
 	"errors"
+	"net/http"
+	"path/filepath"
+	"time"
+
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/util"
 	"github.com/amonull/rengal/where"
 	"github.com/metafates/gache"
-	"net/http"
-	"path/filepath"
-	"time"
 )
 
 var versionCacher = gache.New[string](&gache.Options{

@@ -1,11 +1,12 @@
 package util
 
 import (
+	"path/filepath"
+	"testing"
+
 	"github.com/amonull/rengal/filesystem"
 	"github.com/samber/lo"
 	. "github.com/smartystreets/goconvey/convey"
-	"path/filepath"
-	"testing"
 )
 
 func TestUnzip(t *testing.T) {

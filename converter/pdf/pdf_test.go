@@ -2,6 +2,10 @@ package pdf
 
 import (
 	"bytes"
+	"io/fs"
+	"path/filepath"
+	"testing"
+
 	"github.com/amonull/rengal/config"
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/filesystem"
@@ -10,9 +14,6 @@ import (
 	"github.com/samber/lo"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/viper"
-	"io/fs"
-	"path/filepath"
-	"testing"
 )
 
 func init() {

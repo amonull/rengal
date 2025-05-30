@@ -3,9 +3,10 @@ package update
 import (
 	"encoding/json"
 	"fmt"
+	"path/filepath"
+
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/source"
-	"path/filepath"
 )
 
 func getSeriesJSON(manga string) (*source.SeriesJSON, error) {

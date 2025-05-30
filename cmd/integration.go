@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/amonull/rengal/icon"
 	"github.com/amonull/rengal/integration/anilist"

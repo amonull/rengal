@@ -2,10 +2,11 @@ package mini
 
 import (
 	"errors"
+	"os"
+
 	"github.com/amonull/rengal/source"
 	"github.com/amonull/rengal/util"
 	"github.com/samber/lo"
-	"os"
 )
 
 var (

@@ -1,8 +1,9 @@
 package filesystem
 
 import (
-	. "github.com/smartystreets/goconvey/convey"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestApi(t *testing.T) {

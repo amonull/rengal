@@ -3,8 +3,9 @@ package mangadex
 import (
 	"bytes"
 	"errors"
-	"github.com/amonull/rengal/source"
 	"path/filepath"
+
+	"github.com/amonull/rengal/source"
 )
 
 func (m *Mangadex) PagesOf(chapter *source.Chapter) ([]*source.Page, error) {

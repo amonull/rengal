@@ -2,6 +2,8 @@ package converter
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/converter/cbz"
 	"github.com/amonull/rengal/converter/pdf"
@@ -9,7 +11,6 @@ import (
 	"github.com/amonull/rengal/converter/zip"
 	"github.com/amonull/rengal/source"
 	"github.com/samber/lo"
-	"strings"
 )
 
 // Converter is the interface that all converters must implement.

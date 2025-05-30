@@ -1,14 +1,15 @@
 package generic
 
 import (
+	"path/filepath"
+	"strings"
+	"time"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/source"
 	"github.com/amonull/rengal/where"
 	"github.com/gocolly/colly/v2"
-	"path/filepath"
-	"strings"
-	"time"
 )
 
 // New generates a new scraper with given configuration

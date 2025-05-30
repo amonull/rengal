@@ -1,14 +1,15 @@
 package cmd
 
 import (
-	"github.com/amonull/rengal/color"
-	"github.com/amonull/rengal/style"
-	"github.com/amonull/rengal/version"
-	"github.com/samber/lo"
 	"os"
 	"runtime"
 	"strings"
 	"text/template"
+
+	"github.com/amonull/rengal/color"
+	"github.com/amonull/rengal/style"
+	"github.com/amonull/rengal/version"
+	"github.com/samber/lo"
 
 	"github.com/amonull/rengal/constant"
 	"github.com/spf13/cobra"

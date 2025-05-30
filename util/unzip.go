@@ -3,11 +3,12 @@ package util
 import (
 	"archive/zip"
 	"fmt"
-	"github.com/amonull/rengal/filesystem"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/amonull/rengal/filesystem"
 )
 
 func Unzip(zipStream io.ReaderAt, size int64, dest string) error {

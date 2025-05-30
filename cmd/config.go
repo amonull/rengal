@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/amonull/rengal/color"
 	"os"
 	"path/filepath"
 	"sort"
 	"strconv"
+
+	"github.com/amonull/rengal/color"
 
 	"github.com/amonull/rengal/config"
 	"github.com/amonull/rengal/constant"

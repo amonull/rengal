@@ -2,6 +2,7 @@ package inline
 
 import (
 	"encoding/json"
+
 	"github.com/amonull/rengal/anilist"
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/source"

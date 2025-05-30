@@ -3,15 +3,16 @@ package log
 import (
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
+	"time"
+
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/where"
 	"github.com/samber/lo"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"os"
-	"path/filepath"
-	"time"
 )
 
 var writeLogs bool

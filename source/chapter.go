@@ -2,6 +2,12 @@ package source
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/key"
@@ -10,11 +16,6 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/samber/mo"
 	"github.com/spf13/viper"
-	"os"
-	"path/filepath"
-	"strings"
-	"sync"
-	"time"
 )
 
 // Chapter is a struct that represents a chapter of a manga.

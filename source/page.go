@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	_ "image/gif"
+	"io"
+	"net/http"
+
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/log"
 	"github.com/amonull/rengal/network"
 	"github.com/amonull/rengal/util"
-	_ "image/gif"
-	"io"
-	"net/http"
 )
 
 // Page represents a page in a chapter

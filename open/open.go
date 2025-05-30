@@ -2,12 +2,13 @@ package open
 
 import (
 	"fmt"
-	"github.com/amonull/rengal/constant"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/amonull/rengal/constant"
 )
 
 var (

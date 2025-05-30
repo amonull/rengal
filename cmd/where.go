@@ -1,9 +1,10 @@
 package cmd
 
 import (
+	"os"
+
 	"github.com/amonull/rengal/color"
 	"github.com/samber/mo"
-	"os"
 
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/style"

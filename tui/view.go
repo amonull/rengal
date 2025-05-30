@@ -2,6 +2,10 @@ package tui
 
 import (
 	"fmt"
+	"math/rand"
+	"strconv"
+	"strings"
+
 	"github.com/amonull/rengal/color"
 	"github.com/amonull/rengal/icon"
 	"github.com/amonull/rengal/key"
@@ -10,9 +14,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/muesli/reflow/wrap"
 	"github.com/spf13/viper"
-	"math/rand"
-	"strconv"
-	"strings"
 )
 
 func (b *statefulBubble) View() string {

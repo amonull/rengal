@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/amonull/rengal/log"
 	"github.com/amonull/rengal/network"
 	"github.com/amonull/rengal/query"
 	"github.com/samber/lo"
-	"net/http"
-	"strconv"
 )
 
 type searchByNameResponse struct {

@@ -3,9 +3,10 @@ package installer
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/amonull/rengal/util"
 	"io"
 	"net/http"
+
+	"github.com/amonull/rengal/util"
 )
 
 type GithubFile struct {

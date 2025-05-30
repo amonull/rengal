@@ -2,6 +2,13 @@ package source
 
 import (
 	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"path/filepath"
+	"regexp"
+	"strings"
+
 	"github.com/amonull/rengal/anilist"
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/key"
@@ -11,12 +18,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/samber/mo"
 	"github.com/spf13/viper"
-	"io"
-	"net/http"
-	"os"
-	"path/filepath"
-	"regexp"
-	"strings"
 )
 
 type date struct {

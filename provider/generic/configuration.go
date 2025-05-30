@@ -1,8 +1,9 @@
 package generic
 
 import (
-	"github.com/PuerkitoBio/goquery"
 	"time"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 // Extractor is responsible for finding specified elements by selector and extracting required data from them

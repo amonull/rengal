@@ -2,11 +2,12 @@ package manganelo
 
 import (
 	"fmt"
-	"github.com/PuerkitoBio/goquery"
-	"github.com/amonull/rengal/provider/generic"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/PuerkitoBio/goquery"
+	"github.com/amonull/rengal/provider/generic"
 )
 
 var Config = &generic.Configuration{

@@ -2,10 +2,11 @@ package history
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/source"
 	. "github.com/smartystreets/goconvey/convey"
-	"testing"
 )
 
 type testSource struct{}

@@ -2,11 +2,12 @@ package anilist
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/amonull/rengal/log"
 	"github.com/amonull/rengal/util"
 	levenshtein "github.com/ka-weihe/fast-levenshtein"
 	"github.com/samber/lo"
-	"strings"
 )
 
 // normalizedName returns a normalized name for comparison

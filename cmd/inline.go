@@ -4,6 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"os"
+	"path/filepath"
+	"reflect"
+	"strings"
+
 	"github.com/amonull/rengal/anilist"
 	"github.com/amonull/rengal/converter"
 	"github.com/amonull/rengal/filesystem"
@@ -18,11 +24,6 @@ import (
 	"github.com/samber/mo"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"io"
-	"os"
-	"path/filepath"
-	"reflect"
-	"strings"
 )
 
 func init() {
