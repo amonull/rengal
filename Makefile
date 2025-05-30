@@ -1,3 +1,5 @@
+.PHONY: format
+
 MAKEFLAGS += --silent
 
 ldflags := -X 'github.com/amonull/rengal/constant.BuiltAt=$(shell date -u)'
@@ -10,7 +12,7 @@ build_flags := -ldflags=${ldflags}
 
 OUTDIR := ./out
 
-$(shell mkdir $(OUTDIR))
+$(shell mkdir -p $(OUTDIR))
 
 all: help
 
@@ -24,6 +26,7 @@ help:
 	@echo "  test         Run the tests"
 	@echo "  format 	  formats code using golangci-lint fmt"
 	@echo "  gif          Generate usage gifs"
+	@echo "	 soft-clean   removes out folder"
 	@echo "  help         Show this help message"
 	@echo ""
 
@@ -42,8 +45,11 @@ uninstall:
 
 # stores diff first and then runs cmd (could not figure out how to do both at the same time)
 format:
-	@golangci-lint fmt -d > out/golangci-lint-fmt.diff
+	@golangci-lint fmt -d > $(OUTDIR)/golangci-lint-fmt.diff
 	@golangci-lint fmt
+
+soft-clean:
+	@rm -rf $(OUTDIR)
 
 gif:
 	@vhs assets/tui.tape
