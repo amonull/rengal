@@ -162,3 +162,17 @@ func Delete(path string) error {
 
 	return filesystem.Api().Remove(path)
 }
+
+// Method to compare two integer values and returning int for usage within comparable interface
+// impl funcs
+func CompareInt(a int, b int) int {
+	if a < b {
+		return 1
+	}
+
+	if a > b {
+		return -1
+	}
+
+	return 0
+}

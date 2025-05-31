@@ -8,6 +8,7 @@ import (
 	"golang.org/x/exp/slices"
 
 	"github.com/amonull/rengal/key"
+	"github.com/amonull/rengal/util"
 )
 
 var (
@@ -38,15 +39,7 @@ func SuggestMany(query string) []string {
 		}
 
 		slices.SortFunc(records, func(a, b *queryRecord) int {
-			if a.Rank < b.Rank {
-				return 1
-			}
-
-			if a.Rank > b.Rank {
-				return -1
-			}
-
-			return 0
+			return util.CompareInt(a.Rank, b.Rank)
 		})
 
 		suggestionCache[query] = records
