@@ -274,40 +274,11 @@ func (m *Manga) PopulateMetadata(progress func(string)) error {
 	m.Metadata.Status = strings.ReplaceAll(manga.Status, "_", " ")
 	m.Metadata.Synonyms = manga.Synonyms
 
-	m.Metadata.Staff.Story = make([]string, 0)
-	m.Metadata.Staff.Art = make([]string, 0)
-	m.Metadata.Staff.Translation = make([]string, 0)
-	m.Metadata.Staff.Lettering = make([]string, 0)
-
 	m.Metadata.Chapters = manga.Chapters
 
-	for _, staff := range manga.Staff.Edges {
-		role := strings.ToLower(staff.Role)
-		switch {
-		case strings.Contains(role, "story"):
-			m.Metadata.Staff.Story = append(m.Metadata.Staff.Story, staff.Node.Name.Full)
-		case strings.Contains(role, "art"):
-			m.Metadata.Staff.Art = append(m.Metadata.Staff.Art, staff.Node.Name.Full)
-		case strings.Contains(role, "translator"):
-			m.Metadata.Staff.Translation = append(m.Metadata.Staff.Translation, staff.Node.Name.Full)
-		case strings.Contains(role, "lettering"):
-			m.Metadata.Staff.Lettering = append(m.Metadata.Staff.Lettering, staff.Node.Name.Full)
-		}
-	}
+	m.populateMetadataStaff(manga)
 
-	// Anilist & Myanimelist + external
-	urls := make([]string, 2+len(manga.External))
-	urls[0] = manga.SiteURL
-	for i, e := range manga.External {
-		urls[i+1] = e.URL
-	}
-
-	urls = lo.Filter(urls, func(url string, _ int) bool {
-		return url != ""
-	})
-
-	urls = append(urls, fmt.Sprintf("https://myanimelist.net/manga/%d", manga.IDMal))
-	m.Metadata.URLs = urls
+	m.populateMetadataUrl(manga)
 
 	return nil
 }
@@ -358,4 +329,42 @@ func (m *Manga) peekPath() string {
 	}
 
 	return path
+}
+
+func (m *Manga) populateMetadataStaff(manga *anilist.Manga) {
+	m.Metadata.Staff.Story = make([]string, 0, 0)
+	m.Metadata.Staff.Art = make([]string, 0, 0)
+	m.Metadata.Staff.Translation = make([]string, 0, 0)
+	m.Metadata.Staff.Lettering = make([]string, 0, 0)
+
+	for _, staff := range manga.Staff.Edges {
+		role := strings.ToLower(staff.Role)
+		switch {
+		case strings.Contains(role, "story"):
+			m.Metadata.Staff.Story = append(m.Metadata.Staff.Story, staff.Node.Name.Full)
+		case strings.Contains(role, "art"):
+			m.Metadata.Staff.Art = append(m.Metadata.Staff.Art, staff.Node.Name.Full)
+		case strings.Contains(role, "translator"):
+			m.Metadata.Staff.Translation = append(m.Metadata.Staff.Translation, staff.Node.Name.Full)
+		case strings.Contains(role, "lettering"):
+			m.Metadata.Staff.Lettering = append(m.Metadata.Staff.Lettering, staff.Node.Name.Full)
+		}
+	}
+}
+
+func (m *Manga) populateMetadataUrl(manga *anilist.Manga) {
+	// Anilist & Myanimelist + external
+	urls := make([]string, 2+len(manga.External))
+	urls[0] = manga.SiteURL
+	for i, e := range manga.External {
+		urls[i+1] = e.URL
+	}
+
+	urls = lo.Filter(urls, func(url string, _ int) bool {
+		return url != ""
+	})
+
+	urls = append(urls, fmt.Sprintf("https://myanimelist.net/manga/%d", manga.IDMal))
+
+	m.Metadata.URLs = urls
 }

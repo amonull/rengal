@@ -57,7 +57,6 @@ func Customs() []*Provider {
 		})
 
 		name := util.FileStem(path)
-		path := path
 		providers[i] = &Provider{
 			ID:           custom.IDfromName(name),
 			UsesHeadless: usesHeadless,

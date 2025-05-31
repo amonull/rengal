@@ -8,6 +8,7 @@ import (
 	"github.com/amonull/rengal/provider/generic"
 )
 
+//nolint:gocognit
 func TestManganelo(t *testing.T) {
 	Convey("Given a manganato instance", t, func() {
 		mangakakalot := generic.New(Config)

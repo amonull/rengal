@@ -41,11 +41,11 @@ func translate(
 		}
 
 		if err != nil {
-			return
+			return err
 		}
 	}
 
-	return
+	return err
 }
 
 func mangaFromTable(table *lua.LTable, index uint16) (manga *source.Manga, err error) {
@@ -80,7 +80,7 @@ func mangaFromTable(table *lua.LTable, index uint16) (manga *source.Manga, err e
 	}
 
 	err = translate(table, mappings)
-	return
+	return manga, err
 }
 
 func chapterFromTable(table *lua.LTable, manga *source.Manga, index uint16) (chapter *source.Chapter, err error) {
@@ -121,7 +121,7 @@ func chapterFromTable(table *lua.LTable, manga *source.Manga, index uint16) (cha
 
 	err = translate(table, mappings)
 	manga.Chapters = append(manga.Chapters, chapter)
-	return
+	return chapter, err
 }
 
 func pageFromTable(table *lua.LTable, chapter *source.Chapter) (page *source.Page, err error) {
@@ -144,10 +144,10 @@ func pageFromTable(table *lua.LTable, chapter *source.Chapter) (page *source.Pag
 
 	err = translate(table, mappings)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	page.Extension = filepath.Ext(page.URL)
 	chapter.Pages = append(chapter.Pages, page)
-	return
+	return page, err
 }

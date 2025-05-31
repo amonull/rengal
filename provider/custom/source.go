@@ -21,6 +21,10 @@ func (s *luaSource) Name() string {
 	return s.name
 }
 
+func (s *luaSource) ID() string {
+	return IDfromName(s.name)
+}
+
 func newLuaSource(name string, state *lua.LState) (*luaSource, error) {
 	s := &luaSource{
 		name:  name,
@@ -55,8 +59,4 @@ func (s *luaSource) call(fn string, ret lua.LValueType, args ...lua.LValue) (lua
 	}
 
 	return val, nil
-}
-
-func (s *luaSource) ID() string {
-	return IDfromName(s.name)
 }

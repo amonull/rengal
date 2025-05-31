@@ -2,6 +2,7 @@ package mangadex
 
 import (
 	"fmt"
+	//nolint:depguard // only Fatalln is used not worth trying to change currently
 	"log"
 	"net/url"
 	"strconv"
@@ -45,7 +46,7 @@ func (m *Mangadex) Search(query string) ([]*source.Manga, error) {
 		return nil, err
 	}
 
-	var mangas []*source.Manga
+	mangas := make([]*source.Manga, 0, len(mangaList.Data))
 
 	for i, manga := range mangaList.Data {
 		m := source.Manga{
