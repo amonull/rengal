@@ -27,68 +27,119 @@ func Download(chapter *source.Chapter, progress func(string)) (string, error) {
 		return "", err
 	}
 
-	if viper.GetBool(key.DownloaderRedownloadExisting) {
-		log.Info("chapter already downloaded, deleting and redownloading")
-		err = filesystem.Api().Remove(path)
-		if err != nil {
-			log.Warn(err)
-		}
-	} else {
-		log.Info("checking if chapter is already downloaded")
-		if chapter.IsDownloaded() {
-			log.Info("chapter already downloaded, skipping")
-			return path, nil
-		}
+	if !viper.GetBool(key.DownloaderRedownloadExisting) && chapter.IsDownloaded() {
+		log.Info("chapter already downloaded, skipping")
+		return path, nil
 	}
 
-	progress("Getting pages")
-	pages, err := chapter.Source().PagesOf(chapter)
+	// non-fatal err
+	log.Info("chapter already downloaded, deleting and redownloading")
+	err = filesystem.Api().Remove(path)
+	if err != nil {
+		log.Warn(err)
+	}
+
+	// fatal err
+	pages, err := downloadPages(chapter, progress)
 	if err != nil {
 		log.Error(err)
 		return "", err
+	}
+
+	// non-fatal err
+	if viper.GetBool(key.MetadataFetchAnilist) {
+		if err := fetchMetadata(chapter, progress); err != nil {
+			log.Warn(err)
+		}
+	}
+
+	// non-fatal err
+	if viper.GetBool(key.MetadataSeriesJSON) {
+		if err := writeMetadata(chapter, progress); err != nil {
+			log.Warn(err)
+		}
+	}
+
+	// non-fatal err
+	if viper.GetBool(key.DownloaderDownloadCover) {
+		if err := downloadCover(chapter, progress); err != nil {
+			log.Warn(err)
+		}
+	}
+
+	// fatal err
+	if path, err = convertDownloadedContent(chapter, pages, progress); err != nil {
+		log.Error(err)
+		return "", err
+	}
+
+	// non-fatal err
+	if viper.GetBool(key.HistorySaveOnDownload) {
+		if err := saveHistory(chapter); err != nil {
+			log.Warn(err)
+		} else {
+			log.Info("history saved")
+		}
+	}
+
+	log.Info("downloaded without errors")
+	progress("Downloaded")
+	return path, nil
+}
+
+func downloadPages(chapter *source.Chapter, progress func(string)) ([]*source.Page, error) {
+	progress("Getting pages")
+
+	pages, err := chapter.Source().PagesOf(chapter)
+	if err != nil {
+		return nil, err
 	}
 	log.Info("found " + fmt.Sprintf("%d", len(pages)) + " pages")
 
 	err = chapter.DownloadPages(false, progress)
 	if err != nil {
-		log.Error(err)
-		return "", err
+		return nil, err
 	}
 
-	if viper.GetBool(key.MetadataFetchAnilist) {
-		err := chapter.Manga.PopulateMetadata(progress)
-		if err != nil {
-			log.Warn(err)
-		}
+	return pages, nil
+}
+
+// uses anilist to fetch metadata
+func fetchMetadata(chapter *source.Chapter, progress func(string)) error {
+	return chapter.Manga.PopulateMetadata(progress)
+}
+
+// writes metadata as json
+func writeMetadata(chapter *source.Chapter, progress func(string)) error {
+	path, err := chapter.Manga.Path(false)
+	if err != nil {
+		return err
 	}
 
-	if viper.GetBool(key.MetadataSeriesJSON) {
-		path, err := chapter.Manga.Path(false)
-		if err != nil {
-			log.Warn(err)
-		} else {
-			path = filepath.Join(path, "series.json")
-			progress("Generating series.json")
-			seriesJSON := chapter.Manga.SeriesJSON()
-			buf, err := json.Marshal(seriesJSON)
-			if err != nil {
-				log.Warn(err)
-			} else {
-				err = filesystem.Api().WriteFile(path, buf, os.ModePerm)
-				if err != nil {
-					log.Warn(err)
-				}
-			}
-		}
+	path = filepath.Join(path, "series.json")
+	progress("Generating series.json")
+	seriesJSON := chapter.Manga.SeriesJSON()
+
+	buf, err := json.Marshal(seriesJSON)
+	if err != nil {
+		return err
 	}
 
-	if viper.GetBool(key.DownloaderDownloadCover) {
-		coverDir, err := chapter.Manga.Path(false)
-		if err == nil {
-			_ = chapter.Manga.DownloadCover(false, coverDir, progress)
-		}
+	return filesystem.Api().WriteFile(path, buf, os.ModePerm)
+}
+
+// downloads the cover of content
+func downloadCover(chapter *source.Chapter, progress func(string)) error {
+	coverDir, err := chapter.Manga.Path(false)
+	if err != nil {
+		return err
 	}
 
+	return chapter.Manga.DownloadCover(false, coverDir, progress)
+}
+
+// converts the downloaded content onto user specified format
+func convertDownloadedContent(chapter *source.Chapter, pages []*source.Page, progress func(string)) (string, error) {
 	log.Info("getting " + viper.GetString(key.FormatsUse) + " converter")
 	progress(fmt.Sprintf(
 		"Converting %d pages to %s %s",
@@ -103,24 +154,9 @@ func Download(chapter *source.Chapter, progress func(string)) (string, error) {
 	}
 
 	log.Info("converting " + viper.GetString(key.FormatsUse))
-	path, err = conv.Save(chapter)
-	if err != nil {
-		log.Error(err)
-		return "", err
-	}
+	return conv.Save(chapter)
+}
 
-	if viper.GetBool(key.HistorySaveOnDownload) {
-		go func() {
-			err = history.Save(chapter)
-			if err != nil {
-				log.Warn(err)
-			} else {
-				log.Info("history saved")
-			}
-		}()
-	}
-
-	log.Info("downloaded without errors")
-	progress("Downloaded")
-	return path, nil
+func saveHistory(chapter *source.Chapter) error {
+	return history.Save(chapter)
 }
