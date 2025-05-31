@@ -28,9 +28,7 @@
                 // Nice To Have
                 "DavidAnson.vscode-markdownlint",
                 "redhat.vscode-yaml",
-                "timonwong.shellcheck",
-                // QOL
-                "streetsidesoftware.code-spell-checker"
+                "timonwong.shellcheck"
             ]
         }
     },
