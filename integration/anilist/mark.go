@@ -36,9 +36,9 @@ func (a *Anilist) MarkRead(chapter *source.Chapter) error {
 	}
 
 	// prepare body
-	body := map[string]interface{}{
+	body := map[string]any{
 		"query": markReadQuery,
-		"variables": map[string]interface{}{
+		"variables": map[string]any{
 			"ID":       manga.ID,
 			"progress": chapter.Index,
 		},

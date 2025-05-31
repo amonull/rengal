@@ -1,12 +1,13 @@
 package query
 
 import (
-	"github.com/amonull/rengal/key"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"github.com/samber/lo"
 	"github.com/samber/mo"
 	"github.com/spf13/viper"
 	"golang.org/x/exp/slices"
+
+	"github.com/amonull/rengal/key"
 )
 
 var (

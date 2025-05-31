@@ -8,12 +8,13 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/samber/lo"
+	"github.com/spf13/viper"
+
 	"github.com/amonull/rengal/color"
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/style"
-	"github.com/samber/lo"
-	"github.com/spf13/viper"
 )
 
 // Field represents a single config field

@@ -7,11 +7,12 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/samber/lo"
+	. "github.com/smartystreets/goconvey/convey"
+
 	"github.com/amonull/rengal/config"
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/source"
-	"github.com/samber/lo"
-	. "github.com/smartystreets/goconvey/convey"
 )
 
 func init() {

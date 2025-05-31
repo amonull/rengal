@@ -5,10 +5,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/amonull/rengal/filesystem"
-	"github.com/amonull/rengal/util"
 	"github.com/samber/lo"
 	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/amonull/rengal/filesystem"
+	"github.com/amonull/rengal/util"
 )
 
 func init() {

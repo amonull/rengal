@@ -6,15 +6,16 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/samber/lo"
+	"github.com/spf13/viper"
+	"golang.org/x/exp/slices"
+
 	"github.com/amonull/rengal/downloader"
 	"github.com/amonull/rengal/history"
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/provider"
 	"github.com/amonull/rengal/source"
 	"github.com/amonull/rengal/util"
-	"github.com/samber/lo"
-	"github.com/spf13/viper"
-	"golang.org/x/exp/slices"
 )
 
 type state int
@@ -316,7 +317,9 @@ func (m *mini) handleChaptersDownloadState() error {
 		util.ClearScreen()
 		var erase = func() {}
 
-		title(fmt.Sprintf("Currently downloading %s %s (%s)", chapter.Manga.Name, chapter.Name, m.selectedSource.Name()))
+		title(
+			fmt.Sprintf("Currently downloading %s %s (%s)", chapter.Manga.Name, chapter.Name, m.selectedSource.Name()),
+		)
 
 		_, err := downloader.Download(chapter, func(s string) {
 			erase()

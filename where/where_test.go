@@ -3,9 +3,10 @@ package where
 import (
 	"testing"
 
-	"github.com/amonull/rengal/filesystem"
 	"github.com/samber/lo"
 	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/amonull/rengal/filesystem"
 )
 
 func init() {

@@ -3,8 +3,9 @@ package custom
 import (
 	"fmt"
 
-	"github.com/amonull/rengal/source"
 	lua "github.com/yuin/gopher-lua"
+
+	"github.com/amonull/rengal/source"
 )
 
 type luaSource struct {

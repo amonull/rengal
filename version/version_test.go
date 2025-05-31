@@ -5,8 +5,9 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/amonull/rengal/constant"
 	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/amonull/rengal/constant"
 )
 
 func TestLatestVersion(t *testing.T) {

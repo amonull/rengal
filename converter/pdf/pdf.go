@@ -3,15 +3,16 @@ package pdf
 import (
 	"io"
 
-	"github.com/amonull/rengal/filesystem"
-	"github.com/amonull/rengal/key"
-	"github.com/amonull/rengal/source"
-	"github.com/amonull/rengal/util"
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/log"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/spf13/viper"
+
+	"github.com/amonull/rengal/filesystem"
+	"github.com/amonull/rengal/key"
+	"github.com/amonull/rengal/source"
+	"github.com/amonull/rengal/util"
 )
 
 type PDF struct{}

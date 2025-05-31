@@ -3,14 +3,16 @@ package cmd
 import (
 	"os"
 
-	"github.com/amonull/rengal/color"
 	"github.com/samber/mo"
+
+	"github.com/amonull/rengal/color"
+
+	"github.com/samber/lo"
+	"github.com/spf13/cobra"
 
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/style"
 	"github.com/amonull/rengal/where"
-	"github.com/samber/lo"
-	"github.com/spf13/cobra"
 )
 
 type whereTarget struct {

@@ -3,13 +3,14 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/samber/lo"
+	"github.com/samber/mo"
+	"github.com/spf13/cobra"
+
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/icon"
 	"github.com/amonull/rengal/util"
 	"github.com/amonull/rengal/where"
-	"github.com/samber/lo"
-	"github.com/samber/mo"
-	"github.com/spf13/cobra"
 )
 
 type clearTarget struct {
@@ -52,7 +53,9 @@ var clearCmd = &cobra.Command{
 		for _, target := range clearTargets {
 			if doClear(target.argLong) {
 				anyCleared = true
-				e := util.PrintErasable(fmt.Sprintf("%s Clearing %s...", icon.Get(icon.Progress), util.Capitalize(target.name)))
+				e := util.PrintErasable(
+					fmt.Sprintf("%s Clearing %s...", icon.Get(icon.Progress), util.Capitalize(target.name)),
+				)
 				_ = util.Delete(target.location())
 				e()
 				fmt.Printf("%s %s cleared\n", icon.Get(icon.Success), util.Capitalize(target.name))

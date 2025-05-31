@@ -4,14 +4,15 @@ import (
 	"fmt"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/samber/lo"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
 	"github.com/amonull/rengal/icon"
 	"github.com/amonull/rengal/integration/anilist"
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/log"
 	"github.com/amonull/rengal/open"
-	"github.com/samber/lo"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 func init() {

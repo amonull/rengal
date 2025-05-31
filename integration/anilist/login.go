@@ -7,9 +7,10 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/samber/lo"
+
 	"github.com/amonull/rengal/log"
 	"github.com/amonull/rengal/network"
-	"github.com/samber/lo"
 )
 
 // login to Anilist
@@ -33,7 +34,7 @@ func (a *Anilist) login() error {
 	}
 
 	// anilist body for login
-	body := map[string]interface{}{
+	body := map[string]any{
 		"client_id":     a.id(),
 		"client_secret": a.secret(),
 		"grant_type":    "authorization_code",

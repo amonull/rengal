@@ -6,11 +6,12 @@ import (
 	"encoding/xml"
 	"io"
 
+	"github.com/spf13/viper"
+
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/source"
 	"github.com/amonull/rengal/util"
-	"github.com/spf13/viper"
 )
 
 type CBZ struct{}

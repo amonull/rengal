@@ -3,6 +3,8 @@ package downloader
 import (
 	"fmt"
 
+	"github.com/spf13/viper"
+
 	"github.com/amonull/rengal/color"
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/converter"
@@ -12,7 +14,6 @@ import (
 	"github.com/amonull/rengal/open"
 	"github.com/amonull/rengal/source"
 	"github.com/amonull/rengal/style"
-	"github.com/spf13/viper"
 )
 
 // Read the chapter by downloading it with the given source

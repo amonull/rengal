@@ -4,9 +4,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/amonull/rengal/filesystem"
 	"github.com/samber/lo"
 	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/amonull/rengal/filesystem"
 )
 
 func TestUnzip(t *testing.T) {
@@ -14,7 +15,10 @@ func TestUnzip(t *testing.T) {
 		// Set system filesystem to access the testdata folder.
 		filesystem.SetOsFs()
 
-		path := filepath.Join(filepath.Dir(lo.Must(filepath.Abs("."))), filepath.Join("assets", "testdata", "zipdata.zip"))
+		path := filepath.Join(
+			filepath.Dir(lo.Must(filepath.Abs("."))),
+			filepath.Join("assets", "testdata", "zipdata.zip"),
+		)
 		file := lo.Must(filesystem.Api().Open(path))
 
 		// zip file acquired, switch back to memory filesystem.

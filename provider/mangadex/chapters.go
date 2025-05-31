@@ -5,11 +5,12 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/amonull/rengal/key"
-	"github.com/amonull/rengal/source"
 	"github.com/darylhjd/mangodex"
 	"github.com/spf13/viper"
 	"golang.org/x/exp/slices"
+
+	"github.com/amonull/rengal/key"
+	"github.com/amonull/rengal/source"
 )
 
 func (m *Mangadex) ChaptersOf(manga *source.Manga) ([]*source.Chapter, error) {

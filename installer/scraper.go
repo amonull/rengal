@@ -26,7 +26,13 @@ func (s *Scraper) Path() string {
 }
 
 func (s *Scraper) GithubURL() string {
-	return fmt.Sprintf("https://github.com/%s/%s/blob/%s/scrapers/%s.lua", collector.user, collector.repo, collector.branch, s.Name)
+	return fmt.Sprintf(
+		"https://github.com/%s/%s/blob/%s/scrapers/%s.lua",
+		collector.user,
+		collector.repo,
+		collector.branch,
+		s.Name,
+	)
 }
 
 func (s *Scraper) download() error {

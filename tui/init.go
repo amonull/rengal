@@ -3,11 +3,12 @@ package tui
 import (
 	"fmt"
 
-	"github.com/amonull/rengal/key"
-	"github.com/amonull/rengal/provider"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/viper"
+
+	"github.com/amonull/rengal/key"
+	"github.com/amonull/rengal/provider"
 )
 
 func (b *statefulBubble) Init() tea.Cmd {

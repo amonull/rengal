@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+
 	"github.com/amonull/rengal/provider/generic"
 )
 

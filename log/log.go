@@ -7,12 +7,13 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/amonull/rengal/filesystem"
-	"github.com/amonull/rengal/key"
-	"github.com/amonull/rengal/where"
 	"github.com/samber/lo"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+
+	"github.com/amonull/rengal/filesystem"
+	"github.com/amonull/rengal/key"
+	"github.com/amonull/rengal/where"
 )
 
 var writeLogs bool
@@ -70,85 +71,85 @@ func Setup() error {
 	return nil
 }
 
-func Panic(args ...interface{}) {
+func Panic(args ...any) {
 	if writeLogs {
 		log.Panic(args...)
 	}
 }
 
-func Panicf(format string, args ...interface{}) {
+func Panicf(format string, args ...any) {
 	if writeLogs {
 		log.Panicf(format, args...)
 	}
 }
 
-func Fatal(args ...interface{}) {
+func Fatal(args ...any) {
 	if writeLogs {
 		log.Fatal(args...)
 	}
 }
 
-func Fatalf(format string, args ...interface{}) {
+func Fatalf(format string, args ...any) {
 	if writeLogs {
 		log.Fatalf(format, args...)
 	}
 }
 
-func Error(args ...interface{}) {
+func Error(args ...any) {
 	if writeLogs {
 		log.Error(args...)
 	}
 }
 
-func Errorf(format string, args ...interface{}) {
+func Errorf(format string, args ...any) {
 	if writeLogs {
 		log.Errorf(format, args...)
 	}
 }
 
-func Warn(args ...interface{}) {
+func Warn(args ...any) {
 	if writeLogs {
 		log.Warn(args...)
 	}
 }
 
-func Warnf(format string, args ...interface{}) {
+func Warnf(format string, args ...any) {
 	if writeLogs {
 		log.Warnf(format, args...)
 	}
 }
 
-func Info(args ...interface{}) {
+func Info(args ...any) {
 	if writeLogs {
 		log.Info(args...)
 	}
 }
 
-func Infof(format string, args ...interface{}) {
+func Infof(format string, args ...any) {
 	if writeLogs {
 		log.Infof(format, args...)
 	}
 }
 
-func Debug(args ...interface{}) {
+func Debug(args ...any) {
 	if writeLogs {
 		log.Debug(args...)
 	}
 }
 
-func Debugf(format string, args ...interface{}) {
+func Debugf(format string, args ...any) {
 	if writeLogs {
 		log.Debugf(format, args...)
 	}
 }
 
-func Trace(args ...interface{}) {
+func Trace(args ...any) {
 	if writeLogs {
 		log.Trace(args...)
 	}
 }
 
-func Tracef(format string, args ...interface{}) {
+func Tracef(format string, args ...any) {
 	if writeLogs {
 		log.Tracef(format, args...)
 	}

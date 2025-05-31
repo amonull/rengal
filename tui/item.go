@@ -14,7 +14,7 @@ import (
 )
 
 type listItem struct {
-	internal interface{}
+	internal any
 	marked   bool
 }
 

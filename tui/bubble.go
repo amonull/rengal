@@ -4,15 +4,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/amonull/rengal/anilist"
-	"github.com/amonull/rengal/color"
-	"github.com/amonull/rengal/history"
-	"github.com/amonull/rengal/installer"
-	key2 "github.com/amonull/rengal/key"
-	"github.com/amonull/rengal/provider"
-	"github.com/amonull/rengal/source"
-	"github.com/amonull/rengal/style"
-	"github.com/amonull/rengal/util"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
@@ -25,6 +16,16 @@ import (
 	"github.com/samber/mo"
 	"github.com/spf13/viper"
 	"golang.org/x/exp/slices"
+
+	"github.com/amonull/rengal/anilist"
+	"github.com/amonull/rengal/color"
+	"github.com/amonull/rengal/history"
+	"github.com/amonull/rengal/installer"
+	key2 "github.com/amonull/rengal/key"
+	"github.com/amonull/rengal/provider"
+	"github.com/amonull/rengal/source"
+	"github.com/amonull/rengal/style"
+	"github.com/amonull/rengal/util"
 )
 
 type statefulBubble struct {

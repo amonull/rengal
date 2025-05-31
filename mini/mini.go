@@ -4,9 +4,10 @@ import (
 	"errors"
 	"os"
 
+	"github.com/samber/lo"
+
 	"github.com/amonull/rengal/source"
 	"github.com/amonull/rengal/util"
-	"github.com/samber/lo"
 )
 
 var (

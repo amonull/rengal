@@ -9,15 +9,16 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/samber/lo"
+	"github.com/samber/mo"
+	"github.com/spf13/viper"
+
 	"github.com/amonull/rengal/anilist"
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/log"
 	"github.com/amonull/rengal/util"
 	"github.com/amonull/rengal/where"
-	"github.com/samber/lo"
-	"github.com/samber/mo"
-	"github.com/spf13/viper"
 )
 
 type date struct {
@@ -29,13 +30,13 @@ type date struct {
 // Manga is a manga from a source.
 type Manga struct {
 	// Name of the manga
-	Name string `json:"name" jsonschema:"description=Name of the manga"`
+	Name string `json:"name"     jsonschema:"description=Name of the manga"`
 	// URL of the manga
-	URL string `json:"url" jsonschema:"description=URL of the manga"`
+	URL string `json:"url"      jsonschema:"description=URL of the manga"`
 	// Index of the manga in the source.
-	Index uint16 `json:"index" jsonschema:"description=Index of the manga in the source"`
+	Index uint16 `json:"index"    jsonschema:"description=Index of the manga in the source"`
 	// ID of manga in the source.
-	ID string `json:"id" jsonschema:"description=ID of manga in the source"`
+	ID string `json:"id"       jsonschema:"description=ID of manga in the source"`
 	// Chapters of the manga
 	Chapters []*Chapter `json:"chapters" jsonschema:"description=Chapters of the manga"`
 	// Source that the manga belongs to.
@@ -348,7 +349,13 @@ func (m *Manga) SeriesJSON() *SeriesJSON {
 	seriesJSON.Metadata.Publisher = publisher
 	seriesJSON.Metadata.BookType = "Print"
 	seriesJSON.Metadata.TotalIssues = m.Metadata.Chapters
-	seriesJSON.Metadata.PublicationRun = fmt.Sprintf("%d %d - %d %d", m.Metadata.StartDate.Month, m.Metadata.StartDate.Year, m.Metadata.EndDate.Month, m.Metadata.EndDate.Year)
+	seriesJSON.Metadata.PublicationRun = fmt.Sprintf(
+		"%d %d - %d %d",
+		m.Metadata.StartDate.Month,
+		m.Metadata.StartDate.Year,
+		m.Metadata.EndDate.Month,
+		m.Metadata.EndDate.Year,
+	)
 
 	return seriesJSON
 }

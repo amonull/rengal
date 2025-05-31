@@ -1,8 +1,9 @@
 package icon
 
 import (
-	"github.com/amonull/rengal/key"
 	"github.com/spf13/viper"
+
+	"github.com/amonull/rengal/key"
 )
 
 const (

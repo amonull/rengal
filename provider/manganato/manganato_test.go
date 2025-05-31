@@ -3,8 +3,9 @@ package manganato
 import (
 	"testing"
 
-	"github.com/amonull/rengal/provider/generic"
 	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/amonull/rengal/provider/generic"
 )
 
 func TestManganelo(t *testing.T) {
@@ -49,12 +50,15 @@ func TestManganelo(t *testing.T) {
 										Convey("And the result should be a list of pages", func() {
 											So(len(pages), ShouldBeGreaterThan, 0)
 
-											Convey("And each page should have a URL, non nil contents and chapter relation", func() {
-												for _, page := range pages {
-													So(page.URL, ShouldNotBeEmpty)
-													So(page.Chapter, ShouldEqual, chapters[0])
-												}
-											})
+											Convey(
+												"And each page should have a URL, non nil contents and chapter relation",
+												func() {
+													for _, page := range pages {
+														So(page.URL, ShouldNotBeEmpty)
+														So(page.Chapter, ShouldEqual, chapters[0])
+													}
+												},
+											)
 										})
 									})
 								})

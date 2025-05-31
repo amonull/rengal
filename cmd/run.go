@@ -1,9 +1,10 @@
 package cmd
 
 import (
-	"github.com/amonull/rengal/provider/custom"
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
+
+	"github.com/amonull/rengal/provider/custom"
 )
 
 func init() {

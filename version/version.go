@@ -7,10 +7,11 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/metafates/gache"
+
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/util"
 	"github.com/amonull/rengal/where"
-	"github.com/metafates/gache"
 )
 
 var versionCacher = gache.New[string](&gache.Options{

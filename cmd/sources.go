@@ -8,20 +8,22 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/spf13/viper"
+
 	"github.com/amonull/rengal/color"
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/tui"
 	"github.com/amonull/rengal/util"
-	"github.com/spf13/viper"
+
+	"github.com/samber/lo"
+	"github.com/spf13/cobra"
 
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/icon"
 	"github.com/amonull/rengal/provider"
 	"github.com/amonull/rengal/style"
 	"github.com/amonull/rengal/where"
-	"github.com/samber/lo"
-	"github.com/spf13/cobra"
 )
 
 func init() {
@@ -89,21 +91,26 @@ func init() {
 	sourcesCmd.AddCommand(sourcesRemoveCmd)
 
 	sourcesRemoveCmd.Flags().StringArrayP("name", "n", []string{}, "name of the source to remove")
-	lo.Must0(sourcesRemoveCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		sources, err := filesystem.Api().ReadDir(where.Sources())
-		if err != nil {
-			return nil, cobra.ShellCompDirectiveError
-		}
+	lo.Must0(
+		sourcesRemoveCmd.RegisterFlagCompletionFunc(
+			"name",
+			func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+				sources, err := filesystem.Api().ReadDir(where.Sources())
+				if err != nil {
+					return nil, cobra.ShellCompDirectiveError
+				}
 
-		return lo.FilterMap(sources, func(item os.FileInfo, _ int) (string, bool) {
-			name := item.Name()
-			if !strings.HasSuffix(name, provider.CustomProviderExtension) {
-				return "", false
-			}
+				return lo.FilterMap(sources, func(item os.FileInfo, _ int) (string, bool) {
+					name := item.Name()
+					if !strings.HasSuffix(name, provider.CustomProviderExtension) {
+						return "", false
+					}
 
-			return util.FileStem(filepath.Base(name)), true
-		}), cobra.ShellCompDirectiveNoFileComp
-	}))
+					return util.FileStem(filepath.Base(name)), true
+				}), cobra.ShellCompDirectiveNoFileComp
+			},
+		),
+	)
 }
 
 var sourcesRemoveCmd = &cobra.Command{

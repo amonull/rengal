@@ -6,14 +6,15 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/charmbracelet/lipgloss"
+	"github.com/muesli/reflow/wrap"
+	"github.com/spf13/viper"
+
 	"github.com/amonull/rengal/color"
 	"github.com/amonull/rengal/icon"
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/style"
 	"github.com/amonull/rengal/util"
-	"github.com/charmbracelet/lipgloss"
-	"github.com/muesli/reflow/wrap"
-	"github.com/spf13/viper"
 )
 
 func (b *statefulBubble) View() string {
@@ -109,7 +110,11 @@ func (b *statefulBubble) viewConfirm() string {
 		[]string{
 			style.Title("Confirm"),
 			"",
-			fmt.Sprintf("%s Download %s?", icon.Get(icon.Question), util.Quantify(len(b.selectedChapters), "chapter", "chapters")),
+			fmt.Sprintf(
+				"%s Download %s?",
+				icon.Get(icon.Question),
+				util.Quantify(len(b.selectedChapters), "chapter", "chapters"),
+			),
 		},
 	)
 }
@@ -143,7 +148,11 @@ func (b *statefulBubble) viewRead() string {
 		[]string{
 			style.Title("Reading"),
 			"",
-			style.Truncate(b.width)(fmt.Sprintf(icon.Get(icon.Progress)+" Downloading %s", style.Fg(color.Purple)(chapterName))),
+			style.Truncate(
+				b.width,
+			)(
+				fmt.Sprintf(icon.Get(icon.Progress)+" Downloading %s", style.Fg(color.Purple)(chapterName)),
+			),
 			"",
 			style.Truncate(b.width)(b.spinnerC.View() + b.progressStatus),
 			"",
@@ -165,7 +174,11 @@ func (b *statefulBubble) viewDownload() string {
 		[]string{
 			style.Title("Downloading"),
 			"",
-			style.Truncate(b.width)(fmt.Sprintf(icon.Get(icon.Progress)+" Downloading %s", style.Fg(color.Purple)(chapterName))),
+			style.Truncate(
+				b.width,
+			)(
+				fmt.Sprintf(icon.Get(icon.Progress)+" Downloading %s", style.Fg(color.Purple)(chapterName)),
+			),
 			"",
 			b.progressC.View(),
 			"",

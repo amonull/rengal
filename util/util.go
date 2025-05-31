@@ -9,11 +9,12 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/amonull/rengal/constant"
-	"github.com/amonull/rengal/filesystem"
 	"github.com/samber/lo"
 	"golang.org/x/exp/constraints"
 	"golang.org/x/term"
+
+	"github.com/amonull/rengal/constant"
+	"github.com/amonull/rengal/filesystem"
 )
 
 // PadZero pads a number with leading zeros.

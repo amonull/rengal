@@ -1,10 +1,11 @@
 package tui
 
 import (
-	"github.com/amonull/rengal/color"
-	"github.com/amonull/rengal/style"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
+
+	"github.com/amonull/rengal/color"
+	"github.com/amonull/rengal/style"
 )
 
 type statefulKeymap struct {
@@ -160,7 +161,23 @@ func (k *statefulKeymap) help() ([]key.Binding, []key.Binding) {
 		return to2(h(k.confirm, k.back, k.openURL))
 	case chaptersState:
 		download := withDescription(k.confirm, "download selected")
-		return h(k.read, k.selectOne, k.selectAll, download, k.back), h(k.read, k.selectOne, k.selectAll, k.clearSelection, k.openURL, download, k.selectVolume, k.anilistSelect, k.back)
+		return h(
+				k.read,
+				k.selectOne,
+				k.selectAll,
+				download,
+				k.back,
+			), h(
+				k.read,
+				k.selectOne,
+				k.selectAll,
+				k.clearSelection,
+				k.openURL,
+				download,
+				k.selectVolume,
+				k.anilistSelect,
+				k.back,
+			)
 	case anilistSelectState:
 		return to2(h(k.confirm, k.openURL, k.back))
 	case confirmState:

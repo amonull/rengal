@@ -6,10 +6,11 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/amonull/rengal/key"
-	"github.com/amonull/rengal/source"
 	"github.com/darylhjd/mangodex"
 	"github.com/spf13/viper"
+
+	"github.com/amonull/rengal/key"
+	"github.com/amonull/rengal/source"
 )
 
 func (m *Mangadex) Search(query string) ([]*source.Manga, error) {

@@ -6,13 +6,15 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/samber/lo"
+
 	"github.com/amonull/rengal/color"
 	"github.com/amonull/rengal/style"
 	"github.com/amonull/rengal/version"
-	"github.com/samber/lo"
+
+	"github.com/spf13/cobra"
 
 	"github.com/amonull/rengal/constant"
-	"github.com/spf13/cobra"
 )
 
 func init() {

@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"testing"
 
+	. "github.com/smartystreets/goconvey/convey"
+
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/source"
-	. "github.com/smartystreets/goconvey/convey"
 )
 
 type testSource struct{}
@@ -63,7 +64,11 @@ func TestHistory(t *testing.T) {
 					chapters, err := Get()
 					So(err, ShouldBeNil)
 					So(len(chapters), ShouldBeGreaterThan, 0)
-					So(chapters[fmt.Sprintf("%s (%s)", chapter.Manga.Name, chapter.Source().ID())].Name, ShouldEqual, chapter.Name)
+					So(
+						chapters[fmt.Sprintf("%s (%s)", chapter.Manga.Name, chapter.Source().ID())].Name,
+						ShouldEqual,
+						chapter.Name,
+					)
 				})
 			})
 		})

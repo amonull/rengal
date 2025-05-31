@@ -17,9 +17,9 @@ import (
 // Page represents a page in a chapter
 type Page struct {
 	// URL of the page. Used to download the page.
-	URL string `json:"url" jsonschema:"description=URL of the page. Used to download the image."`
+	URL string `json:"url"       jsonschema:"description=URL of the page. Used to download the image."`
 	// Index of the page in the chapter.
-	Index uint16 `json:"index" jsonschema:"description=Index of the page in the chapter."`
+	Index uint16 `json:"index"     jsonschema:"description=Index of the page in the chapter."`
 	// Extension of the page image.
 	Extension string `json:"extension" jsonschema:"description=Extension of the page image."`
 	// Size of the page in bytes

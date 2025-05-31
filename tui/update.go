@@ -4,6 +4,15 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/progress"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/samber/lo"
+	"github.com/samber/mo"
+	"github.com/spf13/viper"
+	"golang.org/x/exp/slices"
+
 	"github.com/amonull/rengal/anilist"
 	"github.com/amonull/rengal/color"
 	"github.com/amonull/rengal/history"
@@ -15,14 +24,6 @@ import (
 	"github.com/amonull/rengal/source"
 	"github.com/amonull/rengal/style"
 	"github.com/amonull/rengal/util"
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/bubbles/progress"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/samber/lo"
-	"github.com/samber/mo"
-	"github.com/spf13/viper"
-	"golang.org/x/exp/slices"
 )
 
 func (b *statefulBubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
