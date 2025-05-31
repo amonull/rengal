@@ -45,7 +45,7 @@ uninstall:
 
 # stores diff first and then runs cmd (could not figure out how to do both at the same time)
 format:
-	@golangci-lint fmt -d > $(OUTDIR)/golangci-lint-fmt.diff
+	@golangci-lint fmt -d | tee $(OUTDIR)/golangci-lint-fmt.diff
 	@golangci-lint fmt
 
 soft-clean:
