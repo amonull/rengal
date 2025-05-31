@@ -292,7 +292,7 @@ func (b *statefulBubble) loadProviders() tea.Cmd {
 	providers := provider.Builtins()
 	customProviders := provider.Customs()
 
-	items := make([]list.Item, len(providers))
+	items := make([]list.Item, 0, len(providers))
 	for _, p := range providers {
 		items = append(items, &listItem{
 			internal: p,
@@ -304,7 +304,7 @@ func (b *statefulBubble) loadProviders() tea.Cmd {
 		return strings.Compare(b.FilterValue(), a.FilterValue())
 	})
 
-	customItems := make([]list.Item, len(customProviders))
+	customItems := make([]list.Item, 0, len(customProviders))
 	for _, p := range customProviders {
 		customItems = append(customItems, &listItem{
 			internal: p,
@@ -332,7 +332,7 @@ func (b *statefulBubble) loadHistory() (tea.Cmd, error) {
 		return strings.Compare(a.MangaName, b.MangaName)
 	})
 
-	items := make([]list.Item, len(chapters))
+	items := make([]list.Item, 0, len(chapters))
 	for _, c := range chapters {
 		items = append(items, &listItem{
 			internal: c,
