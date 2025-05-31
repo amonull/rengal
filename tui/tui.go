@@ -10,7 +10,6 @@ type Options struct {
 }
 
 func Run(options *Options) error {
-
 	bubble := newBubble()
 
 	if options.Install {
@@ -26,5 +25,10 @@ func Run(options *Options) error {
 		bubble.newState(sourcesState)
 	}
 
-	return tea.NewProgram(bubble, tea.WithAltScreen()).Start()
+	program := tea.NewProgram(bubble, tea.WithAltScreen())
+	if _, err := program.Run(); err != nil {
+		return err
+	}
+
+	return nil
 }

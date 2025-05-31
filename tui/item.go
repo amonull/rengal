@@ -18,23 +18,6 @@ type listItem struct {
 	marked   bool
 }
 
-func (t *listItem) toggleMark() {
-	t.marked = !t.marked
-}
-
-func (t *listItem) getMark() string {
-	switch t.internal.(type) {
-	case *source.Chapter:
-		return style.Bold(icon.Get(icon.Mark))
-	case *anilist.Manga:
-		return icon.Get(icon.Link)
-	case *provider.Provider:
-		return icon.Get(icon.Search)
-	default:
-		return ""
-	}
-}
-
 func (t *listItem) Title() (title string) {
 	switch e := t.internal.(type) {
 	case *source.Chapter:
@@ -61,7 +44,7 @@ func (t *listItem) Title() (title string) {
 		title = fmt.Sprintf("%s %s", title, t.getMark())
 	}
 
-	return
+	return title
 }
 
 func (t *listItem) Description() (description string) {
@@ -91,7 +74,7 @@ func (t *listItem) Description() (description string) {
 		description = e.SiteURL
 	}
 
-	return
+	return description
 }
 
 func (t *listItem) FilterValue() string {
@@ -108,6 +91,23 @@ func (t *listItem) FilterValue() string {
 		return e.Name
 	case *installer.Scraper:
 		return e.Name
+	default:
+		return ""
+	}
+}
+
+func (t *listItem) toggleMark() {
+	t.marked = !t.marked
+}
+
+func (t *listItem) getMark() string {
+	switch t.internal.(type) {
+	case *source.Chapter:
+		return style.Bold(icon.Get(icon.Mark))
+	case *anilist.Manga:
+		return icon.Get(icon.Link)
+	case *provider.Provider:
+		return icon.Get(icon.Search)
 	default:
 		return ""
 	}

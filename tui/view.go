@@ -2,7 +2,7 @@ package tui
 
 import (
 	"fmt"
-	"math/rand"
+	"math/rand/v2"
 	"strconv"
 	"strings"
 
@@ -265,5 +265,5 @@ func randomPlot() string {
 		"I used to download stuff without any errors, then I took an arrow to the knee. By arrow I mean this:",
 	}
 
-	return plots[rand.Intn(len(plots))]
+	return plots[rand.UintN(uint(len(plots)))]
 }

@@ -30,18 +30,6 @@ type Page struct {
 	Chapter *Chapter `json:"-"`
 }
 
-func (p *Page) request() (*http.Request, error) {
-	req, err := http.NewRequest(http.MethodGet, p.URL, nil)
-	if err != nil {
-		log.Error(err)
-		return nil, err
-	}
-
-	req.Header.Set("Referer", p.Chapter.URL)
-	req.Header.Set("User-Agent", constant.UserAgent)
-	return req, nil
-}
-
 // Download Page contents.
 func (p *Page) Download() error {
 	if p.URL == "" {
@@ -122,11 +110,22 @@ func (p *Page) Read(b []byte) (int, error) {
 // Filename generates a filename for the page.
 func (p *Page) Filename() (filename string) {
 	filename = fmt.Sprintf("%d%s", p.Index, p.Extension)
-	filename = util.PadZero(filename, 10)
 
-	return
+	return util.PadZero(filename, 10)
 }
 
 func (p *Page) Source() Source {
 	return p.Chapter.Source()
+}
+
+func (p *Page) request() (*http.Request, error) {
+	req, err := http.NewRequest(http.MethodGet, p.URL, nil)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	req.Header.Set("Referer", p.Chapter.URL)
+	req.Header.Set("User-Agent", constant.UserAgent)
+	return req, nil
 }

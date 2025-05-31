@@ -38,5 +38,4 @@ func Notify() {
 		style.Faint(fmt.Sprintf("(You're on %s)", constant.Version)),
 		style.Faint("https://github.com/metafates/mangal/releases/tag/v"+version),
 	)
-
 }

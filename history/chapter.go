@@ -18,12 +18,12 @@ type SavedChapter struct {
 	MangaID            string `json:"manga_id"`
 }
 
-func (c *SavedChapter) encode() string {
-	return fmt.Sprintf("%s (%s)", c.MangaName, c.SourceID)
-}
-
 func (c *SavedChapter) String() string {
 	return fmt.Sprintf("%s : %d / %d", c.MangaName, c.Index, c.MangaChaptersTotal)
+}
+
+func (c *SavedChapter) encode() string {
+	return fmt.Sprintf("%s (%s)", c.MangaName, c.SourceID)
 }
 
 func newSavedChapter(chapter *source.Chapter) *SavedChapter {

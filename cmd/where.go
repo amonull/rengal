@@ -46,7 +46,6 @@ func init() {
 		if n.hidden {
 			lo.Must0(whereCmd.Flags().MarkHidden(n.argLong))
 		}
-
 	}
 
 	whereCmd.MarkFlagsMutuallyExclusive(lo.Map(wherePaths, func(t *whereTarget, _ int) string {

@@ -27,24 +27,6 @@ type Field struct {
 	Description string
 }
 
-// typeName returns the type of the field without reflection
-func (f *Field) typeName() string {
-	switch f.Value.(type) {
-	case string:
-		return "string"
-	case int:
-		return "int"
-	case bool:
-		return "bool"
-	case []string:
-		return "[]string"
-	case []int:
-		return "[]int"
-	default:
-		return "unknown"
-	}
-}
-
 func (f *Field) MarshalJSON() ([]byte, error) {
 	field := struct {
 		Key         string `json:"key"`
@@ -110,6 +92,24 @@ func (f *Field) Env() string {
 	}
 
 	return appPrefix + env
+}
+
+// typeName returns the type of the field without reflection
+func (f *Field) typeName() string {
+	switch f.Value.(type) {
+	case string:
+		return "string"
+	case int:
+		return "int"
+	case bool:
+		return "bool"
+	case []string:
+		return "[]string"
+	case []int:
+		return "[]int"
+	default:
+		return "unknown"
+	}
 }
 
 // Pretty format field as string for further cli output

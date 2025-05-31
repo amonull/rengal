@@ -102,30 +102,20 @@ func (m *Manga) Dirname() string {
 	return util.SanitizeFilename(m.Name)
 }
 
-func (m *Manga) peekPath() string {
-	path := where.Downloads()
-
-	if viper.GetBool(key.DownloaderCreateMangaDir) {
-		path = filepath.Join(path, m.Dirname())
-	}
-
-	return path
-}
-
 func (m *Manga) Path(temp bool) (path string, err error) {
 	if temp {
 		if path = m.cachedTempPath; path != "" {
-			return
+			return path, err
 		}
 
 		path = where.Temp()
 		m.cachedTempPath = path
-		return
+		return path, err
 	}
 
 	path = m.peekPath()
 	_ = filesystem.Api().MkdirAll(path, os.ModePerm)
-	return
+	return path, err
 }
 
 func (m *Manga) GetCover() (string, error) {
@@ -358,4 +348,14 @@ func (m *Manga) SeriesJSON() *SeriesJSON {
 	)
 
 	return seriesJSON
+}
+
+func (m *Manga) peekPath() string {
+	path := where.Downloads()
+
+	if viper.GetBool(key.DownloaderCreateMangaDir) {
+		path = filepath.Join(path, m.Dirname())
+	}
+
+	return path
 }

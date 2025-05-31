@@ -27,15 +27,15 @@ func (t testSource) ID() string {
 }
 
 func (t testSource) Search(string) (mangas []*Manga, err error) {
-	return
+	return mangas, err
 }
 
 func (t testSource) ChaptersOf(*Manga) (chapters []*Chapter, err error) {
-	return
+	return chapters, err
 }
 
 func (t testSource) PagesOf(*Chapter) (pages []*Page, err error) {
-	return
+	return pages, err
 }
 
 var testManga = Manga{

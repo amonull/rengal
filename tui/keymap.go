@@ -28,10 +28,6 @@ type statefulKeymap struct {
 	showHelp key.Binding
 }
 
-func (k *statefulKeymap) setState(newState state) {
-	k.state = newState
-}
-
 func newStatefulKeymap() *statefulKeymap {
 	k := key.NewBinding
 	keys := key.WithKeys
@@ -133,6 +129,20 @@ func newStatefulKeymap() *statefulKeymap {
 	}
 }
 
+func (k *statefulKeymap) ShortHelp() []key.Binding {
+	short, _ := k.help()
+	return short
+}
+
+func (k *statefulKeymap) FullHelp() [][]key.Binding {
+	_, full := k.help()
+	return [][]key.Binding{full}
+}
+
+func (k *statefulKeymap) setState(newState state) {
+	k.state = newState
+}
+
 // help returns short and full help for the state
 func (k *statefulKeymap) help() ([]key.Binding, []key.Binding) {
 	h := func(bindings ...key.Binding) []key.Binding {
@@ -193,16 +203,6 @@ func (k *statefulKeymap) help() ([]key.Binding, []key.Binding) {
 	default:
 		return to2(h())
 	}
-}
-
-func (k *statefulKeymap) ShortHelp() []key.Binding {
-	short, _ := k.help()
-	return short
-}
-
-func (k *statefulKeymap) FullHelp() [][]key.Binding {
-	_, full := k.help()
-	return [][]key.Binding{full}
 }
 
 func (k *statefulKeymap) forList() list.KeyMap {

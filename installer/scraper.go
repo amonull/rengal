@@ -35,6 +35,16 @@ func (s *Scraper) GithubURL() string {
 	)
 }
 
+func (s *Scraper) Install() error {
+	err := s.download()
+
+	if err != nil {
+		return err
+	}
+
+	return filesystem.Api().WriteFile(s.Path(), []byte(s.Contents), os.ModePerm)
+}
+
 func (s *Scraper) download() error {
 	if s.Contents != "" {
 		return nil
@@ -82,14 +92,4 @@ func (s *Scraper) download() error {
 	}
 
 	return nil
-}
-
-func (s *Scraper) Install() error {
-	err := s.download()
-
-	if err != nil {
-		return err
-	}
-
-	return filesystem.Api().WriteFile(s.Path(), []byte(s.Contents), os.ModePerm)
 }
