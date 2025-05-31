@@ -27,12 +27,12 @@ func (*ZIP) SaveTemp(chapter *source.Chapter) (string, error) {
 func save(chapter *source.Chapter, temp bool) (path string, err error) {
 	path, err = chapter.Path(temp)
 	if err != nil {
-		return
+		return "", err
 	}
 
 	zipFile, err := filesystem.Api().Create(path)
 	if err != nil {
-		return
+		return "", err
 	}
 
 	defer util.Ignore(zipFile.Close)
@@ -46,7 +46,7 @@ func save(chapter *source.Chapter, temp bool) (path string, err error) {
 		}
 	}
 
-	return
+	return path, err
 }
 
 func addToZip(writer *zip.Writer, file io.Reader, name string) error {

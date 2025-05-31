@@ -32,18 +32,18 @@ func (*PDF) SaveTemp(chapter *source.Chapter) (string, error) {
 func save(chapter *source.Chapter, temp bool) (path string, err error) {
 	path, err = chapter.Path(temp)
 	if err != nil {
-		return
+		return "", err
 	}
 
 	file, err := filesystem.Api().Create(path)
 	if err != nil {
-		return
+		return "", err
 	}
 
 	defer util.Ignore(file.Close)
 
 	err = pagesToPDF(file, chapter.Pages)
-	return
+	return "", err
 }
 
 // pagesToPDF will convert images to PDF and write to w
