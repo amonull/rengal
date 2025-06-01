@@ -55,6 +55,7 @@ func prepareManga(manga *source.Manga, options *Options) error {
 		}
 	}
 
+	//nolint:nestif // ignoring all linter warning on ui elements see -> https://github.com/amonull/rengal/pull/25#issuecomment-2925515691
 	if options.ChaptersFilter.IsPresent() {
 		chapters, err := manga.Source.ChaptersOf(manga)
 		if err != nil {

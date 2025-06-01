@@ -11,6 +11,7 @@ import (
 	"github.com/amonull/rengal/source"
 )
 
+//nolint:gocyclo,gocognit,cyclop,funlen // ignoring all linter warning on ui elements see -> https://github.com/amonull/rengal/pull/25#issuecomment-2925515691
 func Run(options *Options) (err error) {
 	if options.Out == nil {
 		options.Out = os.Stdout
@@ -119,6 +120,7 @@ func Run(options *Options) (err error) {
 	}
 
 	for _, chapter := range chapters {
+		//nolint:nestif // ignoring all linter warning on ui elements see -> https://github.com/amonull/rengal/pull/25#issuecomment-2925515691
 		if options.Download {
 			path, err := downloader.Download(chapter, func(string) {})
 			if err != nil {

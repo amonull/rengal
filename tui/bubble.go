@@ -167,6 +167,7 @@ func (b *statefulBubble) stopLoading() tea.Cmd {
 	return nil
 }
 
+//nolint:funlen // ignoring all linter warning on ui elements see -> https://github.com/amonull/rengal/pull/25#issuecomment-2925515691
 func newBubble() *statefulBubble {
 	keymap := newStatefulKeymap()
 	bubble := statefulBubble{

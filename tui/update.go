@@ -26,6 +26,7 @@ import (
 	"github.com/amonull/rengal/util"
 )
 
+//nolint:gocyclo,gocognit,cyclop,funlen // ignoring all linter warning on ui elements see -> https://github.com/amonull/rengal/pull/25#issuecomment-2925515691
 func (b *statefulBubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
@@ -244,6 +245,7 @@ func (b *statefulBubble) updateLoading(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return b, tea.Batch(append(cmds, cmd)...)
 }
 
+//nolint:gocognit // ignoring all linter warning on ui elements see -> https://github.com/amonull/rengal/pull/25#issuecomment-2925515691
 func (b *statefulBubble) updateHistory(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
@@ -332,6 +334,7 @@ func (b *statefulBubble) updateHistory(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return b, cmd
 }
 
+//nolint:gocognit // ignoring all linter warning on ui elements see -> https://github.com/amonull/rengal/pull/25#issuecomment-2925515691
 func (b *statefulBubble) updateSources(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
@@ -421,6 +424,7 @@ func (b *statefulBubble) updateSearch(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return b, cmd
 }
 
+//nolint:gocognit // ignoring all linter warning on ui elements see -> https://github.com/amonull/rengal/pull/25#issuecomment-2925515691
 func (b *statefulBubble) updateMangas(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
@@ -477,6 +481,7 @@ func (b *statefulBubble) updateMangas(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return b, cmd
 }
 
+//nolint:gocognit,funlen // ignoring all linter warning on ui elements see -> https://github.com/amonull/rengal/pull/25#issuecomment-2925515691
 func (b *statefulBubble) updateChapters(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 

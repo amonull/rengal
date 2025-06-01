@@ -34,6 +34,7 @@ const (
 func (m *mini) handleSourceSelectState() error {
 	var err error
 
+	//nolint:nestif // ignoring all linter warning on ui elements see -> https://github.com/amonull/rengal/pull/25#issuecomment-2925515691
 	if name := viper.GetString(key.DownloaderDefaultSources); name != "" {
 		p, ok := provider.Get(name)
 		if !ok {
@@ -93,6 +94,7 @@ func (m *mini) handleMangaSearchState() error {
 
 		erase := progress("Searching Query..")
 		m.cachedMangas[query], err = m.selectedSource.Search(query)
+		//nolint:predeclared // ignoring all linter warning on ui elements see -> https://github.com/amonull/rengal/pull/25#issuecomment-2925515691
 		max := lo.Min([]int{len(m.cachedMangas[query]), viper.GetInt(key.MiniSearchLimit)})
 		m.cachedMangas[query] = m.cachedMangas[query][:max]
 		erase()
@@ -128,6 +130,7 @@ func (m *mini) handleMangaSelectState() error {
 	return err
 }
 
+//nolint:gocognit // ignoring all linter warning on ui elements see -> https://github.com/amonull/rengal/pull/25#issuecomment-2925515691
 func (m *mini) handleChapterSelectState() error {
 	var err error
 
