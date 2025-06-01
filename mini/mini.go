@@ -89,10 +89,8 @@ func Run(options *Options) error {
 		truncateAt = w
 	}
 
-	var err error
-
 	for {
-		if m.handleState() != nil {
+		if err := m.handleState(); err != nil {
 			return err
 		}
 	}
