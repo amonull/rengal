@@ -354,7 +354,6 @@ func (m *Manga) populateMetadataStaff(manga *anilist.Manga) {
 
 func (m *Manga) populateMetadataUrl(manga *anilist.Manga) {
 	// Anilist & Myanimelist + external
-	//nolint:makezero // downloads break when starting from 0
 	urls := make([]string, 2+len(manga.External))
 	urls[0] = manga.SiteURL
 	for i, e := range manga.External {
@@ -365,6 +364,7 @@ func (m *Manga) populateMetadataUrl(manga *anilist.Manga) {
 		return url != ""
 	})
 
+	//nolint:makezero // when urls slice is init to len 0 downloads break
 	urls = append(urls, fmt.Sprintf("https://myanimelist.net/manga/%d", manga.IDMal))
 
 	m.Metadata.URLs = urls
