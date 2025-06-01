@@ -1,4 +1,4 @@
-.PHONY: format
+.PHONY: format, report
 
 MAKEFLAGS += --silent
 
@@ -25,6 +25,7 @@ help:
 	@echo "  uninstall    Uninstall the mangal binary"
 	@echo "  test         Run the tests"
 	@echo "  format 	  formats code using golangci-lint fmt"
+	@echo "  report		  runs golangci-lint run and writes to out/"
 	@echo "  gif          Generate usage gifs"
 	@echo "	 soft-clean   removes out folder"
 	@echo "  help         Show this help message"
@@ -47,6 +48,9 @@ uninstall:
 format:
 	@golangci-lint fmt -d | tee $(OUTDIR)/golangci-lint-fmt.diff
 	@golangci-lint fmt
+
+report:
+	@golangci-lint run | tee $(OUTDIR)/golangci-lint-report.txt
 
 soft-clean:
 	@rm -rf $(OUTDIR)
