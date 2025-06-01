@@ -12,16 +12,17 @@ type Options struct {
 func Run(options *Options) error {
 	bubble := newBubble()
 
-	if options.Install {
+	switch {
+	case options.Install:
 		bubble.newState(scrapersInstallState)
-	} else if options.Continue {
+	case options.Continue:
 		_, err := bubble.loadHistory()
 		if err != nil {
 			return err
 		}
 
 		bubble.newState(historyState)
-	} else {
+	default:
 		bubble.newState(sourcesState)
 	}
 

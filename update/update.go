@@ -74,7 +74,7 @@ func prepareToUpdateComicXML(chapters []*downloadedChapter, manga *source.Manga,
 	// since we are trying to update ComicInfo.xml here, we do not care about any other formats other than FormatCBZ
 	// assuming all other formats are CBZ if first is to not run through th loop
 	// also skip if no chapters in slice
-	if len(chapters) < 0 || chapters[0].format != constant.FormatCBZ {
+	if len(chapters) < 1 || chapters[0].format != constant.FormatCBZ {
 		return
 	}
 

@@ -51,7 +51,7 @@ var prettyTemplate = lo.Must(template.New("pretty").Funcs(template.FuncMap{
 	"purple": style.Fg(color.Purple),
 	"blue":   style.Fg(color.Blue),
 	"cyan":   style.Fg(color.Cyan),
-	"value":  func(k string) any { return viper.Get(k) },
+	"value":  viper.Get,
 	"hl": func(v any) string {
 		switch value := v.(type) {
 		case bool:
@@ -111,19 +111,6 @@ func (f *Field) typeName() string {
 		return "unknown"
 	}
 }
-
-// Pretty format field as string for further cli output
-//func (f *Field) Pretty() string {
-//	return fmt.Sprintf(
-//		`%s
-//%s: %s = %s
-//`,
-//		style.Faint(f.Description),
-//		style.Fg(color.Purple)(f.Key),
-//		style.Fg(color.Yellow)(f.typeName()),
-//		style.Fg(color.Cyan)(fmt.Sprintf("%v", viper.Get(f.Key))),
-//	)
-//}
 
 // defaults contains all default values for the config.
 // It must contain all fields defined in the constant package.

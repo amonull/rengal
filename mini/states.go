@@ -378,8 +378,7 @@ func (m *mini) handleHistorySelectState() error {
 		return err
 	}
 
-	switch b {
-	case quit:
+	if b == quit {
 		m.newState(quitState)
 		return nil
 	}

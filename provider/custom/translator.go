@@ -28,15 +28,16 @@ func translate(
 		)
 
 		val := table.RawGetString(field)
-		if val.Type() == lua.LTNil {
+		switch val.Type() {
+		case lua.LTNil:
 			if required {
-				err = fmt.Errorf(`field of "%s" is required`, field)
+				err = fmt.Errorf("field of \"%s\" is required", field)
 			} else {
 				err = handle(default_)
 			}
-		} else if val.Type() != type_ {
-			err = fmt.Errorf(`field of "%s" must be of type %s`, field, type_)
-		} else {
+		case type_:
+			err = fmt.Errorf("field of \"%s\" must be of type %s", field, type_)
+		default:
 			err = handle(val.String())
 		}
 

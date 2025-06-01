@@ -223,7 +223,6 @@ func newBubble() *statefulBubble {
 			listC.Styles.Title = titleStyle
 		}
 
-		//listC.StatusMessageLifetime = time.Second * 5
 		listC.StatusMessageLifetime = time.Hour * 999 // forever
 
 		return listC
