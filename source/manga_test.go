@@ -1,7 +1,6 @@
 package source
 
 import (
-	"os"
 	"path/filepath"
 	"testing"
 
@@ -86,7 +85,7 @@ func TestManga_Path(t *testing.T) {
 						So(lo.Must(filesystem.Api().IsDir(path)), ShouldBeTrue)
 
 						Convey("It should be a temp directory", func() {
-							isTemp := lo.Must(filesystem.Api().Exists(filepath.Join(os.TempDir(), filepath.Base(path))))
+							isTemp := lo.Must(filesystem.Api().Exists(filepath.Join(t.TempDir(), filepath.Base(path))))
 							So(isTemp, ShouldBeTrue)
 						})
 					})

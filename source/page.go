@@ -2,6 +2,7 @@ package source
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	_ "image/gif"
@@ -50,7 +51,10 @@ func (p *Page) Download() error {
 		return err
 	}
 
-	defer util.Ignore(resp.Body.Close)
+	defer func() {
+		// naked return used to return error from defer
+		err = resp.Body.Close()
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		err = errors.New("http error: " + resp.Status)
@@ -119,7 +123,7 @@ func (p *Page) Source() Source {
 }
 
 func (p *Page) request() (*http.Request, error) {
-	req, err := http.NewRequest(http.MethodGet, p.URL, nil)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, p.URL, nil)
 	if err != nil {
 		log.Error(err)
 		return nil, err

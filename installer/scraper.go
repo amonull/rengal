@@ -1,8 +1,10 @@
 package installer
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -10,6 +12,7 @@ import (
 	"path/filepath"
 
 	"github.com/amonull/rengal/filesystem"
+	"github.com/amonull/rengal/network"
 	"github.com/amonull/rengal/where"
 )
 
@@ -51,13 +54,23 @@ func (s *Scraper) download() error {
 	}
 
 	if s.URL == "" {
-		return fmt.Errorf("url must be set")
+		return errors.New("url must be set")
 	}
 
-	res, err := http.Get(s.URL)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, s.URL, nil)
 	if err != nil {
 		return err
 	}
+
+	res, err := network.Client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		// naked return used to return error from defer
+		err = res.Body.Close()
+	}()
 
 	if res.StatusCode != http.StatusOK {
 		return fmt.Errorf("failed to get %s: %s", s.URL, res.Status)

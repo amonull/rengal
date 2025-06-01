@@ -151,11 +151,11 @@ var configSetCmd = &cobra.Command{
 			v = value
 		}
 
+		var errType viper.ConfigFileNotFoundError
 		viper.Set(key, v)
-		switch err := viper.WriteConfig(); err.(type) {
-		case viper.ConfigFileNotFoundError:
+		if err := viper.WriteConfig(); errors.As(err, &errType) {
 			handleErr(viper.SafeWriteConfig())
-		default:
+		} else {
 			handleErr(err)
 		}
 
@@ -265,7 +265,7 @@ var configResetCmd = &cobra.Command{
 	Short: "Reset the config key to default",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if !cmd.Flags().Changed("key") && !cmd.Flags().Changed("all") {
-			handleErr(fmt.Errorf("either --key or --all must be set"))
+			handleErr(errors.New("either --key or --all must be set"))
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -284,10 +284,10 @@ var configResetCmd = &cobra.Command{
 			viper.Set(key, config.Default[key].Value)
 		}
 
-		switch err := viper.WriteConfig(); err.(type) {
-		case viper.ConfigFileNotFoundError:
+		var errType viper.ConfigFileNotFoundError
+		if err := viper.WriteConfig(); errors.As(err, &errType) {
 			handleErr(viper.SafeWriteConfig())
-		default:
+		} else {
 			handleErr(err)
 		}
 

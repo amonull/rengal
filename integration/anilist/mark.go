@@ -2,6 +2,7 @@ package anilist
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -52,7 +53,8 @@ func (a *Anilist) MarkRead(chapter *source.Chapter) error {
 	}
 
 	// make request
-	req, err := http.NewRequest(
+	req, err := http.NewRequestWithContext(
+		context.Background(),
 		http.MethodPost,
 		"https://graphql.anilist.co",
 		bytes.NewBuffer(jsonBody),
@@ -75,6 +77,11 @@ func (a *Anilist) MarkRead(chapter *source.Chapter) error {
 		log.Error(err)
 		return err
 	}
+
+	defer func() {
+		// naked return used to return error from defer
+		err = resp.Body.Close()
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		log.Info("Request failed with status code: " + strconv.Itoa(resp.StatusCode))

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -195,9 +196,9 @@ func (c *Chapter) formattedName() (name string) {
 	for variable, value := range map[string]string{
 		"manga":          c.Manga.Name,
 		"chapter":        c.Name,
-		"index":          fmt.Sprintf("%d", c.Index),
+		"index":          strconv.FormatUint(uint64(c.Index), 16),
 		"padded-index":   fmt.Sprintf("%04d", c.Index),
-		"chapters-count": fmt.Sprintf("%d", len(c.Manga.Chapters)),
+		"chapters-count": strconv.Itoa(len(c.Manga.Chapters)),
 		"volume":         c.Volume,
 		"source":         sourceName,
 	} {

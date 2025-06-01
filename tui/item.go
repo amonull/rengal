@@ -40,7 +40,6 @@ func (t *listItem) Title() (title string) {
 	}
 
 	if title != "" && t.marked {
-		//title = fmt.Sprintf("%s %s", title, icon.Get(icon.Mark))
 		title = fmt.Sprintf("%s %s", title, t.getMark())
 	}
 

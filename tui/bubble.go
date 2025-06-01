@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"slices"
 	"strings"
 	"time"
 
@@ -15,7 +16,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/samber/mo"
 	"github.com/spf13/viper"
-	"golang.org/x/exp/slices"
 
 	"github.com/amonull/rengal/anilist"
 	"github.com/amonull/rengal/color"
@@ -160,6 +160,7 @@ func (b *statefulBubble) startLoading() tea.Cmd {
 	return tea.Batch(b.mangasC.StartSpinner(), b.chaptersC.StartSpinner())
 }
 
+//nolint:unparam // 3 methods calling stopLoading relies on nil returns and seems like it was added with intention to change in the future
 func (b *statefulBubble) stopLoading() tea.Cmd {
 	b.loading = false
 	b.mangasC.StopSpinner()
@@ -206,9 +207,9 @@ func newBubble() *statefulBubble {
 			BorderForeground(lipgloss.Color("5")).
 			Foreground(lipgloss.Color("5")).
 			Padding(0, 0, 0, 1)
-		delegate.Styles.NormalTitle = delegate.Styles.NormalTitle.Copy().Foreground(lipgloss.Color("7"))
+		delegate.Styles.NormalTitle = delegate.Styles.NormalTitle.Foreground(lipgloss.Color("7"))
 
-		delegate.Styles.SelectedDesc = delegate.Styles.SelectedTitle.Copy()
+		delegate.Styles.SelectedDesc = delegate.Styles.SelectedTitle
 
 		listC := list.New([]list.Item{}, delegate, 0, 0)
 		listC.KeyMap = bubble.keymap.forList()
@@ -222,7 +223,6 @@ func newBubble() *statefulBubble {
 			listC.Styles.Title = titleStyle
 		}
 
-		//listC.StatusMessageLifetime = time.Second * 5
 		listC.StatusMessageLifetime = time.Hour * 999 // forever
 
 		return listC

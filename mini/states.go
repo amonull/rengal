@@ -3,12 +3,12 @@ package mini
 import (
 	"fmt"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 
 	"github.com/samber/lo"
 	"github.com/spf13/viper"
-	"golang.org/x/exp/slices"
 
 	"github.com/amonull/rengal/downloader"
 	"github.com/amonull/rengal/history"
@@ -378,8 +378,7 @@ func (m *mini) handleHistorySelectState() error {
 		return err
 	}
 
-	switch b {
-	case quit:
+	if b == quit {
 		m.newState(quitState)
 		return nil
 	}

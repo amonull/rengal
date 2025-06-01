@@ -44,10 +44,7 @@ func LoadSource(path string, validate bool) (source.Source, error) {
 		}
 	}
 
-	luaSource, err := newLuaSource(name, state)
-	if err != nil {
-		return nil, err
-	}
+	luaSource := newLuaSource(name, state)
 
 	return luaSource, nil
 }

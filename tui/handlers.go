@@ -2,13 +2,13 @@ package tui
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"sync"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/viper"
-	"golang.org/x/exp/slices"
 
 	"github.com/amonull/rengal/anilist"
 	"github.com/amonull/rengal/color"

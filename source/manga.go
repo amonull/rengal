@@ -1,6 +1,7 @@
 package source
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -131,7 +132,7 @@ func (m *Manga) GetCover() (string, error) {
 		}
 	}
 
-	return "", fmt.Errorf("no cover found")
+	return "", errors.New("no cover found")
 }
 
 func (m *Manga) DownloadCover(overwrite bool, path string, progress func(string)) error {
@@ -332,10 +333,10 @@ func (m *Manga) peekPath() string {
 }
 
 func (m *Manga) populateMetadataStaff(manga *anilist.Manga) {
-	m.Metadata.Staff.Story = make([]string, 0, 0)
-	m.Metadata.Staff.Art = make([]string, 0, 0)
-	m.Metadata.Staff.Translation = make([]string, 0, 0)
-	m.Metadata.Staff.Lettering = make([]string, 0, 0)
+	m.Metadata.Staff.Story = make([]string, 0)
+	m.Metadata.Staff.Art = make([]string, 0)
+	m.Metadata.Staff.Translation = make([]string, 0)
+	m.Metadata.Staff.Lettering = make([]string, 0)
 
 	for _, staff := range manga.Staff.Edges {
 		role := strings.ToLower(staff.Role)
@@ -364,6 +365,7 @@ func (m *Manga) populateMetadataUrl(manga *anilist.Manga) {
 		return url != ""
 	})
 
+	//nolint:makezero // when urls slice is init to len 0 downloads break
 	urls = append(urls, fmt.Sprintf("https://myanimelist.net/manga/%d", manga.IDMal))
 
 	m.Metadata.URLs = urls

@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -11,7 +12,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/samber/mo"
 	"github.com/spf13/viper"
-	"golang.org/x/exp/slices"
 
 	"github.com/amonull/rengal/anilist"
 	"github.com/amonull/rengal/color"
@@ -47,6 +47,7 @@ func (b *statefulBubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return tea.Batch(cmd, l.NewStatusMessage(""))
 			}
 
+			//nolint:exhaustive // seems to be handled in below in second switch
 			switch b.state {
 			case searchState:
 				b.inputC.SetValue("")
@@ -143,22 +144,21 @@ func (b *statefulBubble) updateScrapersInstall(msg tea.Msg) (tea.Model, tea.Cmd)
 		return b, tea.Batch(b.startLoading(), b.loadScrapers(), b.waitForScrapersLoaded())
 	}
 
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch {
-		case b.scrapersInstallC.FilterState() == list.Filtering:
-			break
-		case key.Matches(msg, b.keymap.openURL):
+	// msg := must be left here otherwise the scoping of the casting fucks up
+	if msg, ok := msg.(tea.KeyMsg); ok && b.scrapersInstallC.FilterState() != list.Filtering {
+		if key.Matches(msg, b.keymap.selectOne, b.keymap.confirm) {
+			scraper := b.scrapersInstallC.SelectedItem().(*listItem).internal.(*installer.Scraper)
+			b.newState(loadingState)
+			return b, tea.Batch(b.startLoading(), b.installScraper(scraper), b.waitForScraperInstallation())
+		}
+
+		if key.Matches(msg, b.keymap.openURL) {
 			url := b.scrapersInstallC.SelectedItem().(*listItem).internal.(*installer.Scraper).GithubURL()
 			err := open.Run(url)
 			if err != nil {
 				b.lastError = err
 				b.newState(errorState)
 			}
-		case key.Matches(msg, b.keymap.selectOne, b.keymap.confirm):
-			scraper := b.scrapersInstallC.SelectedItem().(*listItem).internal.(*installer.Scraper)
-			b.newState(loadingState)
-			return b, tea.Batch(b.startLoading(), b.installScraper(scraper), b.waitForScraperInstallation())
 		}
 	}
 
@@ -174,8 +174,7 @@ func (b *statefulBubble) updateLoading(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, b.keymap.back):
+		if key.Matches(msg, b.keymap.back) {
 			b.previousState()
 		}
 	case []*anilist.Manga:
@@ -338,11 +337,9 @@ func (b *statefulBubble) updateHistory(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (b *statefulBubble) updateSources(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	//nolint:nestif // ignoring all linter warning on ui elements see -> https://github.com/amonull/rengal/pull/25#issuecomment-2925515691
+	if msg, ok := msg.(tea.KeyMsg); ok && b.sourcesC.FilterState() != list.Filtering {
 		switch {
-		case b.sourcesC.FilterState() == list.Filtering:
-			break
 		case key.Matches(msg, b.keymap.selectAll):
 			for _, item := range b.sourcesC.Items() {
 				item := item.(*listItem)
@@ -379,7 +376,11 @@ func (b *statefulBubble) updateSources(msg tea.Msg) (tea.Model, tea.Cmd) {
 			defer b.newState(loadingState)
 
 			if len(b.selectedProviders) == 0 {
-				return b, tea.Batch(b.startLoading(), b.loadSources([]*provider.Provider{item.internal.(*provider.Provider)}), b.waitForSourcesLoaded())
+				return b, tea.Batch(
+					b.startLoading(),
+					b.loadSources([]*provider.Provider{item.internal.(*provider.Provider)}),
+					b.waitForSourcesLoaded(),
+				)
 			}
 
 			return b, tea.Batch(b.startLoading(), b.loadSources(lo.Keys(b.selectedProviders)), b.waitForSourcesLoaded())
@@ -393,15 +394,15 @@ func (b *statefulBubble) updateSources(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (b *statefulBubble) updateSearch(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, b.keymap.confirm) && b.inputC.Value() != "":
+	if msg, ok := msg.(tea.KeyMsg); ok {
+		if key.Matches(msg, b.keymap.confirm) && b.inputC.Value() != "" {
 			b.startLoading()
 			b.newState(loadingState)
 			go query.Remember(b.inputC.Value(), 1)
 			return b, tea.Batch(b.searchManga(b.inputC.Value()), b.waitForMangas(), b.spinnerC.Tick)
-		case key.Matches(msg, b.keymap.acceptSearchSuggestion) && b.searchSuggestion.IsPresent():
+		}
+
+		if key.Matches(msg, b.keymap.acceptSearchSuggestion) && b.searchSuggestion.IsPresent() {
 			b.inputC.SetValue(b.searchSuggestion.MustGet())
 			b.searchSuggestion = mo.None[string]()
 			b.inputC.SetCursor(len(b.inputC.Value()))
@@ -594,8 +595,7 @@ func (b *statefulBubble) updateChapters(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (b *statefulBubble) updateAnilistSelect(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	if msg, ok := msg.(tea.KeyMsg); ok {
 		switch {
 		case b.anilistC.FilterState() == list.Filtering:
 			break
@@ -622,7 +622,9 @@ func (b *statefulBubble) updateAnilistSelect(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			b.previousState()
-			cmd = b.chaptersC.NewStatusMessage(fmt.Sprintf(`Linked to %s %s`, style.Fg(color.Orange)(manga.Name()), style.Faint(manga.SiteURL)))
+			cmd = b.chaptersC.NewStatusMessage(
+				fmt.Sprintf(`Linked to %s %s`, style.Fg(color.Orange)(manga.Name()), style.Faint(manga.SiteURL)),
+			)
 			return b, cmd
 		}
 	}
@@ -634,8 +636,7 @@ func (b *statefulBubble) updateAnilistSelect(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (b *statefulBubble) updateConfirm(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	if msg, ok := msg.(tea.KeyMsg); ok {
 		switch {
 		case key.Matches(msg, b.keymap.quit):
 			return b, tea.Quit
@@ -649,7 +650,12 @@ func (b *statefulBubble) updateConfirm(msg tea.Msg) (tea.Model, tea.Cmd) {
 				b.chaptersToDownload.Push(chapter)
 			}
 			b.newState(downloadState)
-			return b, tea.Batch(b.startLoading(), b.downloadChapter(b.chaptersToDownload.Pop()), b.waitForChapterDownload(), b.progressC.SetPercent(0))
+			return b, tea.Batch(
+				b.startLoading(),
+				b.downloadChapter(b.chaptersToDownload.Pop()),
+				b.waitForChapterDownload(),
+				b.progressC.SetPercent(0),
+			)
 		case key.Matches(msg, b.keymap.back):
 			b.previousState()
 		}
@@ -661,8 +667,7 @@ func (b *statefulBubble) updateConfirm(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (b *statefulBubble) updateRead(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
-	switch msg.(type) {
-	case struct{}:
+	if _, ok := msg.(struct{}); ok {
 		b.stopLoading()
 		b.previousState()
 	}
@@ -703,8 +708,7 @@ func (b *statefulBubble) updateDownload(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (b *statefulBubble) updateDownloadDone(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	if msg, ok := msg.(tea.KeyMsg); ok {
 		switch {
 		case key.Matches(msg, b.keymap.quit):
 			return b, tea.Quit
@@ -729,7 +733,12 @@ func (b *statefulBubble) updateDownloadDone(msg tea.Msg) (tea.Model, tea.Cmd) {
 			b.failedChapters = make([]*source.Chapter, 0)
 			b.succededChapters = make([]*source.Chapter, 0)
 			b.newState(downloadState)
-			return b, tea.Batch(b.startLoading(), b.downloadChapter(b.chaptersToDownload.Pop()), b.waitForChapterDownload(), b.progressC.SetPercent(0))
+			return b, tea.Batch(
+				b.startLoading(),
+				b.downloadChapter(b.chaptersToDownload.Pop()),
+				b.waitForChapterDownload(),
+				b.progressC.SetPercent(0),
+			)
 		}
 	}
 
@@ -739,12 +748,8 @@ func (b *statefulBubble) updateDownloadDone(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (b *statefulBubble) updateError(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, b.keymap.quit):
-			return b, tea.Quit
-		}
+	if msg, ok := msg.(tea.KeyMsg); ok && key.Matches(msg, b.keymap.quit) {
+		return b, tea.Quit
 	}
 
 	return b, cmd

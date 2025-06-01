@@ -25,7 +25,7 @@ func (s *luaSource) ID() string {
 	return IDfromName(s.name)
 }
 
-func newLuaSource(name string, state *lua.LState) (*luaSource, error) {
+func newLuaSource(name string, state *lua.LState) *luaSource {
 	s := &luaSource{
 		name:  name,
 		state: state,
@@ -38,9 +38,10 @@ func newLuaSource(name string, state *lua.LState) (*luaSource, error) {
 	s.cache.mangas = newCacher[[]*source.Manga](cacheName("mangas"))
 	s.cache.chapters = newCacher[[]*source.Chapter](cacheName("chapters"))
 
-	return s, nil
+	return s
 }
 
+//nolint:unparam // lua.LValue ret is infact not being used ever but it will be kept to not break functionality that might depend on black magic
 func (s *luaSource) call(fn string, ret lua.LValueType, args ...lua.LValue) (lua.LValue, error) {
 	err := s.state.CallByParam(lua.P{
 		Fn:      s.state.GetGlobal(fn),

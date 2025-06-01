@@ -248,6 +248,7 @@ var (
 	paddingStyle          = lipgloss.NewStyle().Padding(1, 2)
 )
 
+//nolint:unparam // addHelp always recieves true (but that might change so not removed)
 func (b *statefulBubble) renderLines(addHelp bool, lines []string) string {
 	h := len(lines)
 	l := strings.Join(lines, "\n")

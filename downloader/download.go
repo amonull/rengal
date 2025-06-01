@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/spf13/viper"
 
@@ -94,7 +95,7 @@ func downloadPages(chapter *source.Chapter, progress func(string)) ([]*source.Pa
 	if err != nil {
 		return nil, err
 	}
-	log.Info("found " + fmt.Sprintf("%d", len(pages)) + " pages")
+	log.Info("found " + strconv.Itoa(len(pages)) + " pages")
 
 	err = chapter.DownloadPages(false, progress)
 	if err != nil {

@@ -2,6 +2,7 @@ package anilist
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -53,7 +54,12 @@ func GetByID(id int) (*Manga, error) {
 
 	// send request
 	log.Info("Sending request to Anilist")
-	req, err := http.NewRequest(http.MethodPost, "https://graphql.anilist.co", bytes.NewBuffer(jsonBody))
+	req, err := http.NewRequestWithContext(
+		context.Background(),
+		http.MethodPost,
+		"https://graphql.anilist.co",
+		bytes.NewBuffer(jsonBody),
+	)
 	if err != nil {
 		log.Error(err)
 		return nil, err
@@ -62,11 +68,15 @@ func GetByID(id int) (*Manga, error) {
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := network.Client.Do(req)
-
 	if err != nil {
 		log.Error(err)
 		return nil, err
 	}
+
+	defer func() {
+		// naked return used to return error from defer
+		err = resp.Body.Close()
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		log.Error("Anilist returned status code " + strconv.Itoa(resp.StatusCode))
@@ -127,7 +137,12 @@ func SearchByName(name string) ([]*Manga, error) {
 
 	// send request
 	log.Info("Sending request to Anilist")
-	req, err := http.NewRequest(http.MethodPost, "https://graphql.anilist.co", bytes.NewBuffer(jsonBody))
+	req, err := http.NewRequestWithContext(
+		context.Background(),
+		http.MethodPost,
+		"https://graphql.anilist.co",
+		bytes.NewBuffer(jsonBody),
+	)
 	if err != nil {
 		log.Error(err)
 		return nil, err
@@ -136,12 +151,16 @@ func SearchByName(name string) ([]*Manga, error) {
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := network.Client.Do(req)
-
 	if err != nil {
 		log.Error(err)
 		_ = failCacher.Set(name, true)
 		return nil, err
 	}
+
+	defer func() {
+		// naked return used to return error from defer
+		err = resp.Body.Close()
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		log.Error("Anilist returned status code " + strconv.Itoa(resp.StatusCode))

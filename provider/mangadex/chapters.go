@@ -3,11 +3,11 @@ package mangadex
 import (
 	"fmt"
 	"net/url"
+	"slices"
 	"strconv"
 
 	"github.com/darylhjd/mangodex"
 	"github.com/spf13/viper"
-	"golang.org/x/exp/slices"
 
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/source"

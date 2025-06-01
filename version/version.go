@@ -10,7 +10,6 @@ import (
 	"github.com/metafates/gache"
 
 	"github.com/amonull/rengal/filesystem"
-	"github.com/amonull/rengal/util"
 	"github.com/amonull/rengal/where"
 )
 
@@ -32,12 +31,16 @@ func Latest() (version string, err error) {
 		return ver, nil
 	}
 
+	//nolint:noctx // simple get request no need to httpRequest with ctx
 	resp, err := http.Get("https://api.github.com/repos/metafates/mangal/releases/latest")
 	if err != nil {
 		return "", err
 	}
 
-	defer util.Ignore(resp.Body.Close)
+	defer func() {
+		// naked return used to return error from defer
+		err = resp.Body.Close()
+	}()
 
 	var release struct {
 		TagName string `json:"tag_name"`

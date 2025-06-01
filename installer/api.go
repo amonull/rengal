@@ -2,6 +2,7 @@ package installer
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -22,7 +23,7 @@ type githubFilesCollector struct {
 
 func (g *githubFilesCollector) collect() error {
 	if g.user == "" || g.repo == "" || g.branch == "" {
-		return fmt.Errorf("user, repo and branch must be set")
+		return errors.New("user, repo and branch must be set")
 	}
 
 	if len(g.Files) > 0 {

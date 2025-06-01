@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -25,14 +26,14 @@ func Setup() error {
 	setDefaults()
 	setPaths()
 
+	var errType viper.ConfigFileNotFoundError
 	err := viper.ReadInConfig()
 
 	if err != nil {
-		switch err.(type) {
-		case viper.ConfigFileNotFoundError:
+		if errors.As(err, &errType) {
 			// Use defaults then
 			return nil
-		default:
+		} else {
 			return err
 		}
 	}
