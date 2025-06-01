@@ -30,7 +30,7 @@ func New(conf *Configuration) source.Source {
 	mangasCollector := newMangaCollector(baseCollector, scraper)
 
 	// Get mangas
-	mangaCollector_getManga(mangasCollector, scraper)
+	mangaCollector_getManga(mangasCollector, &scraper)
 
 	_ = mangasCollector.Limit(&colly.LimitRule{
 		Parallelism: int(scraper.config.Parallelism),
@@ -41,7 +41,7 @@ func New(conf *Configuration) source.Source {
 	chaptersCollector := newChapterCollector(baseCollector, scraper)
 
 	// Get chapters
-	chaptersCollector_getChapters(chaptersCollector, scraper)
+	chaptersCollector_getChapters(chaptersCollector, &scraper)
 
 	_ = chaptersCollector.Limit(&colly.LimitRule{
 		Parallelism: int(scraper.config.Parallelism),
@@ -52,7 +52,7 @@ func New(conf *Configuration) source.Source {
 	pagesCollector := newPagesCollector(baseCollector)
 
 	// Get pages
-	pagesCollector_getPages(pagesCollector, scraper)
+	pagesCollector_getPages(pagesCollector, &scraper)
 
 	_ = pagesCollector.Limit(&colly.LimitRule{
 		Parallelism: int(scraper.config.Parallelism),
@@ -113,7 +113,7 @@ func newPagesCollector(baseCollector *colly.Collector) *colly.Collector {
 	return collector
 }
 
-func mangaCollector_getManga(mangasCollector *colly.Collector, scraper Scraper) {
+func mangaCollector_getManga(mangasCollector *colly.Collector, scraper *Scraper) {
 	mangasCollector.OnHTML("html", func(e *colly.HTMLElement) {
 		elements := e.DOM.Find(scraper.config.MangaExtractor.Selector)
 		path := e.Request.URL.String()
@@ -128,7 +128,7 @@ func mangaCollector_getManga(mangasCollector *colly.Collector, scraper Scraper) 
 				Index:    uint16(e.Index),
 				Chapters: make([]*source.Chapter, 0),
 				ID:       filepath.Base(url),
-				Source:   &scraper,
+				Source:   scraper,
 			}
 			manga.Metadata.Cover.ExtraLarge = scraper.config.MangaExtractor.Cover(selection)
 
@@ -137,7 +137,7 @@ func mangaCollector_getManga(mangasCollector *colly.Collector, scraper Scraper) 
 	})
 }
 
-func chaptersCollector_getChapters(chaptersCollector *colly.Collector, scraper Scraper) {
+func chaptersCollector_getChapters(chaptersCollector *colly.Collector, scraper *Scraper) {
 	chaptersCollector.OnHTML("html", func(e *colly.HTMLElement) {
 		elements := e.DOM.Find(scraper.config.ChapterExtractor.Selector)
 		path := e.Request.AbsoluteURL(e.Request.URL.Path)
@@ -163,7 +163,7 @@ func chaptersCollector_getChapters(chaptersCollector *colly.Collector, scraper S
 	})
 }
 
-func pagesCollector_getPages(pagesCollector *colly.Collector, scraper Scraper) {
+func pagesCollector_getPages(pagesCollector *colly.Collector, scraper *Scraper) {
 	pagesCollector.OnHTML("html", func(e *colly.HTMLElement) {
 		elements := e.DOM.Find(scraper.config.PageExtractor.Selector)
 		path := e.Request.AbsoluteURL(e.Request.URL.Path)
