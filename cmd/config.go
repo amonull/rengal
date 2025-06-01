@@ -151,11 +151,11 @@ var configSetCmd = &cobra.Command{
 			v = value
 		}
 
+		var errType viper.ConfigFileNotFoundError
 		viper.Set(key, v)
-		switch err := viper.WriteConfig(); err.(type) {
-		case viper.ConfigFileNotFoundError:
+		if err := viper.WriteConfig(); errors.As(err, &errType) {
 			handleErr(viper.SafeWriteConfig())
-		default:
+		} else {
 			handleErr(err)
 		}
 
@@ -284,10 +284,10 @@ var configResetCmd = &cobra.Command{
 			viper.Set(key, config.Default[key].Value)
 		}
 
-		switch err := viper.WriteConfig(); err.(type) {
-		case viper.ConfigFileNotFoundError:
+		var errType viper.ConfigFileNotFoundError
+		if err := viper.WriteConfig(); errors.As(err, &errType) {
 			handleErr(viper.SafeWriteConfig())
-		default:
+		} else {
 			handleErr(err)
 		}
 

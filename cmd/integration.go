@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/AlecAivazis/survey/v2"
@@ -55,16 +56,16 @@ See https://github.com/metafates/mangal/wiki/Anilist-Integration for more inform
 				return
 			}
 
+			var errType viper.ConfigFileNotFoundError
 			viper.Set(key.AnilistEnable, response)
 			err = viper.WriteConfig()
 			if err != nil {
-				switch err.(type) {
-				case viper.ConfigFileNotFoundError:
+				if errors.As(err, &errType) {
 					err = viper.SafeWriteConfig()
 					handleErr(err)
-				default:
-					handleErr(err)
+				} else {
 					log.Error(err)
+					handleErr(err)
 				}
 			}
 		}
