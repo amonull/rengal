@@ -1,6 +1,7 @@
 package util
 
 import (
+	"cmp"
 	"fmt"
 	"os"
 	"os/exec"
@@ -10,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/samber/lo"
-	"golang.org/x/exp/constraints"
 	"golang.org/x/term"
 
 	"github.com/amonull/rengal/constant"
@@ -108,7 +108,7 @@ func Ignore(f func() error) {
 }
 
 // Max returns the maximum value of the given items.
-func Max[T constraints.Ordered](items ...T) (maxVal T) {
+func Max[T cmp.Ordered](items ...T) (maxVal T) {
 	for _, item := range items {
 		if item > maxVal {
 			maxVal = item
@@ -119,7 +119,7 @@ func Max[T constraints.Ordered](items ...T) (maxVal T) {
 }
 
 // Min returns the minimum value of the given items.
-func Min[T constraints.Ordered](items ...T) (minVal T) {
+func Min[T cmp.Ordered](items ...T) (minVal T) {
 	minVal = items[0]
 	for _, item := range items {
 		if item < minVal {

@@ -2,11 +2,11 @@ package cmd
 
 import (
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/samber/lo"
 	"github.com/spf13/cobra"
-	"golang.org/x/exp/slices"
 
 	"github.com/amonull/rengal/color"
 	"github.com/amonull/rengal/config"
