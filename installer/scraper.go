@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 
 	"github.com/amonull/rengal/filesystem"
+	"github.com/amonull/rengal/network"
 	"github.com/amonull/rengal/where"
 )
 
@@ -60,7 +61,7 @@ func (s *Scraper) download() error {
 		return err
 	}
 
-	res, err := http.DefaultClient.Do(req)
+	res, err := network.Client.Do(req)
 	if err != nil {
 		return err
 	}
