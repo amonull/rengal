@@ -1,9 +1,10 @@
 package query
 
 import (
+	"github.com/metafates/gache"
+
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/where"
-	"github.com/metafates/gache"
 )
 
 type queryRecord struct {

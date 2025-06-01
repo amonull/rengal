@@ -6,12 +6,13 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/samber/lo"
+	"github.com/spf13/viper"
+
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/where"
-	"github.com/samber/lo"
-	"github.com/spf13/viper"
 )
 
 var EnvKeyReplacer = strings.NewReplacer(".", "_")

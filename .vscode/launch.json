@@ -1,0 +1,15 @@
+// not an ideal way to declare runners would prefer to do it in devcontainer
+// but does not seem to have any way of actually doing that
+{
+    "configurations": [
+        // allows launching dlv from vscode. /dev/tty cannot be opened otherwise (at least on devcontainers)
+        {
+            "name": "Run From Main",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/main.go",
+            "console": "integratedTerminal"
+        }
+    ]
+}

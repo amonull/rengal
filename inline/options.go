@@ -1,3 +1,4 @@
+//nolint:cyclop // ignoring all linter warning on ui elements see -> https://github.com/amonull/rengal/pull/25#issuecomment-2925515691
 package inline
 
 import (
@@ -7,10 +8,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/amonull/rengal/source"
-	"github.com/amonull/rengal/util"
 	"github.com/samber/lo"
 	"github.com/samber/mo"
+
+	"github.com/amonull/rengal/source"
+	"github.com/amonull/rengal/util"
 )
 
 type (

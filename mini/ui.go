@@ -6,9 +6,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/samber/lo"
+
 	"github.com/amonull/rengal/color"
 	"github.com/amonull/rengal/style"
-	"github.com/samber/lo"
 )
 
 func progress(msg string) (eraser func()) {

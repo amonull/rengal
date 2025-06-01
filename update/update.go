@@ -42,10 +42,43 @@ func Metadata(mangaPath string) error {
 		return err
 	}
 
-	manga.Chapters = make([]*source.Chapter, 0)
+	manga.Chapters = make([]*source.Chapter, 0, 0)
 	chaptersPaths := make(map[*source.Chapter]string)
+	prepareToUpdateComicXML(chapters, manga, chaptersPaths)
+
+	// okay, we're ready to regenerate series.json and ComicInfo.xml now
+	seriesJSON := manga.SeriesJSON()
+	buf, err := json.Marshal(seriesJSON)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	// update series.json
+	log.Info("updating series json")
+	err = filesystem.Api().WriteFile(filepath.Join(mangaPath, "series.json"), buf, os.ModePerm)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	log.Info("downloading new cover")
+	updateCovers(manga, mangaPath)
+
+	log.Infof("updating ComicInfo.xml for %d chapters", len(manga.Chapters))
+	return updateComicXML(manga, chaptersPaths)
+}
+
+func prepareToUpdateComicXML(chapters []*downloadedChapter, manga *source.Manga,
+	chaptersPaths map[*source.Chapter]string) {
+	// since we are trying to update ComicInfo.xml here, we do not care about any other formats other than FormatCBZ
+	// assuming all other formats are CBZ if first is to not run through th loop
+	// also skip if no chapters in slice
+	if len(chapters) < 0 || chapters[0].format != constant.FormatCBZ {
+		return
+	}
+
 	for _, chapter := range chapters {
-		// since we are trying to update ComicInfo.xml here, we do not care about any other formats other than FormatCBZ
 		if chapter.format != constant.FormatCBZ {
 			continue
 		}
@@ -66,24 +99,9 @@ func Metadata(mangaPath string) error {
 		manga.Chapters = append(manga.Chapters, chap)
 		chaptersPaths[chap] = chapter.path
 	}
+}
 
-	// okay, we're ready to regenerate series.json and ComicInfo.xml now
-	seriesJSON := manga.SeriesJSON()
-	buf, err := json.Marshal(seriesJSON)
-	if err != nil {
-		log.Error(err)
-		return err
-	}
-
-	// update series.json
-	log.Info("updating series json")
-	err = filesystem.Api().WriteFile(filepath.Join(mangaPath, "series.json"), buf, os.ModePerm)
-	if err != nil {
-		log.Error(err)
-		return err
-	}
-
-	log.Info("downloading new cover")
+func updateCovers(manga *source.Manga, mangaPath string) {
 	// remove old cover(s).
 	// even though DownloadCover() will overwrite previous one
 	// there may be a sitation when new cover has a different extension
@@ -100,8 +118,9 @@ func Metadata(mangaPath string) error {
 	if err != nil {
 		log.Error(err)
 	}
+}
 
-	log.Infof("updating ComicInfo.xml for %d chapters", len(manga.Chapters))
+func updateComicXML(manga *source.Manga, chaptersPaths map[*source.Chapter]string) error {
 	for _, chapter := range manga.Chapters {
 		path := chaptersPaths[chapter]
 		file, err := filesystem.Api().Open(path)
@@ -134,46 +153,60 @@ func Metadata(mangaPath string) error {
 		}
 
 		for _, file := range files {
-			// skip ComicInfo.xml
-			if strings.HasSuffix(file.Name(), ".xml") {
-				continue
-			}
-
-			image, err := filesystem.Api().ReadFile(filepath.Join(chapter.Name, file.Name()))
-			// we can not let some pages be gone
-			// so if we can't open any - whole process should stop
-			if err != nil {
-				log.Error(err)
+			if err := prepareChapter(file, chapter); err != nil {
 				return err
 			}
-
-			chapter.Pages = append(chapter.Pages, &source.Page{
-				Chapter:   chapter,
-				Size:      uint64(file.Size()),
-				Index:     uint16(len(chapter.Pages)),
-				Extension: filepath.Ext(file.Name()),
-				Contents:  bytes.NewBuffer(image),
-			})
 		}
 
 		_ = file.Close()
 
 		filesystem.SetOsFs()
 
-		log.Debugf("removing old %s", path)
-		err = filesystem.Api().Remove(path)
-		if err != nil {
+		if err := removeOldFile(path); err != nil {
 			log.Error(err)
 			continue
 		}
 
-		log.Debugf("saving to %s", path)
-		err = cbz.SaveTo(chapter, path)
-		if err != nil {
+		if err := saveChapter(path, chapter); err != nil {
 			log.Error(err)
 			return err
 		}
 	}
 
 	return nil
+}
+
+func prepareChapter(file os.FileInfo, chapter *source.Chapter) error {
+	// skip ComicInfo.xml (non-fatal no error)
+	if strings.HasSuffix(file.Name(), ".xml") {
+		return nil
+	}
+
+	image, err := filesystem.Api().ReadFile(filepath.Join(chapter.Name, file.Name()))
+	// we can not let some pages be gone
+	// so if we can't open any - whole process should stop
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	chapter.Pages = append(chapter.Pages, &source.Page{
+		Chapter:   chapter,
+		Size:      uint64(file.Size()),
+		Index:     uint16(len(chapter.Pages)),
+		Extension: filepath.Ext(file.Name()),
+		Contents:  bytes.NewBuffer(image),
+	})
+
+	return nil
+}
+
+func removeOldFile(path string) error {
+	log.Debugf("removing old %s", path)
+	return filesystem.Api().Remove(path)
+}
+
+func saveChapter(path string, chapter *source.Chapter) error {
+	log.Debugf("saving to %s", path)
+	return cbz.SaveTo(chapter, path)
 }

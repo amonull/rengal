@@ -27,7 +27,6 @@ func init() {
 		manganato.Config,
 		mangapill.Config,
 	} {
-		conf := conf
 		builtinProviders = append(builtinProviders, &Provider{
 			ID:   conf.ID(),
 			Name: conf.Name,

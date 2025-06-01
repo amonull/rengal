@@ -3,10 +3,12 @@ package manganelo
 import (
 	"testing"
 
-	"github.com/amonull/rengal/provider/generic"
 	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/amonull/rengal/provider/generic"
 )
 
+//nolint:gocognit
 func TestManganelo(t *testing.T) {
 	Convey("Given a manganelo instance", t, func() {
 		manganelo := generic.New(Config)
@@ -49,12 +51,15 @@ func TestManganelo(t *testing.T) {
 										Convey("And the result should be a list of pages", func() {
 											So(len(pages), ShouldBeGreaterThan, 0)
 
-											Convey("And each page should have a URL, non nil contents and chapter relation", func() {
-												for _, page := range pages {
-													So(page.URL, ShouldNotBeEmpty)
-													So(page.Chapter, ShouldEqual, chapters[0])
-												}
-											})
+											Convey(
+												"And each page should have a URL, non nil contents and chapter relation",
+												func() {
+													for _, page := range pages {
+														So(page.URL, ShouldNotBeEmpty)
+														So(page.Chapter, ShouldEqual, chapters[0])
+													}
+												},
+											)
 										})
 									})
 								})

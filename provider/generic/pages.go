@@ -3,8 +3,9 @@ package generic
 import (
 	"net/http"
 
-	"github.com/amonull/rengal/source"
 	"github.com/gocolly/colly/v2"
+
+	"github.com/amonull/rengal/source"
 )
 
 // PagesOf given source.Chapter

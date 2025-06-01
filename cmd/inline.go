@@ -10,6 +10,12 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/invopop/jsonschema"
+	"github.com/samber/lo"
+	"github.com/samber/mo"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
 	"github.com/amonull/rengal/anilist"
 	"github.com/amonull/rengal/converter"
 	"github.com/amonull/rengal/filesystem"
@@ -19,11 +25,6 @@ import (
 	"github.com/amonull/rengal/query"
 	"github.com/amonull/rengal/source"
 	"github.com/amonull/rengal/update"
-	"github.com/invopop/jsonschema"
-	"github.com/samber/lo"
-	"github.com/samber/mo"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 func init() {
@@ -45,9 +46,12 @@ func init() {
 	inlineCmd.MarkFlagsMutuallyExclusive("download", "json")
 	inlineCmd.MarkFlagsMutuallyExclusive("include-anilist-manga", "download")
 
-	inlineCmd.RegisterFlagCompletionFunc("query", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return query.SuggestMany(toComplete), cobra.ShellCompDirectiveNoFileComp
-	})
+	inlineCmd.RegisterFlagCompletionFunc(
+		"query",
+		func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			return query.SuggestMany(toComplete), cobra.ShellCompDirectiveNoFileComp
+		},
+	)
 }
 
 var inlineCmd = &cobra.Command{

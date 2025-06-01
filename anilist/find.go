@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/amonull/rengal/log"
-	"github.com/amonull/rengal/util"
 	levenshtein "github.com/ka-weihe/fast-levenshtein"
 	"github.com/samber/lo"
+
+	"github.com/amonull/rengal/log"
+	"github.com/amonull/rengal/util"
 )
 
 // normalizedName returns a normalized name for comparison

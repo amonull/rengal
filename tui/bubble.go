@@ -4,15 +4,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/amonull/rengal/anilist"
-	"github.com/amonull/rengal/color"
-	"github.com/amonull/rengal/history"
-	"github.com/amonull/rengal/installer"
-	key2 "github.com/amonull/rengal/key"
-	"github.com/amonull/rengal/provider"
-	"github.com/amonull/rengal/source"
-	"github.com/amonull/rengal/style"
-	"github.com/amonull/rengal/util"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
@@ -25,6 +16,16 @@ import (
 	"github.com/samber/mo"
 	"github.com/spf13/viper"
 	"golang.org/x/exp/slices"
+
+	"github.com/amonull/rengal/anilist"
+	"github.com/amonull/rengal/color"
+	"github.com/amonull/rengal/history"
+	"github.com/amonull/rengal/installer"
+	key2 "github.com/amonull/rengal/key"
+	"github.com/amonull/rengal/provider"
+	"github.com/amonull/rengal/source"
+	"github.com/amonull/rengal/style"
+	"github.com/amonull/rengal/util"
 )
 
 type statefulBubble struct {
@@ -166,6 +167,7 @@ func (b *statefulBubble) stopLoading() tea.Cmd {
 	return nil
 }
 
+//nolint:funlen // ignoring all linter warning on ui elements see -> https://github.com/amonull/rengal/pull/25#issuecomment-2925515691
 func newBubble() *statefulBubble {
 	keymap := newStatefulKeymap()
 	bubble := statefulBubble{
@@ -291,7 +293,7 @@ func (b *statefulBubble) loadProviders() tea.Cmd {
 	providers := provider.Builtins()
 	customProviders := provider.Customs()
 
-	var items []list.Item
+	items := make([]list.Item, 0, len(providers))
 	for _, p := range providers {
 		items = append(items, &listItem{
 			internal: p,
@@ -303,7 +305,7 @@ func (b *statefulBubble) loadProviders() tea.Cmd {
 		return strings.Compare(b.FilterValue(), a.FilterValue())
 	})
 
-	var customItems []list.Item
+	customItems := make([]list.Item, 0, len(customProviders))
 	for _, p := range customProviders {
 		customItems = append(customItems, &listItem{
 			internal: p,
@@ -331,7 +333,7 @@ func (b *statefulBubble) loadHistory() (tea.Cmd, error) {
 		return strings.Compare(a.MangaName, b.MangaName)
 	})
 
-	var items []list.Item
+	items := make([]list.Item, 0, len(chapters))
 	for _, c := range chapters {
 		items = append(items, &listItem{
 			internal: c,

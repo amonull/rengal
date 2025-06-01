@@ -3,15 +3,16 @@ package pdf
 import (
 	"io"
 
-	"github.com/amonull/rengal/filesystem"
-	"github.com/amonull/rengal/key"
-	"github.com/amonull/rengal/source"
-	"github.com/amonull/rengal/util"
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/log"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/spf13/viper"
+
+	"github.com/amonull/rengal/filesystem"
+	"github.com/amonull/rengal/key"
+	"github.com/amonull/rengal/source"
+	"github.com/amonull/rengal/util"
 )
 
 type PDF struct{}
@@ -31,18 +32,18 @@ func (*PDF) SaveTemp(chapter *source.Chapter) (string, error) {
 func save(chapter *source.Chapter, temp bool) (path string, err error) {
 	path, err = chapter.Path(temp)
 	if err != nil {
-		return
+		return "", err
 	}
 
 	file, err := filesystem.Api().Create(path)
 	if err != nil {
-		return
+		return "", err
 	}
 
 	defer util.Ignore(file.Close)
 
 	err = pagesToPDF(file, chapter.Pages)
-	return
+	return "", err
 }
 
 // pagesToPDF will convert images to PDF and write to w

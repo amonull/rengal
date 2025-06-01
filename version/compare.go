@@ -29,9 +29,9 @@ func Compare(a, b string) (int, error) {
 	}
 
 	for _, pair := range []lo.Tuple2[int, int]{
-		{av.major, bv.major},
-		{av.minor, bv.minor},
-		{av.patch, bv.patch},
+		{A: av.major, B: bv.major},
+		{A: av.minor, B: bv.minor},
+		{A: av.patch, B: bv.patch},
 	} {
 		if pair.A > pair.B {
 			return 1, nil

@@ -9,11 +9,12 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/amonull/rengal/constant"
-	"github.com/amonull/rengal/filesystem"
 	"github.com/samber/lo"
 	"golang.org/x/exp/constraints"
 	"golang.org/x/term"
+
+	"github.com/amonull/rengal/constant"
+	"github.com/amonull/rengal/filesystem"
 )
 
 // PadZero pads a number with leading zeros.
@@ -23,9 +24,18 @@ func PadZero(s string, l int) string {
 
 // replacers is a list of regexp.Regexp pairs that will be used to sanitize filenames.
 var replacers = []lo.Tuple2[*regexp.Regexp, string]{
-	{regexp.MustCompile(`[\\/<>:;"'|?!*{}#%&^+,~\s]`), "_"},
-	{regexp.MustCompile(`__+`), "_"},
-	{regexp.MustCompile(`^[_\-.]+|[_\-.]+$`), ""},
+	{
+		A: regexp.MustCompile(`[\\/<>:;"'|?!*{}#%&^+,~\s]`),
+		B: "_",
+	},
+	{
+		A: regexp.MustCompile(`__+`),
+		B: "_",
+	},
+	{
+		A: regexp.MustCompile(`^[_\-.]+|[_\-.]+$`),
+		B: "",
+	},
 }
 
 // SanitizeFilename will remove all invalid characters from a path.
@@ -89,7 +99,7 @@ func ReGroups(pattern *regexp.Regexp, str string) (groups map[string]string) {
 		}
 	}
 
-	return
+	return groups
 }
 
 // Ignore calls function and explicitely ignores error
@@ -98,26 +108,26 @@ func Ignore(f func() error) {
 }
 
 // Max returns the maximum value of the given items.
-func Max[T constraints.Ordered](items ...T) (max T) {
+func Max[T constraints.Ordered](items ...T) (maxVal T) {
 	for _, item := range items {
-		if item > max {
-			max = item
+		if item > maxVal {
+			maxVal = item
 		}
 	}
 
-	return
+	return maxVal
 }
 
 // Min returns the minimum value of the given items.
-func Min[T constraints.Ordered](items ...T) (min T) {
-	min = items[0]
+func Min[T constraints.Ordered](items ...T) (minVal T) {
+	minVal = items[0]
 	for _, item := range items {
-		if item < min {
-			min = item
+		if item < minVal {
+			minVal = item
 		}
 	}
 
-	return
+	return minVal
 }
 
 // PrintErasable prints a string that can be erased by calling a returned function.
@@ -151,4 +161,18 @@ func Delete(path string) error {
 	}
 
 	return filesystem.Api().Remove(path)
+}
+
+// Method to compare two integer values and returning int for usage within comparable interface
+// impl funcs
+func CompareInt(a int, b int) int {
+	if a < b {
+		return 1
+	}
+
+	if a > b {
+		return -1
+	}
+
+	return 0
 }

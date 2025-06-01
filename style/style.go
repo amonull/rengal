@@ -18,8 +18,8 @@ func Bg(color lipgloss.Color) func(...string) string {
 	return NewColored("", color).Render
 }
 
-func Truncate(max int) func(...string) string {
-	return New().Width(max).Render
+func Truncate(maxSize int) func(...string) string {
+	return New().Width(maxSize).Render
 }
 
 var (

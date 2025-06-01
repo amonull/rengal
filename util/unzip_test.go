@@ -4,9 +4,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/amonull/rengal/filesystem"
 	"github.com/samber/lo"
 	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/amonull/rengal/filesystem"
 )
 
 func TestUnzip(t *testing.T) {
@@ -14,7 +15,10 @@ func TestUnzip(t *testing.T) {
 		// Set system filesystem to access the testdata folder.
 		filesystem.SetOsFs()
 
-		path := filepath.Join(filepath.Dir(lo.Must(filepath.Abs("."))), filepath.Join("assets", "testdata", "zipdata.zip"))
+		path := filepath.Join(
+			filepath.Dir(lo.Must(filepath.Abs("."))),
+			filepath.Join("assets", "testdata", "zipdata.zip"),
+		)
 		file := lo.Must(filesystem.Api().Open(path))
 
 		// zip file acquired, switch back to memory filesystem.
@@ -26,10 +30,25 @@ func TestUnzip(t *testing.T) {
 				So(err, ShouldBeNil)
 				Convey("And the files should be extracted", func() {
 					for _, info := range []lo.Tuple2[string, bool]{
-						{filepath.Join("a", "zipdata", "hey.jpeg"), false},
-						{filepath.Join("a", "zipdata", "a"), true},
-						{filepath.Join("a", "zipdata", "a", "b"), true},
-						{filepath.Join("a", "zipdata", "a", "hello.txt"), false},
+						{
+							A: filepath.Join("a", "zipdata", "hey.jpeg"),
+							B: false,
+						},
+
+						{
+							A: filepath.Join("a", "zipdata", "a"),
+							B: true,
+						},
+
+						{
+							A: filepath.Join("a", "zipdata", "a", "b"),
+							B: true,
+						},
+
+						{
+							A: filepath.Join("a", "zipdata", "a", "hello.txt"),
+							B: false,
+						},
 					} {
 						filename := info.A
 						isDir := info.B

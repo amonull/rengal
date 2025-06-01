@@ -7,10 +7,11 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/samber/lo"
+
 	"github.com/amonull/rengal/log"
 	"github.com/amonull/rengal/network"
 	"github.com/amonull/rengal/query"
-	"github.com/samber/lo"
 )
 
 type searchByNameResponse struct {
@@ -36,9 +37,9 @@ func GetByID(id int) (*Manga, error) {
 
 	// prepare body
 	log.Infof("Searching anilist for manga with id: %d", id)
-	body := map[string]interface{}{
+	body := map[string]any{
 		"query": searchByIDQuery,
-		"variables": map[string]interface{}{
+		"variables": map[string]any{
 			"id": id,
 		},
 	}

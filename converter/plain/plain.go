@@ -27,12 +27,12 @@ func (*Plain) SaveTemp(chapter *source.Chapter) (string, error) {
 func save(chapter *source.Chapter, temp bool) (path string, err error) {
 	path, err = chapter.Path(temp)
 	if err != nil {
-		return
+		return "", err
 	}
 
 	err = filesystem.Api().Mkdir(path, os.ModePerm)
 	if err != nil {
-		return
+		return "", err
 	}
 
 	wg := sync.WaitGroup{}
@@ -50,7 +50,7 @@ func save(chapter *source.Chapter, temp bool) (path string, err error) {
 	}
 
 	wg.Wait()
-	return
+	return "", err
 }
 
 func savePage(page *source.Page, to string) error {

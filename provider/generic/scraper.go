@@ -1,8 +1,9 @@
 package generic
 
 import (
-	"github.com/amonull/rengal/source"
 	"github.com/gocolly/colly/v2"
+
+	"github.com/amonull/rengal/source"
 )
 
 // Scraper is a generic scraper downloads html pages and parses them

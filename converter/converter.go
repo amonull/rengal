@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/samber/lo"
+
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/converter/cbz"
 	"github.com/amonull/rengal/converter/pdf"
 	"github.com/amonull/rengal/converter/plain"
 	"github.com/amonull/rengal/converter/zip"
 	"github.com/amonull/rengal/source"
-	"github.com/samber/lo"
 )
 
 // Converter is the interface that all converters must implement.

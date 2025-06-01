@@ -3,8 +3,9 @@ package custom
 import (
 	"fmt"
 
-	"github.com/amonull/rengal/source"
 	lua "github.com/yuin/gopher-lua"
+
+	"github.com/amonull/rengal/source"
 )
 
 type luaSource struct {
@@ -18,6 +19,10 @@ type luaSource struct {
 
 func (s *luaSource) Name() string {
 	return s.name
+}
+
+func (s *luaSource) ID() string {
+	return IDfromName(s.name)
 }
 
 func newLuaSource(name string, state *lua.LState) (*luaSource, error) {
@@ -54,8 +59,4 @@ func (s *luaSource) call(fn string, ret lua.LValueType, args ...lua.LValue) (lua
 	}
 
 	return val, nil
-}
-
-func (s *luaSource) ID() string {
-	return IDfromName(s.name)
 }

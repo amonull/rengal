@@ -4,11 +4,12 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/samber/lo"
+	"github.com/spf13/viper"
+
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/key"
-	"github.com/samber/lo"
-	"github.com/spf13/viper"
 )
 
 const EnvConfigPath = "MANGAL_CONFIG_PATH"

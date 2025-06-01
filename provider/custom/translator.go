@@ -7,9 +7,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/amonull/rengal/source"
 	"github.com/samber/lo"
 	lua "github.com/yuin/gopher-lua"
+
+	"github.com/amonull/rengal/source"
 )
 
 type mapping lo.Tuple4[lua.LValueType, bool, func(string) error, string]
@@ -40,11 +41,11 @@ func translate(
 		}
 
 		if err != nil {
-			return
+			return err
 		}
 	}
 
-	return
+	return err
 }
 
 func mangaFromTable(table *lua.LTable, index uint16) (manga *source.Manga, err error) {
@@ -79,7 +80,7 @@ func mangaFromTable(table *lua.LTable, index uint16) (manga *source.Manga, err e
 	}
 
 	err = translate(table, mappings)
-	return
+	return manga, err
 }
 
 func chapterFromTable(table *lua.LTable, manga *source.Manga, index uint16) (chapter *source.Chapter, err error) {
@@ -90,10 +91,14 @@ func chapterFromTable(table *lua.LTable, manga *source.Manga, index uint16) (cha
 	}
 
 	mappings := map[string]mapping{
-		"name":          {A: lua.LTString, B: true, C: func(v string) error { chapter.Name = v; return nil }},
-		"url":           {A: lua.LTString, B: true, C: func(v string) error { chapter.URL = v; return nil }},
-		"volume":        {A: lua.LTString, B: false, C: func(v string) error { chapter.Volume = v; return nil }},
-		"manga_summary": {A: lua.LTString, B: false, C: func(v string) error { manga.Metadata.Summary = v; return nil }},
+		"name":   {A: lua.LTString, B: true, C: func(v string) error { chapter.Name = v; return nil }},
+		"url":    {A: lua.LTString, B: true, C: func(v string) error { chapter.URL = v; return nil }},
+		"volume": {A: lua.LTString, B: false, C: func(v string) error { chapter.Volume = v; return nil }},
+		"manga_summary": {
+			A: lua.LTString,
+			B: false,
+			C: func(v string) error { manga.Metadata.Summary = v; return nil },
+		},
 		"manga_genres": {A: lua.LTString, B: false, C: func(v string) error {
 			manga.Metadata.Genres = lo.Map(strings.Split(v, ","), func(genre string, _ int) string {
 				return strings.TrimSpace(genre)
@@ -116,7 +121,7 @@ func chapterFromTable(table *lua.LTable, manga *source.Manga, index uint16) (cha
 
 	err = translate(table, mappings)
 	manga.Chapters = append(manga.Chapters, chapter)
-	return
+	return chapter, err
 }
 
 func pageFromTable(table *lua.LTable, chapter *source.Chapter) (page *source.Page, err error) {
@@ -139,10 +144,10 @@ func pageFromTable(table *lua.LTable, chapter *source.Chapter) (page *source.Pag
 
 	err = translate(table, mappings)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	page.Extension = filepath.Ext(page.URL)
 	chapter.Pages = append(chapter.Pages, page)
-	return
+	return page, err
 }

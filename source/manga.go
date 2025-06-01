@@ -9,15 +9,16 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/samber/lo"
+	"github.com/samber/mo"
+	"github.com/spf13/viper"
+
 	"github.com/amonull/rengal/anilist"
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/log"
 	"github.com/amonull/rengal/util"
 	"github.com/amonull/rengal/where"
-	"github.com/samber/lo"
-	"github.com/samber/mo"
-	"github.com/spf13/viper"
 )
 
 type date struct {
@@ -29,13 +30,13 @@ type date struct {
 // Manga is a manga from a source.
 type Manga struct {
 	// Name of the manga
-	Name string `json:"name" jsonschema:"description=Name of the manga"`
+	Name string `json:"name"     jsonschema:"description=Name of the manga"`
 	// URL of the manga
-	URL string `json:"url" jsonschema:"description=URL of the manga"`
+	URL string `json:"url"      jsonschema:"description=URL of the manga"`
 	// Index of the manga in the source.
-	Index uint16 `json:"index" jsonschema:"description=Index of the manga in the source"`
+	Index uint16 `json:"index"    jsonschema:"description=Index of the manga in the source"`
 	// ID of manga in the source.
-	ID string `json:"id" jsonschema:"description=ID of manga in the source"`
+	ID string `json:"id"       jsonschema:"description=ID of manga in the source"`
 	// Chapters of the manga
 	Chapters []*Chapter `json:"chapters" jsonschema:"description=Chapters of the manga"`
 	// Source that the manga belongs to.
@@ -101,30 +102,20 @@ func (m *Manga) Dirname() string {
 	return util.SanitizeFilename(m.Name)
 }
 
-func (m *Manga) peekPath() string {
-	path := where.Downloads()
-
-	if viper.GetBool(key.DownloaderCreateMangaDir) {
-		path = filepath.Join(path, m.Dirname())
-	}
-
-	return path
-}
-
 func (m *Manga) Path(temp bool) (path string, err error) {
 	if temp {
 		if path = m.cachedTempPath; path != "" {
-			return
+			return path, err
 		}
 
 		path = where.Temp()
 		m.cachedTempPath = path
-		return
+		return path, err
 	}
 
 	path = m.peekPath()
 	_ = filesystem.Api().MkdirAll(path, os.ModePerm)
-	return
+	return path, err
 }
 
 func (m *Manga) GetCover() (string, error) {
@@ -283,40 +274,11 @@ func (m *Manga) PopulateMetadata(progress func(string)) error {
 	m.Metadata.Status = strings.ReplaceAll(manga.Status, "_", " ")
 	m.Metadata.Synonyms = manga.Synonyms
 
-	m.Metadata.Staff.Story = make([]string, 0)
-	m.Metadata.Staff.Art = make([]string, 0)
-	m.Metadata.Staff.Translation = make([]string, 0)
-	m.Metadata.Staff.Lettering = make([]string, 0)
-
 	m.Metadata.Chapters = manga.Chapters
 
-	for _, staff := range manga.Staff.Edges {
-		role := strings.ToLower(staff.Role)
-		switch {
-		case strings.Contains(role, "story"):
-			m.Metadata.Staff.Story = append(m.Metadata.Staff.Story, staff.Node.Name.Full)
-		case strings.Contains(role, "art"):
-			m.Metadata.Staff.Art = append(m.Metadata.Staff.Art, staff.Node.Name.Full)
-		case strings.Contains(role, "translator"):
-			m.Metadata.Staff.Translation = append(m.Metadata.Staff.Translation, staff.Node.Name.Full)
-		case strings.Contains(role, "lettering"):
-			m.Metadata.Staff.Lettering = append(m.Metadata.Staff.Lettering, staff.Node.Name.Full)
-		}
-	}
+	m.populateMetadataStaff(manga)
 
-	// Anilist & Myanimelist + external
-	urls := make([]string, 2+len(manga.External))
-	urls[0] = manga.SiteURL
-	for i, e := range manga.External {
-		urls[i+1] = e.URL
-	}
-
-	urls = lo.Filter(urls, func(url string, _ int) bool {
-		return url != ""
-	})
-
-	urls = append(urls, fmt.Sprintf("https://myanimelist.net/manga/%d", manga.IDMal))
-	m.Metadata.URLs = urls
+	m.populateMetadataUrl(manga)
 
 	return nil
 }
@@ -348,7 +310,61 @@ func (m *Manga) SeriesJSON() *SeriesJSON {
 	seriesJSON.Metadata.Publisher = publisher
 	seriesJSON.Metadata.BookType = "Print"
 	seriesJSON.Metadata.TotalIssues = m.Metadata.Chapters
-	seriesJSON.Metadata.PublicationRun = fmt.Sprintf("%d %d - %d %d", m.Metadata.StartDate.Month, m.Metadata.StartDate.Year, m.Metadata.EndDate.Month, m.Metadata.EndDate.Year)
+	seriesJSON.Metadata.PublicationRun = fmt.Sprintf(
+		"%d %d - %d %d",
+		m.Metadata.StartDate.Month,
+		m.Metadata.StartDate.Year,
+		m.Metadata.EndDate.Month,
+		m.Metadata.EndDate.Year,
+	)
 
 	return seriesJSON
+}
+
+func (m *Manga) peekPath() string {
+	path := where.Downloads()
+
+	if viper.GetBool(key.DownloaderCreateMangaDir) {
+		path = filepath.Join(path, m.Dirname())
+	}
+
+	return path
+}
+
+func (m *Manga) populateMetadataStaff(manga *anilist.Manga) {
+	m.Metadata.Staff.Story = make([]string, 0, 0)
+	m.Metadata.Staff.Art = make([]string, 0, 0)
+	m.Metadata.Staff.Translation = make([]string, 0, 0)
+	m.Metadata.Staff.Lettering = make([]string, 0, 0)
+
+	for _, staff := range manga.Staff.Edges {
+		role := strings.ToLower(staff.Role)
+		switch {
+		case strings.Contains(role, "story"):
+			m.Metadata.Staff.Story = append(m.Metadata.Staff.Story, staff.Node.Name.Full)
+		case strings.Contains(role, "art"):
+			m.Metadata.Staff.Art = append(m.Metadata.Staff.Art, staff.Node.Name.Full)
+		case strings.Contains(role, "translator"):
+			m.Metadata.Staff.Translation = append(m.Metadata.Staff.Translation, staff.Node.Name.Full)
+		case strings.Contains(role, "lettering"):
+			m.Metadata.Staff.Lettering = append(m.Metadata.Staff.Lettering, staff.Node.Name.Full)
+		}
+	}
+}
+
+func (m *Manga) populateMetadataUrl(manga *anilist.Manga) {
+	// Anilist & Myanimelist + external
+	urls := make([]string, 2+len(manga.External))
+	urls[0] = manga.SiteURL
+	for i, e := range manga.External {
+		urls[i+1] = e.URL
+	}
+
+	urls = lo.Filter(urls, func(url string, _ int) bool {
+		return url != ""
+	})
+
+	urls = append(urls, fmt.Sprintf("https://myanimelist.net/manga/%d", manga.IDMal))
+
+	m.Metadata.URLs = urls
 }

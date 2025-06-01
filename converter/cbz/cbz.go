@@ -6,11 +6,12 @@ import (
 	"encoding/xml"
 	"io"
 
+	"github.com/spf13/viper"
+
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/source"
 	"github.com/amonull/rengal/util"
-	"github.com/spf13/viper"
 )
 
 type CBZ struct{}
@@ -30,7 +31,7 @@ func (*CBZ) SaveTemp(chapter *source.Chapter) (string, error) {
 func save(chapter *source.Chapter, temp bool) (path string, err error) {
 	path, err = chapter.Path(temp)
 	if err != nil {
-		return
+		return "", err
 	}
 
 	err = SaveTo(chapter, path)
@@ -63,7 +64,9 @@ func SaveTo(chapter *source.Chapter, to string) error {
 		marshalled, err := xml.MarshalIndent(comicInfo, "", "  ")
 		if err == nil {
 			buf := bytes.NewBuffer(marshalled)
-			err = addToZip(zipWriter, buf, "ComicInfo.xml")
+			if err = addToZip(zipWriter, buf, "ComicInfo.xml"); err != nil {
+				return err
+			}
 		}
 	}
 

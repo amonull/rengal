@@ -8,12 +8,13 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/samber/lo"
+	"github.com/spf13/viper"
+
 	"github.com/amonull/rengal/color"
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/style"
-	"github.com/samber/lo"
-	"github.com/spf13/viper"
 )
 
 // Field represents a single config field
@@ -24,24 +25,6 @@ type Field struct {
 	Value any
 	// Description is the description of the field
 	Description string
-}
-
-// typeName returns the type of the field without reflection
-func (f *Field) typeName() string {
-	switch f.Value.(type) {
-	case string:
-		return "string"
-	case int:
-		return "int"
-	case bool:
-		return "bool"
-	case []string:
-		return "[]string"
-	case []int:
-		return "[]int"
-	default:
-		return "unknown"
-	}
 }
 
 func (f *Field) MarshalJSON() ([]byte, error) {
@@ -109,6 +92,24 @@ func (f *Field) Env() string {
 	}
 
 	return appPrefix + env
+}
+
+// typeName returns the type of the field without reflection
+func (f *Field) typeName() string {
+	switch f.Value.(type) {
+	case string:
+		return "string"
+	case int:
+		return "int"
+	case bool:
+		return "bool"
+	case []string:
+		return "[]string"
+	case []int:
+		return "[]int"
+	default:
+		return "unknown"
+	}
 }
 
 // Pretty format field as string for further cli output

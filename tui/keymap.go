@@ -1,10 +1,11 @@
 package tui
 
 import (
-	"github.com/amonull/rengal/color"
-	"github.com/amonull/rengal/style"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
+
+	"github.com/amonull/rengal/color"
+	"github.com/amonull/rengal/style"
 )
 
 type statefulKeymap struct {
@@ -25,10 +26,6 @@ type statefulKeymap struct {
 	up, down, left, right,
 	top, bottom,
 	showHelp key.Binding
-}
-
-func (k *statefulKeymap) setState(newState state) {
-	k.state = newState
 }
 
 func newStatefulKeymap() *statefulKeymap {
@@ -132,6 +129,20 @@ func newStatefulKeymap() *statefulKeymap {
 	}
 }
 
+func (k *statefulKeymap) ShortHelp() []key.Binding {
+	short, _ := k.help()
+	return short
+}
+
+func (k *statefulKeymap) FullHelp() [][]key.Binding {
+	_, full := k.help()
+	return [][]key.Binding{full}
+}
+
+func (k *statefulKeymap) setState(newState state) {
+	k.state = newState
+}
+
 // help returns short and full help for the state
 func (k *statefulKeymap) help() ([]key.Binding, []key.Binding) {
 	h := func(bindings ...key.Binding) []key.Binding {
@@ -160,7 +171,23 @@ func (k *statefulKeymap) help() ([]key.Binding, []key.Binding) {
 		return to2(h(k.confirm, k.back, k.openURL))
 	case chaptersState:
 		download := withDescription(k.confirm, "download selected")
-		return h(k.read, k.selectOne, k.selectAll, download, k.back), h(k.read, k.selectOne, k.selectAll, k.clearSelection, k.openURL, download, k.selectVolume, k.anilistSelect, k.back)
+		return h(
+				k.read,
+				k.selectOne,
+				k.selectAll,
+				download,
+				k.back,
+			), h(
+				k.read,
+				k.selectOne,
+				k.selectAll,
+				k.clearSelection,
+				k.openURL,
+				download,
+				k.selectVolume,
+				k.anilistSelect,
+				k.back,
+			)
 	case anilistSelectState:
 		return to2(h(k.confirm, k.openURL, k.back))
 	case confirmState:
@@ -176,16 +203,6 @@ func (k *statefulKeymap) help() ([]key.Binding, []key.Binding) {
 	default:
 		return to2(h())
 	}
-}
-
-func (k *statefulKeymap) ShortHelp() []key.Binding {
-	short, _ := k.help()
-	return short
-}
-
-func (k *statefulKeymap) FullHelp() [][]key.Binding {
-	_, full := k.help()
-	return [][]key.Binding{full}
 }
 
 func (k *statefulKeymap) forList() list.KeyMap {

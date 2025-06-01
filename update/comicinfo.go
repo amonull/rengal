@@ -79,5 +79,4 @@ func getComicInfoXML(chapter string) (*source.ComicInfo, error) {
 	}
 
 	return &comicInfo, nil
-
 }

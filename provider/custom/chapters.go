@@ -3,9 +3,10 @@ package custom
 import (
 	"strconv"
 
+	lua "github.com/yuin/gopher-lua"
+
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/source"
-	lua "github.com/yuin/gopher-lua"
 )
 
 func (s *luaSource) ChaptersOf(manga *source.Manga) ([]*source.Chapter, error) {
@@ -29,16 +30,26 @@ func (s *luaSource) ChaptersOf(manga *source.Manga) ([]*source.Chapter, error) {
 
 	table.ForEach(func(k lua.LValue, v lua.LValue) {
 		if k.Type() != lua.LTNumber {
-			s.state.RaiseError(constant.MangaChaptersFn + " was expected to return a table with numbers as keys, got " + k.Type().String() + " as a key")
+			s.state.RaiseError(
+				constant.MangaChaptersFn + " was expected to return a table with numbers as keys, got " + k.Type().
+					String() +
+					" as a key",
+			)
 		}
 
 		if v.Type() != lua.LTTable {
-			s.state.RaiseError(constant.MangaChaptersFn + " was expected to return a table with tables as values, got " + v.Type().String() + " as a value")
+			s.state.RaiseError(
+				constant.MangaChaptersFn + " was expected to return a table with tables as values, got " + v.Type().
+					String() +
+					" as a value",
+			)
 		}
 
 		index, err := strconv.ParseUint(k.String(), 10, 16)
 		if err != nil {
-			s.state.RaiseError(constant.MangaChaptersFn + " was expected to return a table with unsigned integers as keys. " + err.Error())
+			s.state.RaiseError(
+				constant.MangaChaptersFn + " was expected to return a table with unsigned integers as keys. " + err.Error(),
+			)
 		}
 
 		chapter, err := chapterFromTable(v.(*lua.LTable), manga, uint16(index))

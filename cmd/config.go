@@ -11,16 +11,17 @@ import (
 
 	"github.com/amonull/rengal/color"
 
+	levenshtein "github.com/ka-weihe/fast-levenshtein"
+	"github.com/samber/lo"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
 	"github.com/amonull/rengal/config"
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/icon"
 	"github.com/amonull/rengal/style"
 	"github.com/amonull/rengal/where"
-	levenshtein "github.com/ka-weihe/fast-levenshtein"
-	"github.com/samber/lo"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 func errUnknownKey(key string) error {

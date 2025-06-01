@@ -3,23 +3,24 @@ package inline
 import (
 	"encoding/json"
 
+	"github.com/spf13/viper"
+
 	"github.com/amonull/rengal/anilist"
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/source"
-	"github.com/spf13/viper"
 )
 
 type Manga struct {
 	// Source that the manga belongs to.
-	Source string `json:"source" jsonschema:"description=Source that the manga belongs to."`
+	Source string `json:"source"  jsonschema:"description=Source that the manga belongs to."`
 	// Mangal variant of the manga
-	Mangal *source.Manga `json:"mangal" jsonschema:"description=Mangal variant of the manga"`
+	Mangal *source.Manga `json:"mangal"  jsonschema:"description=Mangal variant of the manga"`
 	// Anilist is the closest anilist match to mangal manga
 	Anilist *anilist.Manga `json:"anilist" jsonschema:"description=Anilist is the closest anilist match to mangal manga"`
 }
 
 type Output struct {
-	Query  string   `json:"query" jsonschema:"description=Query that was used to search for the manga."`
+	Query  string   `json:"query"  jsonschema:"description=Query that was used to search for the manga."`
 	Result []*Manga `json:"result" jsonschema:"description=Result of the search."`
 }
 
@@ -54,6 +55,7 @@ func prepareManga(manga *source.Manga, options *Options) error {
 		}
 	}
 
+	//nolint:nestif // ignoring all linter warning on ui elements see -> https://github.com/amonull/rengal/pull/25#issuecomment-2925515691
 	if options.ChaptersFilter.IsPresent() {
 		chapters, err := manga.Source.ChaptersOf(manga)
 		if err != nil {

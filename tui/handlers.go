@@ -5,6 +5,11 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/charmbracelet/bubbles/list"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/spf13/viper"
+	"golang.org/x/exp/slices"
+
 	"github.com/amonull/rengal/anilist"
 	"github.com/amonull/rengal/color"
 	"github.com/amonull/rengal/downloader"
@@ -15,10 +20,6 @@ import (
 	"github.com/amonull/rengal/source"
 	"github.com/amonull/rengal/style"
 	"github.com/amonull/rengal/util"
-	"github.com/charmbracelet/bubbles/list"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/spf13/viper"
-	"golang.org/x/exp/slices"
 )
 
 func (b *statefulBubble) loadScrapers() tea.Cmd {

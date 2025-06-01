@@ -1,10 +1,11 @@
 package main
 
 import (
+	"github.com/samber/lo"
+
 	"github.com/amonull/rengal/cmd"
 	"github.com/amonull/rengal/config"
 	"github.com/amonull/rengal/log"
-	"github.com/samber/lo"
 )
 
 func main() {

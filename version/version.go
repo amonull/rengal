@@ -7,10 +7,11 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/metafates/gache"
+
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/util"
 	"github.com/amonull/rengal/where"
-	"github.com/metafates/gache"
 )
 
 var versionCacher = gache.New[string](&gache.Options{
@@ -33,7 +34,7 @@ func Latest() (version string, err error) {
 
 	resp, err := http.Get("https://api.github.com/repos/metafates/mangal/releases/latest")
 	if err != nil {
-		return
+		return "", err
 	}
 
 	defer util.Ignore(resp.Body.Close)
@@ -44,16 +45,16 @@ func Latest() (version string, err error) {
 
 	err = json.NewDecoder(resp.Body).Decode(&release)
 	if err != nil {
-		return
+		return "", err
 	}
 
 	// remove the v from the tag name
 	if release.TagName == "" {
 		err = errors.New("empty tag name")
-		return
+		return "", err
 	}
 
 	version = release.TagName[1:]
 	_ = versionCacher.Set(version)
-	return
+	return version, err
 }

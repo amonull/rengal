@@ -3,8 +3,9 @@ package provider
 import (
 	"testing"
 
-	"github.com/amonull/rengal/provider/manganelo"
 	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/amonull/rengal/provider/manganelo"
 )
 
 func TestGet(t *testing.T) {

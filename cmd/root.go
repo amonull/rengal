@@ -5,6 +5,11 @@ import (
 	"os"
 	"strings"
 
+	cc "github.com/ivanpirog/coloredcobra"
+	"github.com/samber/lo"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
 	"github.com/amonull/rengal/color"
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/converter"
@@ -17,44 +22,55 @@ import (
 	"github.com/amonull/rengal/util"
 	"github.com/amonull/rengal/version"
 	"github.com/amonull/rengal/where"
-	cc "github.com/ivanpirog/coloredcobra"
-	"github.com/samber/lo"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 func init() {
 	rootCmd.Flags().BoolP("version", "v", false, "Print version")
 
 	rootCmd.PersistentFlags().StringP("format", "F", "", "output format")
-	lo.Must0(rootCmd.RegisterFlagCompletionFunc("format", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return converter.Available(), cobra.ShellCompDirectiveDefault
-	}))
+	lo.Must0(
+		rootCmd.RegisterFlagCompletionFunc(
+			"format",
+			func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+				return converter.Available(), cobra.ShellCompDirectiveDefault
+			},
+		),
+	)
 	lo.Must0(viper.BindPFlag(key.FormatsUse, rootCmd.PersistentFlags().Lookup("format")))
 
 	rootCmd.PersistentFlags().StringP("icons", "I", "", "icons variant")
-	lo.Must0(rootCmd.RegisterFlagCompletionFunc("icons", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return icon.AvailableVariants(), cobra.ShellCompDirectiveDefault
-	}))
+	lo.Must0(
+		rootCmd.RegisterFlagCompletionFunc(
+			"icons",
+			func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+				return icon.AvailableVariants(), cobra.ShellCompDirectiveDefault
+			},
+		),
+	)
 	lo.Must0(viper.BindPFlag(key.IconsVariant, rootCmd.PersistentFlags().Lookup("icons")))
 
 	rootCmd.PersistentFlags().BoolP("write-history", "H", true, "write history of the read chapters")
 	lo.Must0(viper.BindPFlag(key.HistorySaveOnRead, rootCmd.PersistentFlags().Lookup("write-history")))
 
 	rootCmd.PersistentFlags().StringSliceP("source", "S", []string{}, "default source to use")
-	lo.Must0(rootCmd.RegisterFlagCompletionFunc("source", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		var sources []string
+	lo.Must0(
+		rootCmd.RegisterFlagCompletionFunc(
+			"source",
+			func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+				var sources []string
 
-		for _, p := range provider.Builtins() {
-			sources = append(sources, p.Name)
-		}
+				for _, p := range provider.Builtins() {
+					sources = append(sources, p.Name)
+				}
 
-		for _, p := range provider.Customs() {
-			sources = append(sources, p.Name)
-		}
+				for _, p := range provider.Customs() {
+					sources = append(sources, p.Name)
+				}
 
-		return sources, cobra.ShellCompDirectiveDefault
-	}))
+				return sources, cobra.ShellCompDirectiveDefault
+			},
+		),
+	)
 	lo.Must0(viper.BindPFlag(key.DownloaderDefaultSources, rootCmd.PersistentFlags().Lookup("source")))
 
 	rootCmd.Flags().BoolP("continue", "c", false, "continue reading")

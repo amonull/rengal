@@ -8,32 +8,33 @@ import (
 	"sync"
 	"time"
 
+	"github.com/dustin/go-humanize"
+	"github.com/samber/mo"
+	"github.com/spf13/viper"
+
 	"github.com/amonull/rengal/constant"
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/key"
 	"github.com/amonull/rengal/style"
 	"github.com/amonull/rengal/util"
-	"github.com/dustin/go-humanize"
-	"github.com/samber/mo"
-	"github.com/spf13/viper"
 )
 
 // Chapter is a struct that represents a chapter of a manga.
 type Chapter struct {
 	// Name of the chapter
-	Name string `json:"name" jsonschema:"description=Name of the chapter"`
+	Name string `json:"name"   jsonschema:"description=Name of the chapter"`
 	// URL of the chapter
-	URL string `json:"url" jsonschema:"description=URL of the chapter"`
+	URL string `json:"url"    jsonschema:"description=URL of the chapter"`
 	// Index of the chapter in the manga.
-	Index uint16 `json:"index" jsonschema:"description=Index of the chapter in the manga"`
+	Index uint16 `json:"index"  jsonschema:"description=Index of the chapter in the manga"`
 	// ID of the chapter in the source.
-	ID string `json:"id" jsonschema:"description=ID of the chapter in the source"`
+	ID string `json:"id"     jsonschema:"description=ID of the chapter in the source"`
 	// Volume which the chapter belongs to.
 	Volume string `json:"volume" jsonschema:"description=Volume which the chapter belongs to"`
 	// Manga that the chapter belongs to.
 	Manga *Manga `json:"-"`
 	// Pages of the chapter.
-	Pages []*Page `json:"pages" jsonschema:"description=Pages of the chapter"`
+	Pages []*Page `json:"pages"  jsonschema:"description=Pages of the chapter"`
 
 	isDownloaded mo.Option[bool]
 	size         uint64
@@ -59,9 +60,9 @@ func (c *Chapter) DownloadPages(temp bool, progress func(string)) (err error) {
 	wg := sync.WaitGroup{}
 	wg.Add(len(c.Pages))
 
-	for _, page := range c.Pages {
+	for index, page := range c.Pages {
 		if page == nil {
-			return fmt.Errorf("page #%d is empty, aborting download", page.Index)
+			return fmt.Errorf("page #%d is empty, aborting download", index)
 		}
 
 		d := func(page *Page) {
@@ -92,31 +93,7 @@ func (c *Chapter) DownloadPages(temp bool, progress func(string)) (err error) {
 	}
 
 	c.isDownloaded = mo.Some(!temp)
-	return
-}
-
-// formattedName of the chapter according to the template in the config.
-func (c *Chapter) formattedName() (name string) {
-	name = viper.GetString(key.DownloaderChapterNameTemplate)
-
-	var sourceName string
-	if c.Source() != nil {
-		sourceName = c.Source().Name()
-	}
-
-	for variable, value := range map[string]string{
-		"manga":          c.Manga.Name,
-		"chapter":        c.Name,
-		"index":          fmt.Sprintf("%d", c.Index),
-		"padded-index":   fmt.Sprintf("%04d", c.Index),
-		"chapters-count": fmt.Sprintf("%d", len(c.Manga.Chapters)),
-		"volume":         c.Volume,
-		"source":         sourceName,
-	} {
-		name = strings.ReplaceAll(name, fmt.Sprintf("{%s}", variable), value)
-	}
-
-	return
+	return err
 }
 
 // SizeHuman is the same as Size but returns a human-readable string.
@@ -133,7 +110,7 @@ func (c *Chapter) Filename() (filename string) {
 		return filename + "." + f
 	}
 
-	return
+	return filename
 }
 
 func (c *Chapter) IsDownloaded() bool {
@@ -147,24 +124,11 @@ func (c *Chapter) IsDownloaded() bool {
 	return exists
 }
 
-func (c *Chapter) path(relativeTo string, createVolumeDir bool) (path string, err error) {
-	if createVolumeDir {
-		path = filepath.Join(path, util.SanitizeFilename(c.Volume))
-		err = filesystem.Api().MkdirAll(path, os.ModePerm)
-		if err != nil {
-			return
-		}
-	}
-
-	path = filepath.Join(relativeTo, c.Filename())
-	return
-}
-
 func (c *Chapter) Path(temp bool) (path string, err error) {
 	var manga string
 	manga, err = c.Manga.Path(temp)
 	if err != nil {
-		return
+		return "", err
 	}
 
 	return c.path(manga, c.Volume != "" && viper.GetBool(key.DownloaderCreateVolumeDir))
@@ -217,4 +181,41 @@ func (c *Chapter) ComicInfo() *ComicInfo {
 		Notes:      "Downloaded with Mangal. https://github.com/metafates/mangal",
 		Manga:      "YesAndRightToLeft",
 	}
+}
+
+// formattedName of the chapter according to the template in the config.
+func (c *Chapter) formattedName() (name string) {
+	name = viper.GetString(key.DownloaderChapterNameTemplate)
+
+	var sourceName string
+	if c.Source() != nil {
+		sourceName = c.Source().Name()
+	}
+
+	for variable, value := range map[string]string{
+		"manga":          c.Manga.Name,
+		"chapter":        c.Name,
+		"index":          fmt.Sprintf("%d", c.Index),
+		"padded-index":   fmt.Sprintf("%04d", c.Index),
+		"chapters-count": fmt.Sprintf("%d", len(c.Manga.Chapters)),
+		"volume":         c.Volume,
+		"source":         sourceName,
+	} {
+		name = strings.ReplaceAll(name, fmt.Sprintf("{%s}", variable), value)
+	}
+
+	return name
+}
+
+func (c *Chapter) path(relativeTo string, createVolumeDir bool) (path string, err error) {
+	if createVolumeDir {
+		path = filepath.Join(path, util.SanitizeFilename(c.Volume))
+		err = filesystem.Api().MkdirAll(path, os.ModePerm)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	path = filepath.Join(relativeTo, c.Filename())
+	return path, err
 }

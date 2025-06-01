@@ -17,9 +17,9 @@ import (
 // Page represents a page in a chapter
 type Page struct {
 	// URL of the page. Used to download the page.
-	URL string `json:"url" jsonschema:"description=URL of the page. Used to download the image."`
+	URL string `json:"url"       jsonschema:"description=URL of the page. Used to download the image."`
 	// Index of the page in the chapter.
-	Index uint16 `json:"index" jsonschema:"description=Index of the page in the chapter."`
+	Index uint16 `json:"index"     jsonschema:"description=Index of the page in the chapter."`
 	// Extension of the page image.
 	Extension string `json:"extension" jsonschema:"description=Extension of the page image."`
 	// Size of the page in bytes
@@ -28,18 +28,6 @@ type Page struct {
 	Contents *bytes.Buffer `json:"-"`
 	// Chapter that the page belongs to.
 	Chapter *Chapter `json:"-"`
-}
-
-func (p *Page) request() (*http.Request, error) {
-	req, err := http.NewRequest(http.MethodGet, p.URL, nil)
-	if err != nil {
-		log.Error(err)
-		return nil, err
-	}
-
-	req.Header.Set("Referer", p.Chapter.URL)
-	req.Header.Set("User-Agent", constant.UserAgent)
-	return req, nil
 }
 
 // Download Page contents.
@@ -122,11 +110,22 @@ func (p *Page) Read(b []byte) (int, error) {
 // Filename generates a filename for the page.
 func (p *Page) Filename() (filename string) {
 	filename = fmt.Sprintf("%d%s", p.Index, p.Extension)
-	filename = util.PadZero(filename, 10)
 
-	return
+	return util.PadZero(filename, 10)
 }
 
 func (p *Page) Source() Source {
 	return p.Chapter.Source()
+}
+
+func (p *Page) request() (*http.Request, error) {
+	req, err := http.NewRequest(http.MethodGet, p.URL, nil)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+
+	req.Header.Set("Referer", p.Chapter.URL)
+	req.Header.Set("User-Agent", constant.UserAgent)
+	return req, nil
 }

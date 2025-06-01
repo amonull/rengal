@@ -4,12 +4,13 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/samber/lo"
+
 	"github.com/amonull/rengal/filesystem"
 	"github.com/amonull/rengal/provider/custom"
 	"github.com/amonull/rengal/source"
 	"github.com/amonull/rengal/util"
 	"github.com/amonull/rengal/where"
-	"github.com/samber/lo"
 )
 
 type Provider struct {
@@ -56,7 +57,6 @@ func Customs() []*Provider {
 		})
 
 		name := util.FileStem(path)
-		path := path
 		providers[i] = &Provider{
 			ID:           custom.IDfromName(name),
 			UsesHeadless: usesHeadless,

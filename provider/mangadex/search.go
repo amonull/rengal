@@ -2,14 +2,16 @@ package mangadex
 
 import (
 	"fmt"
+	//nolint:depguard // only Fatalln is used not worth trying to change currently
 	"log"
 	"net/url"
 	"strconv"
 
-	"github.com/amonull/rengal/key"
-	"github.com/amonull/rengal/source"
 	"github.com/darylhjd/mangodex"
 	"github.com/spf13/viper"
+
+	"github.com/amonull/rengal/key"
+	"github.com/amonull/rengal/source"
 )
 
 func (m *Mangadex) Search(query string) ([]*source.Manga, error) {
@@ -44,7 +46,7 @@ func (m *Mangadex) Search(query string) ([]*source.Manga, error) {
 		return nil, err
 	}
 
-	var mangas []*source.Manga
+	mangas := make([]*source.Manga, 0, len(mangaList.Data))
 
 	for i, manga := range mangaList.Data {
 		m := source.Manga{

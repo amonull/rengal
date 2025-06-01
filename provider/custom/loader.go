@@ -3,12 +3,13 @@ package custom
 import (
 	"fmt"
 
-	"github.com/amonull/rengal/filesystem"
-	"github.com/amonull/rengal/source"
-	"github.com/amonull/rengal/util"
 	libs "github.com/metafates/mangal-lua-libs"
 	lua "github.com/yuin/gopher-lua"
 	"github.com/yuin/gopher-lua/parse"
+
+	"github.com/amonull/rengal/filesystem"
+	"github.com/amonull/rengal/source"
+	"github.com/amonull/rengal/util"
 )
 
 func IDfromName(name string) string {
