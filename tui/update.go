@@ -47,6 +47,7 @@ func (b *statefulBubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return tea.Batch(cmd, l.NewStatusMessage(""))
 			}
 
+			//nolint:exhaustive // seems to be handled in below in second switch
 			switch b.state {
 			case searchState:
 				b.inputC.SetValue("")
