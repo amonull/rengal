@@ -354,7 +354,8 @@ func (m *Manga) populateMetadataStaff(manga *anilist.Manga) {
 
 func (m *Manga) populateMetadataUrl(manga *anilist.Manga) {
 	// Anilist & Myanimelist + external
-	urls := make([]string, 0, 2+len(manga.External))
+	//nolint:makezero // downloads break when starting from 0
+	urls := make([]string, 2+len(manga.External))
 	urls[0] = manga.SiteURL
 	for i, e := range manga.External {
 		urls[i+1] = e.URL
