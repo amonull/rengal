@@ -160,6 +160,7 @@ func (b *statefulBubble) startLoading() tea.Cmd {
 	return tea.Batch(b.mangasC.StartSpinner(), b.chaptersC.StartSpinner())
 }
 
+//nolint:unparam // 3 methods calling stopLoading relies on nil returns and seems like it was added with intention to change in the future
 func (b *statefulBubble) stopLoading() tea.Cmd {
 	b.loading = false
 	b.mangasC.StopSpinner()
