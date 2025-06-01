@@ -10,7 +10,6 @@ import (
 	"github.com/metafates/gache"
 
 	"github.com/amonull/rengal/filesystem"
-	"github.com/amonull/rengal/util"
 	"github.com/amonull/rengal/where"
 )
 
@@ -37,7 +36,10 @@ func Latest() (version string, err error) {
 		return "", err
 	}
 
-	defer util.Ignore(resp.Body.Close)
+	defer func() {
+		// naked return used to return error from defer
+		err = resp.Body.Close()
+	}()
 
 	var release struct {
 		TagName string `json:"tag_name"`

@@ -50,7 +50,10 @@ func (p *Page) Download() error {
 		return err
 	}
 
-	defer util.Ignore(resp.Body.Close)
+	defer func() {
+		// naked return used to return error from defer
+		err = resp.Body.Close()
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		err = errors.New("http error: " + resp.Status)

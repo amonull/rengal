@@ -59,6 +59,11 @@ func (s *Scraper) download() error {
 		return err
 	}
 
+	defer func() {
+		// naked return used to return error from defer
+		err = res.Body.Close()
+	}()
+
 	if res.StatusCode != http.StatusOK {
 		return fmt.Errorf("failed to get %s: %s", s.URL, res.Status)
 	}

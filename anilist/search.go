@@ -62,11 +62,15 @@ func GetByID(id int) (*Manga, error) {
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := network.Client.Do(req)
-
 	if err != nil {
 		log.Error(err)
 		return nil, err
 	}
+
+	defer func() {
+		// naked return used to return error from defer
+		err = resp.Body.Close()
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		log.Error("Anilist returned status code " + strconv.Itoa(resp.StatusCode))
@@ -136,12 +140,16 @@ func SearchByName(name string) ([]*Manga, error) {
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := network.Client.Do(req)
-
 	if err != nil {
 		log.Error(err)
 		_ = failCacher.Set(name, true)
 		return nil, err
 	}
+
+	defer func() {
+		// naked return used to return error from defer
+		err = resp.Body.Close()
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		log.Error("Anilist returned status code " + strconv.Itoa(resp.StatusCode))

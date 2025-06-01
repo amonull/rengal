@@ -76,6 +76,11 @@ func (a *Anilist) MarkRead(chapter *source.Chapter) error {
 		return err
 	}
 
+	defer func() {
+		// naked return used to return error from defer
+		err = resp.Body.Close()
+	}()
+
 	if resp.StatusCode != http.StatusOK {
 		log.Info("Request failed with status code: " + strconv.Itoa(resp.StatusCode))
 		return fmt.Errorf("invalid response code %d", resp.StatusCode)

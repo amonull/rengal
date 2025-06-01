@@ -59,12 +59,15 @@ func (a *Anilist) login() error {
 
 	// send request
 	resp, err := network.Client.Do(req)
-
-	// check for error
 	if err != nil {
 		log.Error(err)
 		return err
 	}
+
+	defer func() {
+		// naked return used to return error from defer
+		err = resp.Body.Close()
+	}()
 
 	// check response code
 	if resp.StatusCode != http.StatusOK {
