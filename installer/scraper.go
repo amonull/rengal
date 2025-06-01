@@ -1,6 +1,7 @@
 package installer
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -54,7 +55,12 @@ func (s *Scraper) download() error {
 		return fmt.Errorf("url must be set")
 	}
 
-	res, err := http.Get(s.URL)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, s.URL, nil)
+	if err != nil {
+		return err
+	}
+
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
 	}

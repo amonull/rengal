@@ -31,6 +31,7 @@ func Latest() (version string, err error) {
 		return ver, nil
 	}
 
+	//nolint:noctx // simple get request no need to httpRequest with ctx
 	resp, err := http.Get("https://api.github.com/repos/metafates/mangal/releases/latest")
 	if err != nil {
 		return "", err

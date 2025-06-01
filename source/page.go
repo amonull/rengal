@@ -2,6 +2,7 @@ package source
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	_ "image/gif"
@@ -122,7 +123,7 @@ func (p *Page) Source() Source {
 }
 
 func (p *Page) request() (*http.Request, error) {
-	req, err := http.NewRequest(http.MethodGet, p.URL, nil)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, p.URL, nil)
 	if err != nil {
 		log.Error(err)
 		return nil, err

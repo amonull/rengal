@@ -2,6 +2,7 @@ package anilist
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -47,7 +48,12 @@ func (a *Anilist) login() error {
 
 	// create request
 	log.Info("Sending login request to Anilist")
-	req, err := http.NewRequest(http.MethodPost, "https://anilist.co/api/v2/oauth/token", bytes.NewBuffer(jsonBody))
+	req, err := http.NewRequestWithContext(
+		context.Background(),
+		http.MethodPost,
+		"https://anilist.co/api/v2/oauth/token",
+		bytes.NewBuffer(jsonBody),
+	)
 	if err != nil {
 		log.Error(err)
 		return err

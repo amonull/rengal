@@ -2,6 +2,7 @@ package anilist
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -53,7 +54,12 @@ func GetByID(id int) (*Manga, error) {
 
 	// send request
 	log.Info("Sending request to Anilist")
-	req, err := http.NewRequest(http.MethodPost, "https://graphql.anilist.co", bytes.NewBuffer(jsonBody))
+	req, err := http.NewRequestWithContext(
+		context.Background(),
+		http.MethodPost,
+		"https://graphql.anilist.co",
+		bytes.NewBuffer(jsonBody),
+	)
 	if err != nil {
 		log.Error(err)
 		return nil, err
@@ -131,7 +137,12 @@ func SearchByName(name string) ([]*Manga, error) {
 
 	// send request
 	log.Info("Sending request to Anilist")
-	req, err := http.NewRequest(http.MethodPost, "https://graphql.anilist.co", bytes.NewBuffer(jsonBody))
+	req, err := http.NewRequestWithContext(
+		context.Background(),
+		http.MethodPost,
+		"https://graphql.anilist.co",
+		bytes.NewBuffer(jsonBody),
+	)
 	if err != nil {
 		log.Error(err)
 		return nil, err
