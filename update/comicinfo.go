@@ -2,7 +2,7 @@ package update
 
 import (
 	"encoding/xml"
-	"fmt"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -28,7 +28,7 @@ func getAnyChapterComicInfo(mangaPath string) (*source.ComicInfo, error) {
 	}
 
 	if len(cbzFiles) == 0 {
-		return nil, fmt.Errorf("no .cbz files found")
+		return nil, errors.New("no .cbz files found")
 	}
 
 	comicInfo, err := getComicInfoXML(cbzFiles[0])
@@ -41,7 +41,7 @@ func getAnyChapterComicInfo(mangaPath string) (*source.ComicInfo, error) {
 
 func getComicInfoXML(chapter string) (*source.ComicInfo, error) {
 	if !strings.HasSuffix(chapter, ".cbz") {
-		return nil, fmt.Errorf("chapter must be a .cbz file")
+		return nil, errors.New("chapter must be a .cbz file")
 	}
 
 	// open chapter as ReaderAt

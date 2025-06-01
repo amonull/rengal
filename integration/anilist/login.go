@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -19,17 +20,17 @@ func (a *Anilist) login() error {
 	log.Info("Logging in to Anilist")
 
 	if a.id() == "" {
-		e := fmt.Errorf("no ID set")
+		e := errors.New("no ID set")
 		log.Error(e)
 		return e
 	}
 	if a.secret() == "" {
-		e := fmt.Errorf("no secret set")
+		e := errors.New("no secret set")
 		log.Error(e)
 		return e
 	}
 	if a.code() == "" {
-		e := fmt.Errorf("no code set")
+		e := errors.New("no code set")
 		log.Error(e)
 		return e
 	}

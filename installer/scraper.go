@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -53,7 +54,7 @@ func (s *Scraper) download() error {
 	}
 
 	if s.URL == "" {
-		return fmt.Errorf("url must be set")
+		return errors.New("url must be set")
 	}
 
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, s.URL, nil)

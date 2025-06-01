@@ -265,7 +265,7 @@ var configResetCmd = &cobra.Command{
 	Short: "Reset the config key to default",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if !cmd.Flags().Changed("key") && !cmd.Flags().Changed("all") {
-			handleErr(fmt.Errorf("either --key or --all must be set"))
+			handleErr(errors.New("either --key or --all must be set"))
 		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {

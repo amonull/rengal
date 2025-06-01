@@ -2,7 +2,7 @@ package update
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"path/filepath"
 
 	"github.com/amonull/rengal/filesystem"
@@ -18,7 +18,7 @@ func getSeriesJSON(manga string) (*source.SeriesJSON, error) {
 	}
 
 	if !exists {
-		return nil, fmt.Errorf("series.json must be present")
+		return nil, errors.New("series.json must be present")
 	}
 
 	contents, err := filesystem.Api().ReadFile(serisJSONPath)

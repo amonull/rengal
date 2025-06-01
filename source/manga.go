@@ -1,6 +1,7 @@
 package source
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -131,7 +132,7 @@ func (m *Manga) GetCover() (string, error) {
 		}
 	}
 
-	return "", fmt.Errorf("no cover found")
+	return "", errors.New("no cover found")
 }
 
 func (m *Manga) DownloadCover(overwrite bool, path string, progress func(string)) error {
