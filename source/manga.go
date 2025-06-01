@@ -332,10 +332,10 @@ func (m *Manga) peekPath() string {
 }
 
 func (m *Manga) populateMetadataStaff(manga *anilist.Manga) {
-	m.Metadata.Staff.Story = make([]string, 0, 0)
-	m.Metadata.Staff.Art = make([]string, 0, 0)
-	m.Metadata.Staff.Translation = make([]string, 0, 0)
-	m.Metadata.Staff.Lettering = make([]string, 0, 0)
+	m.Metadata.Staff.Story = make([]string, 0)
+	m.Metadata.Staff.Art = make([]string, 0)
+	m.Metadata.Staff.Translation = make([]string, 0)
+	m.Metadata.Staff.Lettering = make([]string, 0)
 
 	for _, staff := range manga.Staff.Edges {
 		role := strings.ToLower(staff.Role)

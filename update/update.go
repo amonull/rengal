@@ -42,7 +42,7 @@ func Metadata(mangaPath string) error {
 		return err
 	}
 
-	manga.Chapters = make([]*source.Chapter, 0, 0)
+	manga.Chapters = make([]*source.Chapter, 0)
 	chaptersPaths := make(map[*source.Chapter]string)
 	prepareToUpdateComicXML(chapters, manga, chaptersPaths)
 
